@@ -52,13 +52,13 @@ app.use(morgan('combined'));
 // For example, if you have a homepage (index.html) or a login page as static HTML.
 app.use(express.static(path.join(__dirname, 'public')));
 
-// // --------------------
-// // Routes
-// // --------------------
-// // Import and mount your API routes. In this example, we assume you have an index file
-// // in the "api" directory that aggregates all your feature-specific routes.
-// const booksRoutes = require('./api/books/books.routes');
-// app.use('/api', booksRoutes);
+// --------------------
+// Routes
+// --------------------
+// Import and mount your API routes. In this example, we assume you have an index file
+// in the "api" directory that aggregates all your feature-specific routes.
+const booksRoutes = require('./api/books/books.routes');
+app.use('/api/books', booksRoutes);
 
 // // Optionally, you can define a route for the homepage (if it’s static).
 // // This example sends the static index.html from the public folder.
