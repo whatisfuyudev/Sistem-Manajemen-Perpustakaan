@@ -16,9 +16,15 @@ const path = require('path');
 
 const app = express();
 
-// Load application configuration (if you have one)
-// For example, you might have a config file at ./config/app.config.js
-const config = require('./config/app.config');
+// Load Postgresql database
+const sequelize = require('./utils/db');
+const Book = require('./models/book.model');
+
+// Sync all models at once
+sequelize
+  .sync({ alter: true }) 
+  .then(() => console.log("Database & tables synchronized"))
+  .catch((err) => console.error("Error syncing database:", err));
 
 // --------------------
 // Middleware Setup
@@ -46,25 +52,25 @@ app.use(morgan('combined'));
 // For example, if you have a homepage (index.html) or a login page as static HTML.
 app.use(express.static(path.join(__dirname, 'public')));
 
-// --------------------
-// Routes
-// --------------------
-// Import and mount your API routes. In this example, we assume you have an index file
-// in the "api" directory that aggregates all your feature-specific routes.
-const apiRoutes = require('./api');
-app.use('/api', apiRoutes);
+// // --------------------
+// // Routes
+// // --------------------
+// // Import and mount your API routes. In this example, we assume you have an index file
+// // in the "api" directory that aggregates all your feature-specific routes.
+// const booksRoutes = require('./api/books/books.routes');
+// app.use('/api', booksRoutes);
 
-// Optionally, you can define a route for the homepage (if it’s static).
-// This example sends the static index.html from the public folder.
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+// // Optionally, you can define a route for the homepage (if it’s static).
+// // This example sends the static index.html from the public folder.
+// app.get('/', (req, res) => {
+//   res.sendFile(path.join(__dirname, 'public', 'index.html'));
+// });
 
-// --------------------
-// Global Error Handling
-// --------------------
-// Import a custom error-handling middleware to catch and process errors.
-const errorHandler = require('./middleware/error.middleware');
-app.use(errorHandler);
+// // --------------------
+// // Global Error Handling
+// // --------------------
+// // Import a custom error-handling middleware to catch and process errors.
+// const errorHandler = require('./middleware/error.middleware');
+// app.use(errorHandler);
 
 module.exports = app;
