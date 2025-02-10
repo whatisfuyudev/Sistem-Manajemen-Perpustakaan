@@ -7,6 +7,7 @@ const Book = require('../../models/book.model'); // Adjust path as needed
  * Create a new book.
  * - Checks for duplicate ISBN.
  * - If totalCopies is provided and availableCopies is missing, sets availableCopies = totalCopies.
+ * - Split the authors, genres, and formats into an array from string with commas
  */
 exports.createBook = async (bookData) => {
   // Check if a book with the same ISBN already exists
@@ -20,6 +21,18 @@ exports.createBook = async (bookData) => {
     bookData.availableCopies = bookData.totalCopies;
   }
   
+  // Assume bookData is the payload received from the client
+  // split them into an array
+  if (typeof bookData.authors === 'string') {
+    bookData.authors = bookData.authors.split(',').map(author => author.trim());
+  }
+  if (typeof bookData.genres === 'string') {
+    bookData.genres = bookData.genres.split(',').map(genre => genre.trim());
+  }
+  if (typeof bookData.formats === 'string') {
+    bookData.formats = bookData.formats.split(',').map(format => format.trim());
+  }
+
   const newBook = await Book.create(bookData);
   return newBook;
 };

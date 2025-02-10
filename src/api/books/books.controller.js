@@ -66,7 +66,6 @@ exports.searchBooks = async (req, res, next) => {
   try {
     // Extract search term and any additional filter criteria from query parameters
     const filters = req.query;
-    console.log(filters);
     
     const results = await booksService.searchBooks(filters);
     res.status(200).json(results);

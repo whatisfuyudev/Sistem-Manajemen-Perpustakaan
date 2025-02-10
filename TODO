@@ -8,8 +8,7 @@
     - make a GET api to fetch all books
         - setup the postgresql DB (connecting it, inserting data)
             - make sure the book service works properly, ensure data sanitization
-            - add 4 more books data
+                - test all api on book routes
             - try making a simple homepage to test each api
-            - how the hell does searching works
     - make the html homepage that display all books (search up responsive design)
     

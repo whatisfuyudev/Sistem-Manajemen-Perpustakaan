@@ -60,11 +60,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 const booksRoutes = require('./api/books/books.routes');
 app.use('/api/books', booksRoutes);
 
-// // Optionally, you can define a route for the homepage (if it’s static).
-// // This example sends the static index.html from the public folder.
-// app.get('/', (req, res) => {
-//   res.sendFile(path.join(__dirname, 'public', 'index.html'));
-// });
+// Optionally, you can define a route for the homepage (if it’s static).
+// This example sends the static index.html from the public folder.
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public', 'form.html'));
+});
 
 // // --------------------
 // // Global Error Handling
