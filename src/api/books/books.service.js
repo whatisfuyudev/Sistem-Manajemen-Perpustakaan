@@ -31,8 +31,8 @@ exports.createBook = async (bookData) => {
 exports.getAllBooks = async (query) => {
   const filters = {};
   
-  if (query.genre) {
-    filters.genre = query.genre;
+  if (query.genres) {
+    filters.genres = query.genres;
   }
   
   if (query.author) {
@@ -94,7 +94,7 @@ exports.deleteBook = async (isbn) => {
  * and supports pagination.
  */
 exports.searchBooks = async (filters) => {
-  const { searchTerm, genre, author, page = 1, limit = 10 } = filters;
+  const { searchTerm, genres, author, page = 1, limit = 10 } = filters;
   const offset = (page - 1) * limit;
   const whereClause = {};
 
@@ -103,10 +103,12 @@ exports.searchBooks = async (filters) => {
     whereClause.title = { [Op.iLike]: `%${searchTerm}%` };
     // Optionally, add additional search criteria (e.g., ISBN or authors)
   }
-  if (genre) {
-    whereClause.genre = genre;
+  if (genres) {
+    // Since the genre field is an array, use the "contains" operator
+    whereClause.genres = { [Op.contains]: [genres] };
   }
   if (author) {
+    // Filter books whose authors array contains the specified author
     whereClause.authors = { [Op.contains]: [author] };
   }
 

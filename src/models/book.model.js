@@ -17,8 +17,9 @@ const Book = sequelize.define('Book', {
     type: DataTypes.ARRAY(DataTypes.STRING),
     allowNull: false
   },
-  genre: {
-    type: DataTypes.STRING,
+  genres: {
+    // Now stores multiple genre values as an array of strings
+    type: DataTypes.ARRAY(DataTypes.STRING),
     allowNull: true
   },
   publisher: {
