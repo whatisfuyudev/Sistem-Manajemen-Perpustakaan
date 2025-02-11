@@ -50,7 +50,7 @@ app.use(morgan('combined'));
 // --------------------
 // Serve static assets (HTML, CSS, JS, images, etc.) from the 'public' directory.
 // For example, if you have a homepage (index.html) or a login page as static HTML.
-app.use(express.static(path.join(__dirname, 'public')));
+app.use('/public', express.static(path.join(__dirname, '../public')));
 
 // --------------------
 // Routes

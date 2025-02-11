@@ -1,11 +1,18 @@
 // src/api/books/books.controller.js
-
+const path = require('path');
 const booksService = require('./books.service');
 
 exports.createBook = async (req, res, next) => {
   try {
+    console.log('\n\n', req.body, '\n\n');
+    
     // Validate request body here if needed (e.g., check for required fields)
     const newBook = await booksService.createBook(req.body);
+
+    if(req.isCoverImageUploadSuccesful) {
+      newBook.coverImage = `${path.join(__dirname, '../public/images/')}${req.file.filename}`;
+    }
+
     res.status(201).json(newBook);
   } catch (error) {
     next(error);

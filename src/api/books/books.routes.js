@@ -3,12 +3,13 @@
 const express = require('express');
 const router = express.Router();
 const booksController = require('./books.controller');
+const dataHelper = require('../../utils/dataHelper');
 
 // Route for searching/filtering books (must come before the parameterized route)
 router.get('/search', booksController.searchBooks);
 
 // Create a new book
-router.post('/', booksController.createBook);
+router.post('/', dataHelper.upload, booksController.createBook);
 
 // List all books (could also support query parameters for filtering)
 router.get('/', booksController.listBooks);

@@ -8,6 +8,12 @@
     - make a GET api to fetch all books
         - setup the postgresql DB (connecting it, inserting data)
             - make sure the book service works properly, ensure data sanitization
+                - modify form.html so it uploads a picture instead of providing url to cover image
+                - upload picture to web server and store path into database
+                  - the back end functionality, it needs to accept the image and store it
+                  - dataHelper.js, 1. upload image, 2. server saves, 
+                    3. column coverImage path
+                
                 - test all api on book routes
                    // List all books (could also support query parameters for filtering)
                     router.get('/', booksController.listBooks);
@@ -23,3 +29,7 @@
             - try making a simple homepage to test each api
     - make the html homepage that display all books (search up responsive design)
     
+
+
+
+   
