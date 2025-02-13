@@ -1,4 +1,40 @@
 document.addEventListener('DOMContentLoaded', function () {
+  let coverImageUrl = '';
+
+  document.getElementById('submitBtnCoverImg').addEventListener('click', async function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const file = document.getElementById('coverImage').files[0];
+    if (!file) {
+      alert("No file selected");
+      return;
+    }
+
+    // Create a FormData object and append the file
+    const formData = new FormData();
+    formData.append('coverImage', file);
+
+    try {
+      const response = await fetch('/api/books/upload/cover', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        const path = result.coverImage;
+        coverImageUrl = path;
+        alert('New cover image uploaded');
+      } else {
+        const errorText = await response.text();
+        console.error("Upload failed:", errorText);
+      }
+    } catch (error) {
+      console.error("Error during file upload:", error);
+    }
+  });
+
   document.getElementById('updateButton').addEventListener('click', async function (e) {
     e.preventDefault();
     e.stopPropagation();
@@ -12,9 +48,10 @@ document.addEventListener('DOMContentLoaded', function () {
       publisher: document.getElementById('publisher').value.trim(),
       publicationYear: document.getElementById('publicationYear').value.trim(),
       description: document.getElementById('description').value.trim(),
+      coverImage: coverImageUrl,
       totalCopies: parseInt(document.getElementById('totalCopies').value, 10),
       availableCopies: parseInt(document.getElementById('availableCopies').value, 10),
-      formats: document.getElementById('formats').value.split(',').map(s => s.trim())
+      formats: document.getElementById('formats').value.split(',').map(s => s.trim()),
     };
 
     Object.keys(data).forEach(key => {

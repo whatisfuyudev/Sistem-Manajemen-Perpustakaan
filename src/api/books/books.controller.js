@@ -57,13 +57,9 @@ exports.updateBook = async (req, res, next) => {
 exports.handleCoverImageUpload = async (req, res, next) => { 
   try {
     if(req.isCoverImageUploadSuccesful) {
-      req.body.coverImage = `/public/images/${req.file.filename}`;
+      
+      res.json({ coverImage: `/public/images/${req.file.filename}`});
     }
-
-    // Validate request body here if needed (e.g., check for required fields)
-    const newBook = await booksService.createBook(req.body);
-
-    res.status(201).json(newBook);
   } catch (error) {
     next(error);
   }
