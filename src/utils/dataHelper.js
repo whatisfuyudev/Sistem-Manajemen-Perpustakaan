@@ -1,6 +1,19 @@
 // handle file uploads
 const multer  = require('multer');
 const path = require('path');
+const fs = require('fs');
+
+exports.deleteFile = (filename, callback) => {
+  // Construct the file path based on a safe base directory
+  const baseDir = path.join(__dirname, '../../');
+  const fileToDelete = path.join(baseDir, filename);
+
+  // Optionally, add validation to ensure fileToDelete is within baseDir
+
+  fs.unlink(fileToDelete, (err) => {
+    callback(err);
+  });
+};
 
 // Configure storage for Multer
 const storage = multer.diskStorage({
@@ -33,12 +46,3 @@ exports.upload = multer({
   }
 }).single('coverImage'); // 'image' is the name attribute from the form input
 
-exports.deleteOldCoverImage = async (oldCoverImagePath) => {
-  // Delete the old cover image from the file system
-  const oldImagePath = path.join(__dirname, '../../public', oldCoverImagePath);
-  fs.unlink(oldImagePath, (err) => {
-    if (err) {
-      console.error('Error deleting old cover image:', err);
-    }
-  });
-}

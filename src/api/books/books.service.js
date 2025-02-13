@@ -2,6 +2,8 @@
 
 const { Op } = require('sequelize');
 const Book = require('../../models/book.model'); // Adjust path as needed
+const dataHelper = require('../../utils/dataHelper');
+
 
 /**
  * Create a new book.
@@ -70,9 +72,9 @@ exports.getBookByISBN = async (isbn) => {
  * Adjusts availableCopies if totalCopies is modified.
  */
 exports.updateBook = async (isbn, updateData) => {
+  const book = await Book.findOne({ where: { isbn } });
   // If totalCopies is being updated, adjust availableCopies if necessary.
   if (updateData.totalCopies !== undefined) {
-    const book = await Book.findOne({ where: { isbn } });
     if (!book) {
       return null;
     }
@@ -80,6 +82,18 @@ exports.updateBook = async (isbn, updateData) => {
     if (book.availableCopies > updateData.totalCopies) {
       updateData.availableCopies = updateData.totalCopies;
     }
+  }
+
+  
+  // check whether there is a new coverImage uploaded
+  if (updateData.coverImage) {
+    // if yes, delete old picture
+    dataHelper.deleteFile(book.coverImage, (err) => {
+      if (err) {
+        console.error('Error deleting file:', err);
+        return null;
+      }
+    });
   }
   
   const [affectedCount, affectedRows] = await Book.update(updateData, {
@@ -97,6 +111,15 @@ exports.updateBook = async (isbn, updateData) => {
  * Delete a book record by ISBN.
  */
 exports.deleteBook = async (isbn) => {
+  const book = await Book.findOne({ where: { isbn } });
+  // if yes, delete old picture
+  dataHelper.deleteFile(book.coverImage, (err) => {
+    if (err) {
+      console.error('Error deleting file:', err);
+      return null;
+    }
+  });
+
   const deletedCount = await Book.destroy({ where: { isbn } });
   return deletedCount > 0;
 };
