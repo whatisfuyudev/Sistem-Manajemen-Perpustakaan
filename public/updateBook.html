@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Update Book</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2rem;
+    }
+    #updateBookForm{
+      margin-bottom: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    label {
+      display: inline-block;
+      width: 150px;
+      font-weight: bold;
+    }
+    input[type="text"],
+    input[type="number"],
+    input[type="url"],
+    textarea {
+      width: 300px;
+      padding: 0.4rem;
+    }
+    textarea {
+      height: 100px;
+      resize: vertical;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Update Book</h1>
+  <div id="updateBookForm">
+    <div>
+      <label for="isbn">ISBN:</label>
+      <input type="text" id="isbn" required>
+    </div>
+    <div>
+      <label for="title">Title:</label>
+      <input type="text" id="title">
+    </div>
+    <div>
+      <label for="authors">Authors (comma separated):</label>
+      <input type="text" id="authors">
+    </div>
+    <div>
+      <label for="genres">Genres (comma separated):</label>
+      <input type="text" id="genres">
+    </div>
+    <div>
+      <label for="publisher">Publisher:</label>
+      <input type="text" id="publisher">
+    </div>
+    <div>
+      <label for="publicationYear">Publication Year:</label>
+      <input type="number" id="publicationYear">
+    </div>
+    <div>
+      <label for="description">Description:</label>
+      <textarea id="description"></textarea>
+    </div>
+      <form id="uploadCoverImageForm" method="post" action="/api/books/upload/cover" enctype="multipart/form-data">
+        <label for="coverImage">New Cover Image</label>
+        <input type="file" id="coverImage" name="coverImage">
+        <button type="submit">Upload</button>
+      </form>
+    <div>
+      <label for="totalCopies">Total Copies:</label>
+      <input type="number" id="totalCopies">
+    </div>
+    <div>
+      <label for="availableCopies">Available Copies:</label>
+      <input type="number" id="availableCopies">
+    </div>
+    <div>
+      <label for="formats">Formats (comma separated):</label>
+      <input type="text" id="formats">
+    </div>
+    <div>
+      <button id="updateButton">Update Book</button>
+    </div>
+  </div>
+  
+
+  <script src="/public/js/updateBookScript.js"></script>
+</body>
+</html>

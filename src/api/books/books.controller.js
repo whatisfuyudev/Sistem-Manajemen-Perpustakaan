@@ -4,8 +4,6 @@ const booksService = require('./books.service');
 
 exports.createBook = async (req, res, next) => {
   try {
-    console.log('\n\n', req.body, '\n\n');
-    
     if(req.isCoverImageUploadSuccesful) {
       
       req.body.coverImage = `/public/images/${req.file.filename}`;
@@ -55,6 +53,21 @@ exports.updateBook = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.handleCoverImageUpload = async (req, res, next) => { 
+  try {
+    if(req.isCoverImageUploadSuccesful) {
+      req.body.coverImage = `/public/images/${req.file.filename}`;
+    }
+
+    // Validate request body here if needed (e.g., check for required fields)
+    const newBook = await booksService.createBook(req.body);
+
+    res.status(201).json(newBook);
+  } catch (error) {
+    next(error);
+  }
+}
 
 exports.deleteBook = async (req, res, next) => {
   try {

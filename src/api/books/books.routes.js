@@ -9,6 +9,9 @@ const dataHelper = require('../../utils/dataHelper');
 router.get('/search', booksController.searchBooks);
 
 // Create a new book
+router.post('/upload/cover', dataHelper.upload, booksController.handleCoverImageUpload);
+
+// Create a new book
 router.post('/', dataHelper.upload, booksController.createBook);
 
 // List all books (could also support query parameters for filtering)
@@ -18,7 +21,7 @@ router.get('/', booksController.listBooks);
 router.get('/:isbn', booksController.getBook);
 
 // Update a book by ISBN
-router.put('/:isbn', booksController.updateBook);
+router.put('/update/:isbn', booksController.updateBook);
 
 // Delete a book by ISBN
 router.delete('/:isbn', booksController.deleteBook);

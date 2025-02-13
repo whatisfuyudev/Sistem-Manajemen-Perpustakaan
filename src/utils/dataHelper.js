@@ -25,7 +25,6 @@ exports.upload = multer({
     const mimetype = filetypes.test(file.mimetype);
     if (mimetype && extname) {
       req.isCoverImageUploadSuccesful = true;
-      console.log(req.isCoverImageUploadSuccesful);
 
       return cb(null, true);
     } else {
