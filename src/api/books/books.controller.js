@@ -44,6 +44,11 @@ exports.getBook = async (req, res, next) => {
 exports.updateBook = async (req, res, next) => {
   try {
     const { isbn } = req.params;
+
+    // TODO
+    // check whether there is a new coverimage is uploaded
+    // if there is, Delete old image by finding the book through isbn
+
     const updatedBook = await booksService.updateBook(isbn, req.body);
     if (!updatedBook) {
       return res.status(404).json({ message: 'Book not found or update failed' });

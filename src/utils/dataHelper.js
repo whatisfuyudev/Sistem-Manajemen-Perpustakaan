@@ -32,3 +32,13 @@ exports.upload = multer({
     }
   }
 }).single('coverImage'); // 'image' is the name attribute from the form input
+
+exports.deleteOldCoverImage = async (oldCoverImagePath) => {
+  // Delete the old cover image from the file system
+  const oldImagePath = path.join(__dirname, '../../public', oldCoverImagePath);
+  fs.unlink(oldImagePath, (err) => {
+    if (err) {
+      console.error('Error deleting old cover image:', err);
+    }
+  });
+}

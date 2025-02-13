@@ -9,6 +9,8 @@
         - setup the postgresql DB (connecting it, inserting data)
             - make sure the book service works properly, ensure data sanitization
                 - test all api on book routes
+                    - PUT update request, when succesful, deletes
+                    
                     // Delete a book by ISBN
                     router.delete('/:isbn', booksController.deleteBook);
 
