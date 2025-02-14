@@ -1,13 +1,18 @@
 
-
-        
-2. start from app.js line 54, api section, make it includes all the routes,
+1. start from app.js line 54, api section, make it includes all the routes,
    for each route, make their controller, then make their services.
    make sure to thoroughly understand the underlying functionalities for each services.
    "
    [project description]
    from the above project description, focusing on X, what are the core functionalities that it might possible has? make it accurate and comprehensive.
-   "
+    "
+2. do for users, then auth, then checkouts, then reservations, then reports, then notification
+    - test all user routes, currently createUser
+        - upload image instead of url to file (look at book cover upload)
+        - no registering admmin lol
+        - 
+
+3. make user interface, reponsive html pages
 
 ### General TODO
 - make sure the book service works properly, ensure data sanitization
