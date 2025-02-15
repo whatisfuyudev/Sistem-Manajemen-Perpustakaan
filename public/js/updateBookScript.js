@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
     e.preventDefault();
     e.stopPropagation();
 
-    const file = document.getElementById('coverImage').files[0];
+    const file = document.getElementById('uploadedImage').files[0];
     if (!file) {
       alert("No file selected");
       return;
@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Create a FormData object and append the file
     const formData = new FormData();
-    formData.append('coverImage', file);
+    formData.append('uploadedImage', file);
 
     try {
       const response = await fetch('/api/books/upload/cover', {

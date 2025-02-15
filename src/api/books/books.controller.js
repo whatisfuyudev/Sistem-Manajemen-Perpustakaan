@@ -4,7 +4,7 @@ const booksService = require('./books.service');
 
 exports.createBook = async (req, res, next) => {
   try {
-    if(req.isCoverImageUploadSuccesful) {
+    if(req.isImageUploadSuccesful) {
       
       req.body.coverImage = `/public/images/book-covers/${req.file.filename}`;
     }
@@ -57,7 +57,7 @@ exports.updateBook = async (req, res, next) => {
 
 exports.handleCoverImageUpload = async (req, res, next) => { 
   try {
-    if(req.isCoverImageUploadSuccesful) {
+    if(req.isImageUploadSuccesful) {
       
       res.json({ coverImage: `/public/images/book-covers/${req.file.filename}`});
     }

@@ -84,7 +84,6 @@ exports.updateBook = async (isbn, updateData) => {
     }
   }
 
-  
   // check whether there is a new coverImage uploaded
   if (updateData.coverImage) {
     // if yes, delete old picture

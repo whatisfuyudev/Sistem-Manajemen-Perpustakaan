@@ -8,7 +8,7 @@ const dataHelper = require('../../utils/dataHelper');
 // Route for searching/filtering books (must come before the parameterized route)
 router.get('/search', booksController.searchBooks);
 
-// Create a new book
+// Handle updating cover image
 router.post('/upload/cover', dataHelper.upload, booksController.handleCoverImageUpload);
 
 // Create a new book

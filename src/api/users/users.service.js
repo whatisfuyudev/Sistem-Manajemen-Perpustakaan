@@ -43,6 +43,10 @@ exports.updateUser = async (id, updateData) => {
     const saltRounds = 10;
     updateData.password = await bcrypt.hash(updateData.password, saltRounds);
   }
+
+  // update profile picture path like in book service 
+  // when updating cover image path
+
   const [affectedCount, affectedRows] = await User.update(updateData, {
     where: { id },
     returning: true,

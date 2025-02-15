@@ -2,7 +2,7 @@ const userService = require('./users.service');
 
 exports.createUser = async (req, res, next) => {
   try {
-    if(req.isCoverImageUploadSuccesful) {
+    if(req.isImageUploadSuccesful) {
       req.body.profilePicture = `/public/images/profile-pictures/${req.file.filename}`;
     }
 
@@ -46,6 +46,17 @@ exports.updateUser = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.handleProfilePictureUpload = async (req, res, next) => { 
+  try {
+    if(req.isImageUploadSuccesful) {
+      
+      res.json({ profilePicture: `/public/images/profile-pictures/${req.file.filename}`});
+    }
+  } catch (error) {
+    next(error);
+  }
+}
 
 exports.deleteUser = async (req, res, next) => {
   try {
