@@ -66,8 +66,12 @@ app.use('/api/users', userRoutes);
 
 // Optionally, you can define a route for the homepage (if it’s static).
 // This example sends the static index.html from the public folder.
-app.get('/', (req, res) => {
+app.get('/books/delete', (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'deleteBook.html'));
+});
+
+app.get('/books/update', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public', 'updateBook.html'));
 });
 
 app.get('/books/add', (req, res) => {

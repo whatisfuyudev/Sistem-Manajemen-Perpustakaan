@@ -1,12 +1,18 @@
 const User = require('../../models/user.model');
 const bcrypt = require('bcryptjs'); // Ensure bcrypt is installed
 
-// Create a new user, hashing the password
 exports.createUser = async (userData) => {
+  // Check if a user with the same email already exists
+  const existingUser = await User.findOne({ where: { email: userData.email } });
+  if (existingUser) {
+    throw new Error('Email already exists.');
+  }
+
   // Hash the password before storing it
   const saltRounds = 10;
   const hashedPassword = await bcrypt.hash(userData.password, saltRounds);
   userData.password = hashedPassword;
+
   // Create and return the new user
   const newUser = await User.create(userData);
   return newUser;

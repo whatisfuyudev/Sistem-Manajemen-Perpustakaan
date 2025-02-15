@@ -6,7 +6,7 @@ exports.createBook = async (req, res, next) => {
   try {
     if(req.isCoverImageUploadSuccesful) {
       
-      req.body.coverImage = `/public/images/${req.file.filename}`;
+      req.body.coverImage = `/public/images/book-covers/${req.file.filename}`;
     }
 
     // Validate request body here if needed (e.g., check for required fields)
@@ -59,7 +59,7 @@ exports.handleCoverImageUpload = async (req, res, next) => {
   try {
     if(req.isCoverImageUploadSuccesful) {
       
-      res.json({ coverImage: `/public/images/${req.file.filename}`});
+      res.json({ coverImage: `/public/images/book-covers/${req.file.filename}`});
     }
   } catch (error) {
     next(error);

@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('./users.controller');
-
+const dataHelper = require('../../utils/dataHelper');
 // Create a new user (e.g., registration)
-router.post('/', userController.createUser);
+router.post('/', dataHelper.upload, userController.createUser);
 
 // Get all users (for admin/librarian)
 router.get('/', userController.getAllUsers);

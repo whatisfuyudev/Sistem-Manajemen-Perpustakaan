@@ -36,7 +36,7 @@
 </head>
 <body>
   <h1>User Registration</h1>
-  <form id="userForm" method="POST" action="/api/users/" onsubmit="return validateForm();">
+  <form id="userForm" method="POST" action="/api/users/" enctype="multipart/form-data">
     <div>
       <label for="name">Full Name:</label>
       <input type="text" id="name" name="name" required>
@@ -66,8 +66,12 @@
       <input type="text" id="address" name="address">
     </div>
     <div>
-      <label for="profilePicture">Profile Picture URL:</label>
-      <input type="url" id="profilePicture" name="profilePicture">
+      <input type="text" id="_comesFrom" name="_comesFrom" value="profilePicture" hidden>
+    </div>
+    <!-- Updated Cover Image Field -->
+    <div>
+      <label for="uploadedImage">Profile Picture:</label>
+      <input type="file" id="uploadedImage" name="uploadedImage" accept="image/*">
     </div>
     <div>
       <button type="submit">Register User</button>

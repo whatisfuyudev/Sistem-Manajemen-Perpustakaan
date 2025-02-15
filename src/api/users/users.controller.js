@@ -2,6 +2,10 @@ const userService = require('./users.service');
 
 exports.createUser = async (req, res, next) => {
   try {
+    if(req.isCoverImageUploadSuccesful) {
+      req.body.profilePicture = `/public/images/profile-pictures/${req.file.filename}`;
+    }
+
     // Expect user data in req.body
     const newUser = await userService.createUser(req.body);
     res.status(201).json(newUser);
