@@ -20,15 +20,12 @@ const storage = multer.diskStorage({
   destination: function(req, file, cb) {
     // Files will be saved in the 'public/images/' directory
     let target = '../../public/images/';
-    console.log(req.body);
     
     if (req.body._comesFrom === "profilePicture") {
       target += 'profile-pictures/';
     } else {
       target += 'book-covers/';
     }
-    console.log(target);
-    
     // if upload from user profile picture api (the front end tells)
     // modify request object, make new property that tells that
     // else default to book-covers directory
@@ -55,7 +52,7 @@ exports.upload = multer({
 
       return cb(null, true);
     } else {
-      cb('Error: Images Only!');
+      cb('Error: Images Only! (jpeg, jpg, png, gif)');
     }
   }
 }).single('uploadedImage'); // 'uploadedImage' is the name attribute from the form input

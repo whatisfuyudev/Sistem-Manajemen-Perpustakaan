@@ -1,11 +1,18 @@
 const User = require('../../models/user.model');
 const bcrypt = require('bcryptjs'); // Ensure bcrypt is installed
 
+
+// to create user with admin role
+// modify directly in database (currently the only way)
 exports.createUser = async (userData) => {
   // Check if a user with the same email already exists
   const existingUser = await User.findOne({ where: { email: userData.email } });
   if (existingUser) {
     throw new Error('Email already exists.');
+  }
+
+  if (userData.role === 'Admin') {
+    throw new Error('Creating Admin user is prohibited.');
   }
 
   // Hash the password before storing it
