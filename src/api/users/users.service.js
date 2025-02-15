@@ -39,13 +39,27 @@ exports.getUserById = async (id) => {
 
 // Update user by ID (hash password if updated)
 exports.updateUser = async (id, updateData) => {
+  const user = await User.findOne({ where: { id } });
+
   if (updateData.password) {
     const saltRounds = 10;
     updateData.password = await bcrypt.hash(updateData.password, saltRounds);
   }
 
-  // update profile picture path like in book service 
-  // when updating cover image path
+  // check whether there is a new profilePicture uploaded
+    if (updateData.profilePicture) {
+      // if yes, delete old picture
+      dataHelper.deleteFile(user.profilePicture, (err) => {
+        if (err) {
+          console.error('Error deleting file:', err);
+          return null;
+        }
+      });
+    }
+
+  if (updateData.role === 'Admin') {
+    throw new Error('Updating user role to Admin is prohibited.');
+  }
 
   const [affectedCount, affectedRows] = await User.update(updateData, {
     where: { id },

@@ -13,8 +13,13 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     const formData = new FormData();
+    formData.append('_comesFrom', 'profilePicture');
     formData.append('uploadedImage', file);
 
+    // _comesFrom is not attached to req.body  <--- problem
+
+    console.log('form data = ',formData);
+    
     try {
       const response = await fetch('/api/users/upload/profile-picture', {
         method: 'POST',

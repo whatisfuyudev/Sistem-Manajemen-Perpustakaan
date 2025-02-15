@@ -9,6 +9,7 @@
 2. do for users, then auth, then checkouts, then reservations, then reports, then notification
     - test all user routes, currently update
         - on userService.js update service, update profilePicture path and delete old picture
+            - updateUserScript.js line 19
         - no updating to admin role on front end lol
         - no status update too
     - test delete user route
