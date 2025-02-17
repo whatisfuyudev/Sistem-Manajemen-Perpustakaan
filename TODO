@@ -16,7 +16,6 @@
           - save changes interact with the put api
           - profile page can add/modify address, phone number, profile picture
       - fix login
-        - set jwt token as cookie, modify auth middleware to check for that cookie instead
         - login page success redirect to profile (temporary, should be homepage)
         
       

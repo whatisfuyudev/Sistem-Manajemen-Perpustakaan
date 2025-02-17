@@ -41,5 +41,6 @@ exports.loginUser = async (credentials) => {
   const tokenPayload = { id: user.id, role: user.role };
   const token = jwt.sign(tokenPayload, authConfig.secret, { expiresIn: authConfig.expiresIn });
 
+  // Respond with the token in the JSON payload as well (optional)
   return token;
 };

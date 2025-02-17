@@ -24,6 +24,11 @@ document.addEventListener('DOMContentLoaded', function () {
         messageDiv.textContent = 'Login successful! Token: ' + result.token;
         messageDiv.className = 'message success';
         loginForm.reset();
+
+        // Delay of 2 seconds before redirecting to login page
+        setTimeout(() => {
+          window.location.href = '/profile';
+        }, 2000);
       } else {
         const errorText = await response.text();
         messageDiv.textContent = 'Login failed: ' + errorText;

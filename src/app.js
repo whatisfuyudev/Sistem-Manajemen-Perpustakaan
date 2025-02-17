@@ -13,6 +13,7 @@ const helmet = require('helmet');
 const cors = require('cors');
 const morgan = require('morgan');
 const path = require('path');
+const cookieParser = require('cookie-parser');
 
 const app = express();
 
@@ -44,6 +45,9 @@ app.use(express.urlencoded({ extended: true }));
 
 // HTTP request logging (using the 'combined' Apache format)
 app.use(morgan('combined'));
+
+// For cookie parsing
+app.use(cookieParser());
 
 // --------------------
 // Static Files
@@ -102,7 +106,7 @@ app.get('/auth/login', (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'login.html'));
 });
 
-app.get('/profile', (req, res) => {
+app.get('/profile', require('./middleware/auth.middleware').verifyToken, (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'profile.html'));
 });
 
