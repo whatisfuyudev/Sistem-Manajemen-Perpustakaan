@@ -63,6 +63,10 @@ app.use('/api/books', booksRoutes);
 const userRoutes = require('./api/users/users.routes');
 app.use('/api/users', userRoutes);
 
+// Mount authentication routes
+const authRoutes = require('./api/auth/auth.routes');
+app.use('/api/auth', authRoutes);
+
 
 // Optionally, you can define a route for the homepage (if it’s static).
 // This example sends the static index.html from the public folder.
@@ -88,6 +92,14 @@ app.get('/users/update', (req, res) => {
 
 app.get('/users/delete', (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'deleteUser.html'));
+});
+
+app.get('/auth/register', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public', 'register.html'));
+});
+
+app.get('/auth/login', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public', 'login.html'));
 });
 
 // // --------------------

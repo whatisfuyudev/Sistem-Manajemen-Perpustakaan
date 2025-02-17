@@ -1,5 +1,5 @@
 const User = require('../../models/user.model');
-const bcrypt = require('bcryptjs'); // Ensure bcrypt is installed
+const bcrypt = require('bcryptjs'); // Ensure bcryptjs is installed
 const dataHelper = require('../../utils/dataHelper');
 
 // to create user with admin role

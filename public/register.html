@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>User Registration</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2rem;
+      background-color: #f4f4f4;
+    }
+    .container {
+      background-color: #fff;
+      padding: 2rem;
+      border-radius: 8px;
+      max-width: 500px;
+      margin: auto;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    label {
+      font-weight: bold;
+      margin-bottom: 0.3rem;
+    }
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="url"],
+    select {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      padding: 0.7rem;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #218838;
+    }
+    .message {
+      margin-top: 1rem;
+      text-align: center;
+      font-size: 1.1rem;
+    }
+    .error {
+      color: #d9534f;
+    }
+    .success {
+      color: #28a745;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Register</h1>
+    <form id="registerForm">
+      <div>
+        <label for="name">Name *</label>
+        <input type="text" id="name" required>
+      </div>
+      <div>
+        <label for="email">Email *</label>
+        <input type="email" id="email" required>
+      </div>
+      <div>
+        <label for="password">Password *</label>
+        <input type="password" id="password" required>
+      </div>
+      <div>
+        <label for="role">Role</label>
+        <select id="role">
+          <option value="Patron" selected>Patron</option>
+          <option value="Librarian">Librarian</option>
+          <option value="Admin">Admin</option>
+        </select>
+      </div>
+      <div>
+        <label for="phone">Phone</label>
+        <input type="text" id="phone">
+      </div>
+      <div>
+        <label for="address">Address</label>
+        <input type="text" id="address">
+      </div>
+      <div>
+        <label for="profilePicture">Profile Picture URL</label>
+        <input type="url" id="profilePicture" placeholder="https://example.com/your-pic.jpg">
+      </div>
+      <button type="submit">Register</button>
+    </form>
+    <div id="registerMessage" class="message"></div>
+  </div>
+
+  <script src="/public/js/registerScript.js">
+  </script>
+</body>
+</html>
