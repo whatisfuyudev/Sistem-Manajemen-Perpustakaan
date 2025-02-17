@@ -7,12 +7,8 @@
    from the above project description, focusing on X, what are the core functionalities that it might possible has? make it accurate and comprehensive.
     "
 2. do for users, then auth, then checkouts, then reservations, then reports, then notification
-    - test all user routes, currently update
-        - on userService.js update service, update profilePicture path and delete old picture
-            - updateUserScript.js line 19
-        - no updating to admin role on front end lol
-        - no status update too
-    - test delete user route
+    - test all user routes, currently delete
+    
 
 3. make user interface, reponsive html pages
 

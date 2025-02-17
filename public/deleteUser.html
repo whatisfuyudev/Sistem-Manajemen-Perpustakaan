@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Delete User</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2rem;
+    }
+    .container {
+      margin-bottom: 1rem;
+    }
+    label {
+      display: inline-block;
+      width: 150px;
+      font-weight: bold;
+    }
+    input[type="text"] {
+      width: 300px;
+      padding: 0.4rem;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    #message {
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Delete User</h1>
+  <div class="container">
+    <label for="userId">User ID:</label>
+    <input type="text" id="userId" name="userId" required>
+    <button id="deleteButton">Delete User</button>
+  </div>
+  <div id="message"></div>
+
+  <script src="/public/js/deleteUserScript.js"></script>
+</body>
+</html>

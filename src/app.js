@@ -86,6 +86,10 @@ app.get('/users/update', (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'updateUser.html'));
 });
 
+app.get('/users/delete', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public', 'deleteUser.html'));
+});
+
 // // --------------------
 // // Global Error Handling
 // // --------------------

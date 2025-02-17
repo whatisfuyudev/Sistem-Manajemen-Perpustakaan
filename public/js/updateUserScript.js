@@ -15,10 +15,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const formData = new FormData();
     formData.append('_comesFrom', 'profilePicture');
     formData.append('uploadedImage', file);
-
-    // _comesFrom is not attached to req.body  <--- problem
-
-    console.log('form data = ',formData);
     
     try {
       const response = await fetch('/api/users/upload/profile-picture', {
@@ -45,6 +41,11 @@ document.addEventListener('DOMContentLoaded', function () {
     e.preventDefault();
     e.stopPropagation();
 
+    if (!(document.getElementById('id').value.trim())) {
+      alert('User ID cannot be empty');
+      return;
+    }
+
     // Gather input values
     const data = {
       id: document.getElementById('id').value.trim(),
@@ -54,7 +55,6 @@ document.addEventListener('DOMContentLoaded', function () {
       role: document.getElementById('role').value,
       phone: document.getElementById('phone').value.trim(),
       address: document.getElementById('address').value.trim(),
-      accountStatus: document.getElementById('accountStatus').value,
       profilePicture: profilePictureUrl
     };
 
