@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>User Profile</title>
+  <style>
+    /* Basic Reset */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f9fa;
+      padding: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+    .profile-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .profile-picture {
+      width: 150px;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 3px solid #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      margin-bottom: 15px;
+    }
+    h2, p {
+      margin: 5px 0;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 4px;
+    }
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="url"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+    textarea {
+      resize: vertical;
+    }
+    button {
+      padding: 10px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0069d9;
+    }
+    .message {
+      margin-top: 10px;
+      text-align: center;
+      font-size: 1rem;
+    }
+    .error {
+      color: #d9534f;
+    }
+    .success {
+      color: #28a745;
+    }
+    @media (max-width: 576px) {
+      .profile-picture {
+        width: 100px;
+        height: 100px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Profile Header -->
+    <div class="profile-header">
+      <img src="https://via.placeholder.com/150" alt="Profile Picture" class="profile-picture" id="profilePicDisplay">
+      <h2 id="userNameDisplay">John Doe</h2>
+      <p id="userRoleDisplay">Patron</p>
+    </div>
+    
+    <!-- Profile Form -->
+    <form id="profileForm" method="POST" action="/api/users/updateProfile">
+      <!-- Name and Email -->
+      <div>
+        <label for="name">Full Name</label>
+        <input type="text" id="name" name="name" value="John Doe" required>
+      </div>
+      <div>
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" value="john@example.com" required>
+      </div>
+      <!-- Password (leave blank if not changing) -->
+      <div>
+        <label for="password">Password <small>(leave blank to keep unchanged)</small></label>
+        <input type="password" id="password" name="password" placeholder="New password">
+      </div>
+      <!-- Role and Account Status -->
+      <div>
+        <label for="role">Role</label>
+        <select id="role" name="role">
+          <option value="Admin">Admin</option>
+          <option value="Librarian">Librarian</option>
+          <option value="Patron" selected>Patron</option>
+        </select>
+      </div>
+      <div>
+        <label for="accountStatus">Account Status</label>
+        <select id="accountStatus" name="accountStatus">
+          <option value="Active" selected>Active</option>
+          <option value="Suspended">Suspended</option>
+          <option value="Pending">Pending</option>
+        </select>
+      </div>
+      <!-- Phone and Address -->
+      <div>
+        <label for="phone">Phone</label>
+        <input type="text" id="phone" name="phone" value="123-456-7890">
+      </div>
+      <div>
+        <label for="address">Address</label>
+        <input type="text" id="address" name="address" value="123 Main St, City, Country">
+      </div>
+      <!-- Profile Picture URL -->
+      <div>
+        <label for="profilePicture">Profile Picture URL</label>
+        <input type="url" id="profilePicture" name="profilePicture" placeholder="http://">
+      </div>
+      <!-- Submit Button -->
+      <button type="submit">Save Changes</button>
+      <div id="profileMessage" class="message"></div>
+    </form>
+  </div>
+
+  <script>
+    // Basic client-side validations and form submission handling
+    document.getElementById('profileForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const messageDiv = document.getElementById('profileMessage');
+      messageDiv.textContent = '';
+      
+      // Gather field values
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const phone = document.getElementById('phone').value.trim();
+      const address = document.getElementById('address').value.trim();
+      const profilePicture = document.getElementById('profilePicture').value.trim();
+      
+      // Simple regex for email validation
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailPattern.test(email)) {
+        alert('Please enter a valid email address.');
+        return false;
+      }
+      
+      // Name should not be empty and allow letters and spaces
+      if (!name.match(/^[A-Za-z\s]+$/)) {
+        alert('Name can only contain letters and spaces.');
+        return false;
+      }
+      
+      // Create an object to send (simulate form submission)
+      const formData = {
+        name,
+        email,
+        // Only include password if entered (if blank, we assume no change)
+        ...(password && { password }),
+        role: document.getElementById('role').value,
+        accountStatus: document.getElementById('accountStatus').value,
+        phone,
+        address,
+        profilePicture
+      };
+      
+      // For demonstration, we'll log the data and display a success message
+      console.log('Form data to submit:', formData);
+      
+      // Here you can send the data using fetch() if needed:
+      /*
+      fetch('/api/users/updateProfile', {
+        method: 'POST', // or PUT depending on your API
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      })
+      .then(response => response.json())
+      .then(data => {
+        messageDiv.textContent = 'Profile updated successfully!';
+        messageDiv.className = 'message success';
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        messageDiv.textContent = 'Error updating profile.';
+        messageDiv.className = 'message error';
+      });
+      */
+      
+      // For now, show a success message directly:
+      messageDiv.textContent = 'Profile updated successfully!';
+      messageDiv.className = 'message success';
+      
+      // Optionally update the header display
+      document.getElementById('userNameDisplay').textContent = name;
+      if (profilePicture) {
+        document.getElementById('profilePicDisplay').src = profilePicture;
+      }
+    });
+  </script>
+</body>
+</html>

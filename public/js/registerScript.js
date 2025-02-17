@@ -11,10 +11,6 @@ document.addEventListener('DOMContentLoaded', function () {
       name: document.getElementById('name').value.trim(),
       email: document.getElementById('email').value.trim(),
       password: document.getElementById('password').value.trim(),
-      role: document.getElementById('role').value,
-      phone: document.getElementById('phone').value.trim(),
-      address: document.getElementById('address').value.trim(),
-      profilePicture: document.getElementById('profilePicture').value.trim()
     };
 
     // Remove empty optional fields
@@ -36,6 +32,11 @@ document.addEventListener('DOMContentLoaded', function () {
         messageDiv.textContent = 'Registration successful!';
         messageDiv.className = 'message success';
         registerForm.reset();
+
+        // Delay of 2 seconds before redirecting to login page
+        setTimeout(() => {
+          window.location.href = '/auth/login';
+        }, 2000);
       } else {
         const errorText = await response.text();
         messageDiv.textContent = 'Registration failed: ' + errorText;

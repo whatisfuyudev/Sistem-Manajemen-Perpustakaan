@@ -11,12 +11,14 @@
 2. do for auth, then checkouts, then reservations, then reports, then notification, do more on auth functionalities
     - check for token expiration, new endoint for requesting new token with refresh token
       - fix register
-        - no putting cover image url when registering, only upload at profile page
-        - no putting address and phone number, that is also at profile page
-        - register success redirects to login page
-        - can only register as patron, so no remove that choice and automatically register as one
+        - make a profile page
+          - fetch user data from jwt token
+          - save changes interact with the put api
+          - profile page can add/modify address, phone number, profile picture
       - fix login
+        - set jwt token as cookie, modify auth middleware to check for that cookie instead
         - login page success redirect to profile (temporary, should be homepage)
+        
       
     
 
@@ -28,3 +30,7 @@
 - make ui html page
 - make the html homepage that display all books (search up responsive design)
 - at user routes, create new user is only for admin access
+
+this app will have two sides, one for patron (book enjoyer) and one for librarians (book manager)
+- patron can only borrow books, see their profile, and see all books
+- librarian can add books, see all books, see all patrons, see all borrowed books, see all reservations, see all fines, see all reports

@@ -102,6 +102,10 @@ app.get('/auth/login', (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'login.html'));
 });
 
+app.get('/profile', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public', 'profile.html'));
+});
+
 // // --------------------
 // // Global Error Handling
 // // --------------------
