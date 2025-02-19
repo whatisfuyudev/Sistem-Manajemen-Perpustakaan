@@ -8,8 +8,6 @@ exports.verifyToken = (req, res, next) => {
   if (!token) {
     return res.status(401).json({ message: 'No token provided.' });
   }
-
-  console.log('auth works, token = ', token);
   
   jwt.verify(token, authConfig.secret, (err, decoded) => {
     if (err) {

@@ -25,7 +25,14 @@ exports.getAllUsers = async (req, res, next) => {
 
 exports.getUserById = async (req, res, next) => {
   try {
-    const user = await userService.getUserById(req.params.id);
+    let id;
+    if (req.user) {
+      id = req.user.id;      
+    } else {
+      return res.status(401).json({ message: 'Token is not valid' });
+    }
+
+    const user = await userService.getUserById(id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -37,7 +44,14 @@ exports.getUserById = async (req, res, next) => {
 
 exports.updateUser = async (req, res, next) => {
   try {
-    const updatedUser = await userService.updateUser(req.params.id, req.body);
+    let id;
+    if (req.user) {
+      id = req.user.id;      
+    } else {
+      return res.status(401).json({ message: 'Token is not valid' });
+    }
+
+    const updatedUser = await userService.updateUser(id, req.body);
     if (!updatedUser) {
       return res.status(404).json({ message: 'User not found or update failed' });
     }

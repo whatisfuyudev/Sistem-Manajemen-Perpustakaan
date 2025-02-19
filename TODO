@@ -12,11 +12,11 @@
     - check for token expiration, new endoint for requesting new token with refresh token
       - fix register
         - make a profile page
-          - fetch user data from jwt token
           - save changes interact with the put api
           - profile page can add/modify address, phone number, profile picture
       - fix login
         - login page success redirect to profile (temporary, should be homepage)
+        - login page does not put jwt token on the page lol when success login
         
       
     
@@ -29,6 +29,11 @@
 - make ui html page
 - make the html homepage that display all books (search up responsive design)
 - at user routes, create new user is only for admin access
+- make two different endpoints, one for admin/librarian, the other for client/patron/user
+  - New Endpoint to get single user by their id (admin/librarian only)
+  - New Endpoint to update a user by their id (admin/librarian only)
+
+
 
 this app will have two sides, one for patron (book enjoyer) and one for librarians (book manager)
 - patron can only borrow books, see their profile, and see all books
