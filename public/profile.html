@@ -131,10 +131,11 @@
         <label for="address">Address</label>
         <input type="text" id="address" name="address" value="123 Main St, City, Country">
       </div>
-      <!-- Profile Picture URL -->
-      <div>
-        <label for="profilePicture">Profile Picture URL</label>
-        <input type="url" id="profilePicture" name="profilePicture" placeholder="http://">
+      <!-- Profile Picture Image Upload -->
+      <div id="uploadProfilePictureForm">
+        <label for="uploadedImage">Profile Picture:</label>
+        <input type="file" id="uploadedImage" name="uploadedImage">
+        <button id="submitBtnProfilePic" type="button">Upload</button>
       </div>
       <!-- Submit Button -->
       <button type="submit">Save Changes</button>

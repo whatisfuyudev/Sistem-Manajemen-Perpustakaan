@@ -1,3 +1,5 @@
+let profilePictureUrl = '';
+
 // Function to fetch user data on page load
 async function fetchUserData() {
   try {
@@ -10,12 +12,15 @@ async function fetchUserData() {
       // Password field is left empty for security reasons
       document.getElementById('phone').value = userData.phone || '';
       document.getElementById('address').value = userData.address || '';
-      document.getElementById('profilePicture').value = userData.profilePicture || '';
       
       // Update header display
       document.getElementById('userNameDisplay').textContent = userData.name || 'User Name';
+      console.log(userData.name);
+      
       if (userData.profilePicture) {
         document.getElementById('profilePicDisplay').src = userData.profilePicture;
+        console.log(userData.profilePicture);
+        
       }
     } else {
       console.error('Failed to fetch user data.');
@@ -38,7 +43,7 @@ document.getElementById('profileForm').addEventListener('submit', function(e) {
   const password = document.getElementById('password').value;
   const phone = document.getElementById('phone').value.trim();
   const address = document.getElementById('address').value.trim();
-  const profilePicture = document.getElementById('profilePicture').value.trim();
+  const profilePicture = "" || profilePictureUrl;
   
   // Simple regex for email validation
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -70,7 +75,7 @@ document.getElementById('profileForm').addEventListener('submit', function(e) {
   // Here you can send the data using fetch() if needed:
 
   fetch('/api/users/update', {
-    method: 'PUT', // or PUT depending on your API
+    method: 'PUT',
     headers: {
       'Content-Type': 'application/json'
     },
@@ -99,6 +104,41 @@ document.getElementById('profileForm').addEventListener('submit', function(e) {
   document.getElementById('userNameDisplay').textContent = name;
   if (profilePicture) {
     document.getElementById('profilePicDisplay').src = profilePicture;
+  }
+});
+
+// Upload profile picture
+document.getElementById('submitBtnProfilePic').addEventListener('click', async function (e) {
+  e.preventDefault();
+  e.stopPropagation();
+
+  const file = document.getElementById('uploadedImage').files[0];
+  if (!file) {
+    alert("No file selected");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('_comesFrom', 'profilePicture');
+  formData.append('uploadedImage', file);
+  
+  try {
+    const response = await fetch('/api/users/upload/profile-picture', {
+      method: 'POST',
+      body: formData
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      // Assume the JSON response has a property 'profilePicture'
+      profilePictureUrl = result.profilePicture;
+      alert('Profile picture uploaded successfully!');
+    } else {
+      const errorText = await response.text();
+      console.error("Upload failed:", errorText);
+    }
+  } catch (error) {
+    console.error("Error during file upload:", error);
   }
 });
 
