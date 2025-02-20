@@ -10,7 +10,10 @@
    "
 2. do for then checkouts, then reservations, then reports, then notification, do more on auth functionalities
   - checkouts is for librarian
+    -
   - reservations is for user
+    - modify reservation, promote reservation, get history is for admin/librarian
+    - the rest is for client/patron
         
 
 3. make user interface, reponsive html pages
