@@ -14,12 +14,12 @@ const cors = require('cors');
 const morgan = require('morgan');
 const path = require('path');
 const cookieParser = require('cookie-parser');
+const authMiddleware = require('./middleware/auth.middleware');
 
 const app = express();
 
 // Load Postgresql database
 const sequelize = require('./utils/db');
-const Book = require('./models/book.model');
 
 // Sync all models at once
 sequelize
@@ -106,7 +106,7 @@ app.get('/auth/login', (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'login.html'));
 });
 
-app.get('/profile', require('./middleware/auth.middleware').verifyToken, (req, res) => {
+app.get('/profile', authMiddleware.verifyToken, (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'profile.html'));
 });
 

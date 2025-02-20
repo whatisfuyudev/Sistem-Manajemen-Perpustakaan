@@ -1,5 +1,4 @@
 const authService = require('./auth.service');
-const authConfig = require('../../config/auth.config');
 
 exports.register = async (req, res, next) => {
   try {
@@ -24,6 +23,16 @@ exports.login = async (req, res, next) => {
     });
 
     res.status(200).json({ token });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.logout = async (req, res, next) => {
+  try {
+    await authService.logout(req, res);
+    // Respond with a 200 status and a JSON message
+    res.status(200).json({ message: 'Logged out successfully.' });
   } catch (error) {
     next(error);
   }

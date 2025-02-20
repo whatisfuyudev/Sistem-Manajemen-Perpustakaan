@@ -44,3 +44,10 @@ exports.loginUser = async (credentials) => {
   // Respond with the token in the JSON payload as well (optional)
   return token;
 };
+
+exports.logout = async (req, res) => {
+  // Clear the token cookie from the client's browser.
+  // Adjust cookie options if needed (e.g., domain, path, secure, httpOnly)
+  res.clearCookie('jwt_token', { path: '/' });
+  return;
+};

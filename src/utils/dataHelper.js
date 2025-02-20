@@ -4,6 +4,10 @@ const path = require('path');
 const fs = require('fs');
 
 exports.deleteFile = (filename, callback) => {
+  // if no file to delete, don't delete anything
+  if (!filename) {
+    return null;
+  }
   // Construct the file path based on a safe base directory
   const baseDir = path.join(__dirname, '../../');
   const fileToDelete = path.join(baseDir, filename);

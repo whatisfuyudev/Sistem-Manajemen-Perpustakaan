@@ -15,12 +15,9 @@ async function fetchUserData() {
       
       // Update header display
       document.getElementById('userNameDisplay').textContent = userData.name || 'User Name';
-      console.log(userData.name);
       
       if (userData.profilePicture) {
         document.getElementById('profilePicDisplay').src = userData.profilePicture;
-        console.log(userData.profilePicture);
-        
       }
     } else {
       console.error('Failed to fetch user data.');
@@ -68,12 +65,17 @@ document.getElementById('profileForm').addEventListener('submit', function(e) {
     address,
     profilePicture
   };
-  
-  // For demonstration, we'll log the data and display a success message
-  console.log('Form data to submit:', formData);
+
+  // Remove empty fields
+  Object.keys(formData).forEach(key => {
+    const value = formData[key];
+    if ((typeof value === 'string' && value.trim() === '') ||
+        (typeof value === 'number' && isNaN(value))) {
+      delete formData[key];
+    }
+  });
   
   // Here you can send the data using fetch() if needed:
-
   fetch('/api/users/update', {
     method: 'PUT',
     headers: {
@@ -135,10 +137,27 @@ document.getElementById('submitBtnProfilePic').addEventListener('click', async f
       alert('Profile picture uploaded successfully!');
     } else {
       const errorText = await response.text();
-      console.error("Upload failed:", errorText);
+      alert("Upload failed:", errorText);
     }
   } catch (error) {
     console.error("Error during file upload:", error);
+  }
+});
+
+// Logout button functionality
+document.getElementById('logoutButton').addEventListener('click', async function() {
+  try {
+    const response = await fetch('/api/auth/logout', {
+      method: 'POST'
+    });
+    if (response.ok) {
+      // Redirect to login page (adjust URL if needed)
+      window.location.href = '/auth/login';
+    } else {
+      console.error('Logout failed.');
+    }
+  } catch (error) {
+    console.error('Error during logout:', error);
   }
 });
 

@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (response.ok) {
         const result = await response.json();
-        messageDiv.textContent = 'Login successful! Token: ' + result.token;
+        messageDiv.textContent = 'Login successful! Redirecting...';
         messageDiv.className = 'message success';
         loginForm.reset();
 

@@ -8,18 +8,9 @@
     
    make it excellent, highly accurate like real world projects, and comprehensive and exhaustive
    "
-2. do for auth, then checkouts, then reservations, then reports, then notification, do more on auth functionalities
-    - check for token expiration, new endoint for requesting new token with refresh token
-      - fix register
-        - make a profile page
-          - save changes interact with the put api
-          - profile page can add/modify address, phone number, profile picture
-      - fix login
-        - login page success redirect to profile (temporary, should be homepage)
-        - login page does not put jwt token on the page lol when success login
+2. do for then checkouts, then reservations, then reports, then notification, do more on auth functionalities
+  - 
         
-      
-    
 
 3. make user interface, reponsive html pages
 
@@ -32,8 +23,8 @@
 - make two different endpoints, one for admin/librarian, the other for client/patron/user
   - New Endpoint to get single user by their id (admin/librarian only)
   - New Endpoint to update a user by their id (admin/librarian only)
-
-
+- implement refresh tokens and expiration checking for main auth jwt_token (1 hour expiration time)
+  - refresh tokens last for a long time, like 1 week or 1 month
 
 this app will have two sides, one for patron (book enjoyer) and one for librarians (book manager)
 - patron can only borrow books, see their profile, and see all books
