@@ -9,7 +9,8 @@
    make it excellent, highly accurate like real world projects, and comprehensive and exhaustive
    "
 2. do for then checkouts, then reservations, then reports, then notification, do more on auth functionalities
-  - 
+  - checkouts is for librarian
+  - reservations is for user
         
 
 3. make user interface, reponsive html pages
@@ -27,5 +28,6 @@
   - refresh tokens last for a long time, like 1 week or 1 month
 
 this app will have two sides, one for patron (book enjoyer) and one for librarians (book manager)
-- patron can only borrow books, see their profile, and see all books
-- librarian can add books, see all books, see all patrons, see all borrowed books, see all reservations, see all fines, see all reports
+- patron can only make reservation to borrow books, see their profile, and see all books, search books with ui
+- librarian can add books, see all books, see all patrons, see all borrowed books, see all reservations, see all fines, see all reports, manage borrowing
+

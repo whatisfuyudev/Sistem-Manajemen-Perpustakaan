@@ -71,6 +71,9 @@ app.use('/api/users', userRoutes);
 const authRoutes = require('./api/auth/auth.routes');
 app.use('/api/auth', authRoutes);
 
+// Mount checkout routes
+const checkoutRoutes = require('./api/checkouts/checkouts.routes');
+app.use('/api/checkouts', checkoutRoutes);
 
 // Optionally, you can define a route for the homepage (if it’s static).
 // This example sends the static index.html from the public folder.
