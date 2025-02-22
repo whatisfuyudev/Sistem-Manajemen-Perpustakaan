@@ -10,7 +10,8 @@
    "
 2. do for then checkouts, then reservations, then reports, then notification, do more on auth functionalities
   - checkouts is for librarian
-    -
+    - initiate checkout, able to choose the default (14 and 30 days) 
+      or input custom days (1, 2, 3 days, etc)
   - reservations is for user
     - modify reservation, promote reservation, get history is for admin/librarian
     - the rest is for client/patron

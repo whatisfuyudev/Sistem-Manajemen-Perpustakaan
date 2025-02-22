@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Book Checkout</title>
+  <style>
+    /* Basic Reset */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 30px auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    form {
+      width: 100%;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: #333;
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #007bff;
+      border: none;
+      color: #fff;
+      font-size: 16px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px;
+      }
+      button {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Checkout a Book</h1>
+    <form method="POST" action="/api/checkouts/checkout">
+      <div class="form-group">
+        <label for="userId">User ID</label>
+        <input type="number" id="userId" name="userId" placeholder="Enter your user ID" required>
+      </div>
+      <div class="form-group">
+        <label for="bookIsbn">Book ISBN</label>
+        <input type="text" id="bookIsbn" name="bookIsbn" placeholder="Enter the book ISBN" required>
+      </div>
+      <div class="form-group">
+        <label for="role">Your Role</label>
+        <select id="role" name="role" required>
+          <option value="Patron" selected>Patron</option>
+          <option value="Librarian">Librarian</option>
+          <option value="Admin">Admin</option>
+        </select>
+      </div>
+      <button type="submit">Checkout Book</button>
+    </form>
+  </div>
+  <script src="/public/js/createCheckoutScript.js"></script>
+</body>
+</html>

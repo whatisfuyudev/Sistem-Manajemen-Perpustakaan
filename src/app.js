@@ -113,6 +113,10 @@ app.get('/profile', authMiddleware.verifyToken, (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'profile.html'));
 });
 
+app.get('/admin/checkout/create', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public', 'createCheckout.html'));
+});
+
 // // --------------------
 // // Global Error Handling
 // // --------------------
