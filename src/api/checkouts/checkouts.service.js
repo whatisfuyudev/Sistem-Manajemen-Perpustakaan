@@ -15,7 +15,7 @@ function addDays(date, days) {
 const MAX_RENEWALS = 2;
 
 exports.initiateCheckout = async (data) => {
-  const { userId, bookIsbn, role } = data;
+  const { userId, bookIsbn, role, customDays } = data;
   if (!userId || !bookIsbn) {
     throw new Error('Missing required fields: userId and bookIsbn.');
   }
@@ -33,12 +33,16 @@ exports.initiateCheckout = async (data) => {
     throw new Error('No available copies for checkout.');
   }
   
-  // Calculate due date based on role:
-  // Assume 14 days for Patrons, 30 days for Admin/Librarian.
+  // Calculate due date based on role or customDays:
+  // If customDays is provided and is a valid number greater than 0, use it.
+  // Otherwise, use 30 days for Admin/Librarian, and 14 days for Patrons.
   let loanPeriod = 14;
-  if (role && (role === 'Admin' || role === 'Librarian')) {
+  if (customDays && Number(customDays) > 0) {
+    loanPeriod = Number(customDays);
+  } else if (role && (role === 'Admin' || role === 'Librarian')) {
     loanPeriod = 30;
   }
+  
   const checkoutDate = new Date();
   const dueDate = addDays(checkoutDate, loanPeriod);
   
@@ -59,6 +63,7 @@ exports.initiateCheckout = async (data) => {
   
   return checkout;
 };
+
 
 exports.processReturn = async (data) => {
   const { checkoutId, returnDate } = data;

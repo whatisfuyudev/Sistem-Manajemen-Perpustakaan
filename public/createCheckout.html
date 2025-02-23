@@ -81,12 +81,30 @@
         font-size: 14px;
       }
     }
+    
+    /* Alert styles for messages */
+    .alert {
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 4px;
+    }
+    .alert-success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+    .alert-danger {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Checkout a Book</h1>
-    <form method="POST" action="/api/checkouts/checkout">
+    <!-- This div will show success or error messages -->
+    <div id="message"></div>
+    <!-- Added an id to the form for JS reference -->
+    <form id="checkoutForm" method="POST" action="/api/checkouts/checkout">
       <div class="form-group">
         <label for="userId">User ID</label>
         <input type="number" id="userId" name="userId" placeholder="Enter your user ID" required>
@@ -102,6 +120,18 @@
           <option value="Librarian">Librarian</option>
           <option value="Admin">Admin</option>
         </select>
+      </div>
+      <!-- New checkout duration fields -->
+      <div class="form-group">
+        <label for="checkoutDuration">Checkout Duration</label>
+        <select id="checkoutDuration" name="checkoutDuration" required>
+          <option value="standard" selected>Standard (7 days)</option>
+          <option value="custom">Custom</option>
+        </select>
+      </div>
+      <div class="form-group" id="customDaysContainer" style="display: none;">
+        <label for="customDays">Enter Custom Days</label>
+        <input type="number" id="customDays" name="customDays" placeholder="Enter number of days">
       </div>
       <button type="submit">Checkout Book</button>
     </form>
