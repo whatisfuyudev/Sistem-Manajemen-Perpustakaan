@@ -82,6 +82,11 @@ exports.processReturn = async (data) => {
   
   const actualReturnDate = returnDate ? new Date(returnDate) : new Date();
   
+  // Validate: Return date should not be before the checkout date
+  if (actualReturnDate < new Date(checkout.checkoutDate)) {
+    throw new Error('Return date cannot be before the checkout date.');
+  }
+  
   // Calculate fine if returned after due date ($0.50 per day)
   let fine = 0;
   if (actualReturnDate > checkout.dueDate) {
@@ -107,6 +112,7 @@ exports.processReturn = async (data) => {
   
   return updatedCheckout;
 };
+
 
 exports.renewCheckout = async (checkoutId, data) => {
   const checkout = await Checkout.findOne({ where: { id: checkoutId } });
