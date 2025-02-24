@@ -121,6 +121,10 @@ app.get('/admin/checkout/return', (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'returnCheckout.html'));
 });
 
+app.get('/admin/checkout/renew', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public', 'renewCheckout.html'));
+});
+
 // // --------------------
 // // Global Error Handling
 // // --------------------

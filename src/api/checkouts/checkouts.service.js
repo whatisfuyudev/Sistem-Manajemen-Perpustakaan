@@ -20,6 +20,12 @@ exports.initiateCheckout = async (data) => {
     throw new Error('Missing required fields: userId and bookIsbn.');
   }
   
+  // Check if the user exists
+  const user = await User.findOne({ where: { id: userId } });
+  if (!user) {
+    throw new Error('User not found.');
+  }
+  
   // Optionally, check user eligibility (fines, overdue items, etc.)
   // For simplicity, we assume eligibility here.
   
@@ -128,10 +134,15 @@ exports.renewCheckout = async (checkoutId, data) => {
     throw new Error('Renewal limit exceeded.');
   }
   
-  // Optionally: Check if the book is reserved by another patron before renewing
+  // Determine renewal period
+  // Default is 14 days unless custom is provided.
+  let renewalDays = 14;
+  if (data.renewalOption === 'custom' && data.customDays && Number(data.customDays) > 0) {
+    renewalDays = Number(data.customDays);
+  }
   
-  // Extend due date by the standard period (e.g., 14 days)
-  const newDueDate = addDays(checkout.dueDate, 14);
+  // Extend due date by the determined period
+  const newDueDate = addDays(checkout.dueDate, renewalDays);
   
   const updatedCheckout = await checkout.update({
     renewalCount: checkout.renewalCount + 1,
