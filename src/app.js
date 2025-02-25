@@ -15,6 +15,7 @@ const morgan = require('morgan');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const authMiddleware = require('./middleware/auth.middleware');
+const overdueChecker = require('./utils/checkoutOverdueChecker');
 
 const app = express();
 
@@ -123,6 +124,10 @@ app.get('/admin/checkout/return', (req, res) => {
 
 app.get('/admin/checkout/renew', (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'renewCheckout.html'));
+});
+
+app.get('/admin/checkout/history', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public', 'checkoutHistory.html'));
 });
 
 // // --------------------
