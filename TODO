@@ -10,17 +10,12 @@
    "
    
 2. do for then checkouts, then reservations, then reports, then notification, do more on auth functionalities
-  - checkouts is for librarian
+  
   - test all endpoint, make an html page that interacts with it
-    - test "history" route
-      - why there is no overdue, late, damaged returned checkouts?
-        - test the overdue checker, modify directly inside the database and see if the
-          status will change into "overdue"
-      - return checkout route should include the option to pick "lost" or "damaged"
-        maybe put some fines too
-  - reservations is for user
-    - modify reservation, promote reservation, get history is for admin/librarian
-    - the rest is for client/patron
+    - now do reservation routes, controller, services
+      - modify reservation, promote reservation, get history is for admin/librarian
+      - the rest is for client/patron
+
         
 
 3. make user interface, reponsive html pages
@@ -34,6 +29,7 @@
 - make two different endpoints, one for admin/librarian, the other for client/patron/user
   - New Endpoint to get single user by their id (admin/librarian only)
   - New Endpoint to update a user by their id (admin/librarian only)
+- make a new middleware auth function that checks for "librarian" role and "admin" role (different endpoint)
 - implement refresh tokens and expiration checking for main auth jwt_token (1 hour expiration time)
   - refresh tokens last for a long time, like 1 week or 1 month
 
@@ -41,3 +37,5 @@ this app will have two sides, one for patron (book enjoyer) and one for libraria
 - patron can only make reservation to borrow books, see their profile, and see all books, search books with ui
 - librarian can add books, see all books, see all patrons, see all borrowed books, see all reservations, see all fines, see all reports, manage borrowing
 
+- checkouts is for librarian
+- reservations is for user (only some of it, other endpoints is for admin/librarian)

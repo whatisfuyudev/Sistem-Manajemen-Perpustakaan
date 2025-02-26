@@ -4,9 +4,10 @@ document.getElementById('returnForm').addEventListener('submit', async function(
   const messageDiv = document.getElementById('message');
   messageDiv.innerHTML = '';
   
-  // Gather and validate form data
+  // Gather form data
   const checkoutId = document.getElementById('checkoutId').value.trim();
   const returnDate = document.getElementById('returnDate').value.trim();
+  const returnStatus = document.getElementById('returnStatus').value;
   
   if (!checkoutId) {
     messageDiv.innerHTML = '<div class="alert alert-danger">Checkout ID is required.</div>';
@@ -14,7 +15,7 @@ document.getElementById('returnForm').addEventListener('submit', async function(
   }
   
   // Build payload for the return process
-  const payload = { checkoutId };
+  const payload = { checkoutId, returnStatus };
   if (returnDate) {
     payload.returnDate = returnDate;
   }
@@ -31,7 +32,8 @@ document.getElementById('returnForm').addEventListener('submit', async function(
     if (response.ok) {
       const result = await response.json();
       const returnedDate = new Date(result.returnDate).toLocaleDateString();
-      messageDiv.innerHTML = `<div class="alert alert-success">Return processed successfully! Fine: $${result.fine || '0.00'}. Returned on: ${returnedDate}.</div>`;
+      const messageText = `Return processed successfully! Status: ${result.status}. Fine: $${result.fine || '0.00'}. Returned on: ${returnedDate}.`;
+      messageDiv.innerHTML = `<div class="alert alert-success">${messageText}</div>`;
     } else {
       const errorText = await response.text();
       messageDiv.innerHTML = `<div class="alert alert-danger">Error: ${errorText}</div>`;

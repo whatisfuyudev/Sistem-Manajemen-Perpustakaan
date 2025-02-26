@@ -72,7 +72,7 @@ exports.initiateCheckout = async (data) => {
 
 
 exports.processReturn = async (data) => {
-  const { checkoutId, returnDate } = data;
+  const { checkoutId, returnDate, returnStatus } = data;
   if (!checkoutId) {
     throw new Error('Missing checkoutId.');
   }
@@ -93,27 +93,43 @@ exports.processReturn = async (data) => {
     throw new Error('Return date cannot be before the checkout date.');
   }
   
-  // Calculate fine if returned after due date ($0.50 per day)
+  // Determine final status and fine
+  // If the admin marks the item as "lost" or "damaged", use fixed fines.
+  // Otherwise, if "returned", calculate overdue fine if applicable.
   let fine = 0;
-  if (actualReturnDate > checkout.dueDate) {
-    const lateDays = Math.ceil((actualReturnDate - checkout.dueDate) / (1000 * 60 * 60 * 24));
-    fine = lateDays * 0.50;
+  let finalStatus = 'returned';
+  
+  if (returnStatus && (returnStatus === 'lost' || returnStatus === 'damaged')) {
+    finalStatus = returnStatus;
+    if (returnStatus === 'lost') {
+      fine = 20.00; // Fixed fine for lost items
+    } else if (returnStatus === 'damaged') {
+      fine = 10.00; // Fixed fine for damaged items
+    }
+  } else {
+    // Standard returned: Calculate overdue fine if returned after due date
+    if (actualReturnDate > checkout.dueDate) {
+      const lateDays = Math.ceil((actualReturnDate - checkout.dueDate) / (1000 * 60 * 60 * 24));
+      fine = lateDays * 0.50;
+    }
   }
   
   // Update the checkout record
   const updatedCheckout = await checkout.update({
     returnDate: actualReturnDate,
-    status: 'returned',
+    status: finalStatus,
     fine
   });
   
-  // Increase available copies in the associated book record
-  const book = await Book.findOne({ where: { isbn: checkout.bookIsbn } });
-  if (book) {
-    await Book.update(
-      { availableCopies: book.availableCopies + 1 },
-      { where: { isbn: checkout.bookIsbn } }
-    );
+  // Increase available copies only if the item is returned in good condition.
+  if (finalStatus === 'returned') {
+    const book = await Book.findOne({ where: { isbn: checkout.bookIsbn } });
+    if (book) {
+      await Book.update(
+        { availableCopies: book.availableCopies + 1 },
+        { where: { isbn: checkout.bookIsbn } }
+      );
+    }
   }
   
   return updatedCheckout;
