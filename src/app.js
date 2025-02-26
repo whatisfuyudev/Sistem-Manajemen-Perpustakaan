@@ -76,8 +76,16 @@ app.use('/api/auth', authRoutes);
 const checkoutRoutes = require('./api/checkouts/checkouts.routes');
 app.use('/api/checkouts', checkoutRoutes);
 
+// Mount reservation routes
+const reservationRoutes = require('./api/reservations/reservations.routes');
+app.use('/api/reservations', reservationRoutes);
+
 // Optionally, you can define a route for the homepage (if it’s static).
 // This example sends the static index.html from the public folder.
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public', 'homepage.html'));
+});
+
 app.get('/books/delete', (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'deleteBook.html'));
 });
