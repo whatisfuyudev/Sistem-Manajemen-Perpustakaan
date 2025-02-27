@@ -13,8 +13,10 @@
   
   - test all endpoint, make an html page that interacts with it
     - now do reservation routes, controller, services
+      - test client/patron api first
       - modify reservation, promote reservation, get history is for admin/librarian
-        - make a new middleware auth function that checks for "librarian" role and "admin" role (different endpoint)
+        - put authentication middleware functions on admin/librarian api and test them
+
       - the rest is for client/patron
 
         
@@ -31,6 +33,15 @@
 - make two different endpoints, one for admin/librarian, the other for client/patron/user
   - New Endpoint to get single user by their id (admin/librarian only)
   - New Endpoint to update a user by their id (admin/librarian only)
+
+- make the correct Flow for reserving a book
+  1. User is in homepage or in search result page
+  2. User click on book
+  3. Go to individual book page with all book information and a button for reserving that book
+  4. When user click that reserving book, it sends the correct and needed book data to the api
+  5. A reservation is made
+
+
 
 - implement refresh tokens and expiration checking for main auth jwt_token (1 hour expiration time)
   - refresh tokens last for a long time, like 1 week or 1 month

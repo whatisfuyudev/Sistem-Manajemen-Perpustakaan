@@ -2,6 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const reservationsController = require('./reservations.controller');
+const authMiddleware = require('../../middleware/auth.middleware');
 
 // Create a new reservation
 router.post('/reserve', reservationsController.createReservation);
@@ -13,7 +14,7 @@ router.put('/cancel/:id', reservationsController.cancelReservation);
 router.put('/modify/:id', reservationsController.modifyReservation);
 
 // Promote the next pending reservation for a book when available
-router.put('/promote/:bookIsbn', reservationsController.promoteNextReservation);
+router.put('/promote/:bookIsbn', authMiddleware.verifyToken, authMiddleware.isLibrarianOrAdmin, reservationsController.promoteNextReservation);
 
 // Retrieve reservation history (supports query parameters for filtering)
 router.get('/history', reservationsController.getReservationHistory);

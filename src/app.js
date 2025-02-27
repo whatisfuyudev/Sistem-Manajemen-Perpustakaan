@@ -138,6 +138,10 @@ app.get('/admin/checkout/history', (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'checkoutHistory.html'));
 });
 
+app.get('/reservations/create', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public', 'createReservation.html'));
+});
+
 // // --------------------
 // // Global Error Handling
 // // --------------------
