@@ -20,3 +20,26 @@ exports.verifyToken = (req, res, next) => {
     next();
   });
 };
+
+// Middleware to ensure user is a Librarian
+exports.isLibrarian = (req, res, next) => {
+  if (req.user && req.user.role === 'Librarian') {
+    return next();
+  }
+  return res.status(403).json({ message: 'Access denied. Librarian role required.' });
+};
+
+// Middleware to ensure user is an Admin
+exports.isAdmin = (req, res, next) => {
+  if (req.user && req.user.role === 'Admin') {
+    return next();
+  }
+  return res.status(403).json({ message: 'Access denied. Admin role required.' });
+};
+
+exports.isLibrarianOrAdmin = (req, res, next) => {
+  if (req.user && (req.user.role === 'Librarian' || req.user.role === 'Admin')) {
+    return next();
+  }
+  return res.status(403).json({ message: 'Access denied. Librarian or Admin role required.' });
+};

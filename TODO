@@ -14,6 +14,7 @@
   - test all endpoint, make an html page that interacts with it
     - now do reservation routes, controller, services
       - modify reservation, promote reservation, get history is for admin/librarian
+        - make a new middleware auth function that checks for "librarian" role and "admin" role (different endpoint)
       - the rest is for client/patron
 
         
@@ -30,7 +31,7 @@
 - make two different endpoints, one for admin/librarian, the other for client/patron/user
   - New Endpoint to get single user by their id (admin/librarian only)
   - New Endpoint to update a user by their id (admin/librarian only)
-- make a new middleware auth function that checks for "librarian" role and "admin" role (different endpoint)
+
 - implement refresh tokens and expiration checking for main auth jwt_token (1 hour expiration time)
   - refresh tokens last for a long time, like 1 week or 1 month
 
