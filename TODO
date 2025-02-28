@@ -41,6 +41,17 @@
   4. When user click that reserving book, it sends the correct and needed book data to the api
   5. A reservation is made
 
+- make the correct flow for cancelling a reservation
+  1. user is on my reservation page
+  2. on each reservation there will be a button that
+     when pressed, will send the reservation id to the api
+
+- make the correct modify reservation flow
+  1. user is on my reservation page
+  2. user click on a reservation, redirect to individual reservation page
+  3. there is a button to modify it
+  4. after modifying things, there is a send button, click and it sends the data to the api
+
 
 
 - implement refresh tokens and expiration checking for main auth jwt_token (1 hour expiration time)

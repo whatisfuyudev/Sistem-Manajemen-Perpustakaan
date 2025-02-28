@@ -2,6 +2,7 @@
 const { Op } = require('sequelize');
 const Reservation = require('../../models/reservation.model');
 const Book = require('../../models/book.model');  // For integration with checkouts/inventory (if needed)
+const User = require('../../models/user.model')
 
 const MAX_ACTIVE_RESERVATIONS = 5;
 const RESERVATION_EXPIRATION_HOURS = 48; // Hours until an available reservation expires
@@ -27,9 +28,24 @@ exports.createReservation = async (data) => {
     throw new Error('Missing required fields: userId and bookIsbn.');
   }
 
+  // Verify that the book exists
+  const book = await Book.findOne({ where: { isbn: bookIsbn } });
+  if (!book) {
+    throw new Error('Book not found.');
+  }
+
+  // Verify that the user exists
+  const user = await User.findOne({ where: { id: userId } });
+  if (!user) {
+    throw new Error('User not found.');
+  }
+
   // Check if the user already has too many active reservations (pending or available)
   const activeReservationsCount = await Reservation.count({
-    where: { userId, status: { [Op.in]: ['pending', 'available'] } }
+    where: { 
+      userId, 
+      status: { [Op.in]: ['pending', 'available'] }
+    }
   });
   if (activeReservationsCount >= MAX_ACTIVE_RESERVATIONS) {
     throw new Error('Reservation limit exceeded.');
@@ -53,6 +69,7 @@ exports.createReservation = async (data) => {
   return reservation;
 };
 
+
 exports.cancelReservation = async (reservationId) => {
   const reservation = await Reservation.findOne({ where: { id: reservationId } });
   if (!reservation) {
@@ -71,19 +88,29 @@ exports.cancelReservation = async (reservationId) => {
   return reservation;
 };
 
+
+// currently only able to modify the notes
 exports.modifyReservation = async (reservationId, updateData) => {
   const reservation = await Reservation.findOne({ where: { id: reservationId } });
   if (!reservation) {
     throw new Error('Reservation not found.');
   }
+  
+  // Only allow modifications if the reservation is pending
+  if (reservation.status !== 'pending') {
+    throw new Error('Only pending reservations can be modified.');
+  }
+  
   // Allow modifications on specific fields (e.g., notes)
   if (updateData.notes !== undefined) {
     reservation.notes = updateData.notes;
   }
+  
   // Additional fields may be allowed as needed.
   await reservation.save();
   return reservation;
 };
+
 
 exports.promoteNextReservation = async (bookIsbn) => {
   // Find the earliest pending reservation for the book

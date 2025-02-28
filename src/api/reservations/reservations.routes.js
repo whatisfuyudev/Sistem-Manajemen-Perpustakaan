@@ -17,6 +17,6 @@ router.put('/modify/:id', reservationsController.modifyReservation);
 router.put('/promote/:bookIsbn', authMiddleware.verifyToken, authMiddleware.isLibrarianOrAdmin, reservationsController.promoteNextReservation);
 
 // Retrieve reservation history (supports query parameters for filtering)
-router.get('/history', reservationsController.getReservationHistory);
+router.get('/history', authMiddleware.verifyToken, authMiddleware.isLibrarianOrAdmin,reservationsController.getReservationHistory);
 
 module.exports = router;
