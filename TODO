@@ -14,7 +14,7 @@
   - test all endpoint, make an html page that interacts with it
     - now do reservation routes, controller, services
       - modify reservation, promote reservation, get history is for admin/librarian
-        - put authentication middleware functions on admin/librarian api and test them
+        - test reservation history route
 
       - the rest is for client/patron
 
