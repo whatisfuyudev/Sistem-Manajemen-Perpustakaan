@@ -16,12 +16,11 @@
       - modify reservation, promote reservation, get history is for admin/librarian
         - test reservation history route
 
-      - the rest is for client/patron
-
-        
+  - notification through email
 
 3. make user interface, reponsive html pages
   - homepage needs some fixing
+  - every page should be proper and interconnected
 
 ### General TODO
 - make sure the book service works properly, ensure data sanitization
