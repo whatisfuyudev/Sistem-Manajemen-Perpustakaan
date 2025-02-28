@@ -15,7 +15,8 @@ const morgan = require('morgan');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const authMiddleware = require('./middleware/auth.middleware');
-const overdueChecker = require('./utils/checkoutOverdueChecker');
+// importing it so it runs even if the variable is not used
+const overdueChecker = require('./utils/checkoutOverdueChecker'); 
 
 const app = express();
 
@@ -122,19 +123,31 @@ app.get('/profile', authMiddleware.verifyToken, (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'profile.html'));
 });
 
-app.get('/admin/checkout/create', (req, res) => {
+app.get('/admin/checkout/create', 
+  authMiddleware.verifyToken, 
+  authMiddleware.isLibrarianOrAdmin, 
+  (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'createCheckout.html'));
 });
 
-app.get('/admin/checkout/return', (req, res) => {
+app.get('/admin/checkout/return', 
+  authMiddleware.verifyToken, 
+  authMiddleware.isLibrarianOrAdmin, 
+  (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'returnCheckout.html'));
 });
 
-app.get('/admin/checkout/renew', (req, res) => {
+app.get('/admin/checkout/renew', 
+  authMiddleware.verifyToken, 
+  authMiddleware.isLibrarianOrAdmin, 
+  (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'renewCheckout.html'));
 });
 
-app.get('/admin/checkout/history', (req, res) => {
+app.get('/admin/checkout/history', 
+  authMiddleware.verifyToken, 
+  authMiddleware.isLibrarianOrAdmin, 
+  (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'checkoutHistory.html'));
 });
 
@@ -148,6 +161,13 @@ app.get('/reservations/cancel', (req, res) => {
 
 app.get('/reservations/modify', (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'modifyReservation.html'));
+});
+
+app.get('/admin/reservations/promote', 
+  authMiddleware.verifyToken, 
+  authMiddleware.isLibrarianOrAdmin, 
+  (req, res) => {
+  res.sendFile(path.join(__dirname, '../public', 'promoteReservation.html'));
 });
 
 // // --------------------

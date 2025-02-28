@@ -13,7 +13,6 @@
   
   - test all endpoint, make an html page that interacts with it
     - now do reservation routes, controller, services
-      - test client/patron api first
       - modify reservation, promote reservation, get history is for admin/librarian
         - put authentication middleware functions on admin/librarian api and test them
 
