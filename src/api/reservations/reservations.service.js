@@ -9,7 +9,7 @@ const MAX_ACTIVE_RESERVATIONS = 5;
 const RESERVATION_EXPIRATION_HOURS = 48; // Hours until an available reservation expires
 
 exports.createReservation = async (data) => {
-  const { userId, bookIsbn } = data;
+  const { userId, bookIsbn, notes } = data;
   if (!userId || !bookIsbn) {
     throw new Error('Missing required fields: userId and bookIsbn.');
   }
@@ -61,7 +61,8 @@ exports.createReservation = async (data) => {
     bookIsbn,
     queuePosition,
     requestDate: new Date(),
-    status: 'pending'
+    status: 'pending',
+    notes 
   });
 
   return reservation;
@@ -78,14 +79,31 @@ exports.cancelReservation = async (reservationId) => {
   if (!['pending', 'available'].includes(reservation.status)) {
     throw new Error('Reservation cannot be canceled.');
   }
+  
+  // Capture the current status before canceling
+  const oldStatus = reservation.status;
+  
+  // Cancel the reservation
   reservation.status = 'canceled';
   await reservation.save();
 
   // Adjust queue positions for remaining pending reservations of this book
   await queueHelper.adjustQueuePositions(reservation.bookIsbn);
 
+  // If the reservation was "available", add 1 to book availableCopies
+  if (oldStatus === 'available') {
+    const book = await Book.findOne({ where: { isbn: reservation.bookIsbn } });
+    if (book) {
+      await Book.update(
+        { availableCopies: book.availableCopies + 1 },
+        { where: { isbn: reservation.bookIsbn } }
+      );
+    }
+  }
+
   return reservation;
 };
+
 
 
 // currently only able to modify the notes
@@ -120,14 +138,25 @@ exports.promoteNextReservation = async (bookIsbn) => {
   if (!reservation) {
     throw new Error('No pending reservations for this book.');
   }
+  
   // Mark the reservation as available and set an expiration date (48 hours from now)
   reservation.status = 'available';
   reservation.expirationDate = new Date(Date.now() + RESERVATION_EXPIRATION_HOURS * 60 * 60 * 1000);
   await reservation.save();
 
-  // In a real application, you might send a notification to the user here.
+  // Retrieve the book record and decrement availableCopies by one
+  const book = await Book.findOne({ where: { isbn: bookIsbn } });
+  if (book) {
+    await Book.update(
+      { availableCopies: book.availableCopies - 1 },
+      { where: { isbn: bookIsbn } }
+    );
+  }
+  
+  // Optionally, send a notification to the user here.
   return reservation;
 };
+
 
 exports.getReservationHistory = async (query) => {
   const where = {};

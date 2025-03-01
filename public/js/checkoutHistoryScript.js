@@ -1,12 +1,19 @@
 document.addEventListener('DOMContentLoaded', function() {
   const tableBody = document.querySelector('#checkoutTable tbody');
   const filterButtons = document.querySelectorAll('.filter-buttons button');
+  const messageDiv = document.getElementById('message');
   let checkoutData = [];
-
+  
   // Fetch checkout history from the API
   async function fetchCheckoutHistory() {
     try {
-      const response = await fetch('/api/checkouts/history');
+      const response = await fetch('/api/checkouts/history', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+          // Add Authorization header if needed
+        }
+      });
       if (!response.ok) {
         throw new Error('Failed to fetch checkout history.');
       }
@@ -14,15 +21,15 @@ document.addEventListener('DOMContentLoaded', function() {
       renderTable(checkoutData);
     } catch (error) {
       console.error('Error fetching data:', error);
-      tableBody.innerHTML = '<tr><td colspan="9" class="error">Error loading data.</td></tr>';
+      tableBody.innerHTML = '<tr><td colspan="10" class="error">Error loading data.</td></tr>';
     }
   }
-
-  // Render table rows based on the provided data
+  
+  // Render table rows based on provided data
   function renderTable(data) {
     tableBody.innerHTML = '';
     if (data.length === 0) {
-      tableBody.innerHTML = '<tr><td colspan="9">No checkout records found.</td></tr>';
+      tableBody.innerHTML = '<tr><td colspan="10">No checkout records found.</td></tr>';
       return;
     }
     data.forEach(item => {
@@ -31,6 +38,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <td>${item.id}</td>
         <td>${item.userId}</td>
         <td>${item.bookIsbn}</td>
+        <td>${item.reservationId || '-'}</td>
         <td>${new Date(item.checkoutDate).toLocaleDateString()}</td>
         <td>${new Date(item.dueDate).toLocaleDateString()}</td>
         <td>${item.returnDate ? new Date(item.returnDate).toLocaleDateString() : '-'}</td>
@@ -41,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
       tableBody.appendChild(tr);
     });
   }
-
+  
   // Filter data based on selected status
   function applyFilter(filter) {
     let filteredData;
@@ -52,19 +60,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     renderTable(filteredData);
   }
-
-  // Set up event listeners for filter buttons
+  
+  // Event listeners for filter buttons
   filterButtons.forEach(button => {
     button.addEventListener('click', function() {
-      // Remove active state from all buttons
       filterButtons.forEach(btn => btn.classList.remove('active'));
-      // Set active state on the clicked button
       this.classList.add('active');
       const filter = this.getAttribute('data-filter');
       applyFilter(filter);
     });
   });
-
+  
   // Initial data fetch
   fetchCheckoutHistory();
 });

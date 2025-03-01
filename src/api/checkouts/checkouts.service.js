@@ -62,12 +62,6 @@ exports.initiateCheckout = async (data) => {
       status: 'active'
     }, { transaction });
     
-    // Update book availability: decrement available copies
-    await Book.update(
-      { availableCopies: book.availableCopies - 1 },
-      { where: { isbn: bookIsbn }, transaction }
-    );
-    
     // Check if there is an available reservation for this book.
     // This example assumes you want the earliest available reservation.
     const availableReservation = await Reservation.findOne({
@@ -75,6 +69,18 @@ exports.initiateCheckout = async (data) => {
       order: [['queuePosition', 'ASC']],
       transaction
     });
+    
+    // if there is no reservation linked to the checkout
+    // decrement the book copies, else don't decrement it
+    // because we already decrement it when the reservation 
+    // becomes available/promoted
+    if (!availableReservation) {
+      // Update book availability: decrement available copies
+      await Book.update(
+        { availableCopies: book.availableCopies - 1 },
+        { where: { isbn: bookIsbn }, transaction }
+      );
+    }
     
     if (availableReservation) {
       // Link the checkout to the reservation if needed.

@@ -20,7 +20,7 @@
       max-width: 1200px;
       margin: auto;
       background-color: #fff;
-      padding: 20px;
+      padding: 20px 30px;
       border-radius: 8px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
@@ -99,18 +99,20 @@
       td:nth-of-type(1):before { content: "ID"; }
       td:nth-of-type(2):before { content: "User ID"; }
       td:nth-of-type(3):before { content: "Book ISBN"; }
-      td:nth-of-type(4):before { content: "Checkout Date"; }
-      td:nth-of-type(5):before { content: "Due Date"; }
-      td:nth-of-type(6):before { content: "Return Date"; }
-      td:nth-of-type(7):before { content: "Status"; }
-      td:nth-of-type(8):before { content: "Renewals"; }
-      td:nth-of-type(9):before { content: "Fine"; }
+      td:nth-of-type(4):before { content: "Reservation ID"; }
+      td:nth-of-type(5):before { content: "Checkout Date"; }
+      td:nth-of-type(6):before { content: "Due Date"; }
+      td:nth-of-type(7):before { content: "Return Date"; }
+      td:nth-of-type(8):before { content: "Status"; }
+      td:nth-of-type(9):before { content: "Renewals"; }
+      td:nth-of-type(10):before { content: "Fine"; }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Checkout History</h1>
+    
     <!-- Filter Buttons -->
     <div class="filter-buttons">
       <button data-filter="all" class="active">All</button>
@@ -120,6 +122,10 @@
       <button data-filter="lost">Lost</button>
       <button data-filter="damaged">Damaged</button>
     </div>
+    
+    <!-- Message Container -->
+    <div id="message"></div>
+    
     <!-- Checkout Data Table -->
     <table id="checkoutTable">
       <thead>
@@ -127,6 +133,7 @@
           <th>ID</th>
           <th>User ID</th>
           <th>Book ISBN</th>
+          <th>Reservation ID</th>
           <th>Checkout Date</th>
           <th>Due Date</th>
           <th>Return Date</th>
@@ -140,9 +147,9 @@
       </tbody>
     </table>
   </div>
-
+  
   <script src="/public/js/checkoutHistoryScript.js">
-    
+
   </script>
 </body>
 </html>
