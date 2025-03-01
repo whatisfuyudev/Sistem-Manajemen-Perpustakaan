@@ -43,6 +43,17 @@ const Checkout = sequelize.define('Checkout', {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: true,
     defaultValue: 0.00
+  },
+  reservationId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'reservations', // Name of the target table (the reservations table)
+      key: 'id'            // Column in the target table that this field references
+    }
+    // Optionally, you can add onUpdate and onDelete constraints:
+    // onUpdate: 'CASCADE',
+    // onDelete: 'SET NULL'
   }
 }, {
   tableName: 'checkouts',

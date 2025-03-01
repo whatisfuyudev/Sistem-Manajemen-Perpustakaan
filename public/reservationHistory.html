@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reservation History</title>
+  <style>
+    /* Basic Reset */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      padding: 20px;
+    }
+    .container {
+      max-width: 900px;
+      margin: 30px auto;
+      background: #fff;
+      padding: 20px 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+    .filters {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .filters button {
+      margin: 5px;
+      padding: 10px 15px;
+      font-size: 14px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      background-color: #007bff;
+      color: #fff;
+      transition: background-color 0.2s;
+    }
+    .filters button:hover {
+      background-color: #0056b3;
+    }
+    .filters button.active {
+      background-color: #0056b3;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+    th {
+      background-color: #007bff;
+      color: #fff;
+    }
+    .alert {
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    .alert-success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+    .alert-danger {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+      .container {
+        padding: 15px 20px;
+      }
+      th, td {
+        font-size: 12px;
+        padding: 8px;
+      }
+      .filters button {
+        padding: 8px 10px;
+        font-size: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Reservation History</h1>
+    
+    <!-- Filter Buttons -->
+    <div class="filters">
+      <button data-status="" class="active">All</button>
+      <button data-status="pending">Pending</button>
+      <button data-status="available">Available</button>
+      <button data-status="fulfilled">Fulfilled</button>
+      <button data-status="canceled">Canceled</button>
+      <button data-status="expired">Expired</button>
+    </div>
+    
+    <!-- Message Container -->
+    <div id="message"></div>
+    
+    <!-- Reservations Table -->
+    <table id="reservationsTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>User ID</th>
+          <th>Book ISBN</th>
+          <th>Request Date</th>
+          <th>Status</th>
+          <th>Expiration Date</th>
+          <th>Queue Position</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Reservation rows will be inserted here -->
+      </tbody>
+    </table>
+  </div>
+  
+  <script src="/public/js/reservationHistoryScript.js">
+
+  </script>
+</body>
+</html>

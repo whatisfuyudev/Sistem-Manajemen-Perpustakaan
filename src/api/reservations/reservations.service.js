@@ -3,24 +3,12 @@ const { Op } = require('sequelize');
 const Reservation = require('../../models/reservation.model');
 const Book = require('../../models/book.model');  // For integration with checkouts/inventory (if needed)
 const User = require('../../models/user.model')
+const queueHelper = require('../../utils/queueHelper');
 
 const MAX_ACTIVE_RESERVATIONS = 5;
 const RESERVATION_EXPIRATION_HOURS = 48; // Hours until an available reservation expires
 
-// Helper function to adjust queue positions after a cancellation or fulfillment
-async function adjustQueuePositions(bookIsbn) {
-  const reservations = await Reservation.findAll({
-    where: { bookIsbn, status: 'pending' },
-    order: [['queuePosition', 'ASC']]
-  });
-  for (let i = 0; i < reservations.length; i++) {
-    const reservation = reservations[i];
-    if (reservation.queuePosition !== i + 1) {
-      reservation.queuePosition = i + 1;
-      await reservation.save();
-    }
-  }
-}
+
 
 exports.createReservation = async (data) => {
   const { userId, bookIsbn } = data;
@@ -38,6 +26,18 @@ exports.createReservation = async (data) => {
   const user = await User.findOne({ where: { id: userId } });
   if (!user) {
     throw new Error('User not found.');
+  }
+
+  // Check if the user already has an active reservation for this book
+  const existingReservation = await Reservation.findOne({
+    where: { 
+      userId, 
+      bookIsbn,
+      status: { [Op.in]: ['pending', 'available'] }
+    }
+  });
+  if (existingReservation) {
+    throw new Error('User already has an active reservation for this book.');
   }
 
   // Check if the user already has too many active reservations (pending or available)
@@ -70,6 +70,7 @@ exports.createReservation = async (data) => {
 };
 
 
+
 exports.cancelReservation = async (reservationId) => {
   const reservation = await Reservation.findOne({ where: { id: reservationId } });
   if (!reservation) {
@@ -83,7 +84,7 @@ exports.cancelReservation = async (reservationId) => {
   await reservation.save();
 
   // Adjust queue positions for remaining pending reservations of this book
-  await adjustQueuePositions(reservation.bookIsbn);
+  await queueHelper.adjustQueuePositions(reservation.bookIsbn);
 
   return reservation;
 };

@@ -17,6 +17,7 @@ const cookieParser = require('cookie-parser');
 const authMiddleware = require('./middleware/auth.middleware');
 // importing it so it runs even if the variable is not used
 const overdueChecker = require('./utils/checkoutOverdueChecker'); 
+const expiredChecker = require('./utils/reservationExpiredChecker');
 
 const app = express();
 
@@ -123,28 +124,28 @@ app.get('/profile', authMiddleware.verifyToken, (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'profile.html'));
 });
 
-app.get('/admin/checkout/create', 
+app.get('/admin/checkouts/create', 
   authMiddleware.verifyToken, 
   authMiddleware.isLibrarianOrAdmin, 
   (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'createCheckout.html'));
 });
 
-app.get('/admin/checkout/return', 
+app.get('/admin/checkouts/return', 
   authMiddleware.verifyToken, 
   authMiddleware.isLibrarianOrAdmin, 
   (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'returnCheckout.html'));
 });
 
-app.get('/admin/checkout/renew', 
+app.get('/admin/checkouts/renew', 
   authMiddleware.verifyToken, 
   authMiddleware.isLibrarianOrAdmin, 
   (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'renewCheckout.html'));
 });
 
-app.get('/admin/checkout/history', 
+app.get('/admin/checkouts/history', 
   authMiddleware.verifyToken, 
   authMiddleware.isLibrarianOrAdmin, 
   (req, res) => {
@@ -168,6 +169,13 @@ app.get('/admin/reservations/promote',
   authMiddleware.isLibrarianOrAdmin, 
   (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'promoteReservation.html'));
+});
+
+app.get('/admin/reservations/history', 
+  authMiddleware.verifyToken, 
+  authMiddleware.isLibrarianOrAdmin, 
+  (req, res) => {
+  res.sendFile(path.join(__dirname, '../public', 'reservationHistory.html'));
 });
 
 // // --------------------

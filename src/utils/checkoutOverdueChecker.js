@@ -42,6 +42,7 @@ async function updateOverdueCheckouts() {
   return affectedRows;
 }
 
+// checks every single day at 12:00 AM midnight
 cron.schedule('0 0 * * *', async () => {
   try {
     // Update overdue checkouts

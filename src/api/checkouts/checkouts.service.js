@@ -1,8 +1,9 @@
-// src/api/checkouts/checkouts.service.js
-const { Op } = require('sequelize');
+const sequelize = require('../../utils/db'); // Assuming you export your sequelize instance
 const Checkout = require('../../models/checkout.model');
 const Book = require('../../models/book.model');
-const User = require('../../models/user.model'); // Optional: for additional eligibility checks
+const User = require('../../models/user.model');
+const Reservation = require('../../models/reservation.model'); // Import the reservation model
+const queueHelper = require('../../utils/queueHelper');
 
 // Helper to add days to a date
 function addDays(date, days) {
@@ -26,9 +27,6 @@ exports.initiateCheckout = async (data) => {
     throw new Error('User not found.');
   }
   
-  // Optionally, check user eligibility (fines, overdue items, etc.)
-  // For simplicity, we assume eligibility here.
-  
   // Retrieve the book record
   const book = await Book.findOne({ where: { isbn: bookIsbn } });
   if (!book) {
@@ -51,23 +49,54 @@ exports.initiateCheckout = async (data) => {
   
   const checkoutDate = new Date();
   const dueDate = addDays(checkoutDate, loanPeriod);
-  
-  // Create the checkout record
-  const checkout = await Checkout.create({
-    userId,
-    bookIsbn,
-    checkoutDate,
-    dueDate,
-    status: 'active'
-  });
-  
-  // Update book availability: decrement available copies
-  await Book.update(
-    { availableCopies: book.availableCopies - 1 },
-    { where: { isbn: bookIsbn } }
-  );
-  
-  return checkout;
+
+  // Begin transaction to ensure atomic operations
+  const transaction = await sequelize.transaction();
+  try {
+    // Create the checkout record
+    const checkout = await Checkout.create({
+      userId,
+      bookIsbn,
+      checkoutDate,
+      dueDate,
+      status: 'active'
+    }, { transaction });
+    
+    // Update book availability: decrement available copies
+    await Book.update(
+      { availableCopies: book.availableCopies - 1 },
+      { where: { isbn: bookIsbn }, transaction }
+    );
+    
+    // Check if there is an available reservation for this book.
+    // This example assumes you want the earliest available reservation.
+    const availableReservation = await Reservation.findOne({
+      where: { bookIsbn, status: 'available' },
+      order: [['queuePosition', 'ASC']],
+      transaction
+    });
+    
+    if (availableReservation) {
+      // Link the checkout to the reservation if needed.
+      // For example, you might store reservationId in the checkout record.
+      // Here, we'll update the reservation to mark it as fulfilled.
+      availableReservation.status = 'fulfilled';
+      await availableReservation.save({ transaction });
+      
+      await queueHelper.adjustQueuePositions(bookIsbn);
+
+      // Optionally, you can update the checkout with the reservation ID.
+      await checkout.update({ reservationId: availableReservation.id }, { transaction });
+    }
+    
+    // Commit the transaction
+    await transaction.commit();
+    
+    return checkout;
+  } catch (error) {
+    await transaction.rollback();
+    throw error;
+  }
 };
 
 
