@@ -8,8 +8,6 @@ const queueHelper = require('../../utils/queueHelper');
 const MAX_ACTIVE_RESERVATIONS = 5;
 const RESERVATION_EXPIRATION_HOURS = 48; // Hours until an available reservation expires
 
-
-
 exports.createReservation = async (data) => {
   const { userId, bookIsbn } = data;
   if (!userId || !bookIsbn) {

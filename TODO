@@ -15,7 +15,13 @@
     - connect checkout creation with reservation that is in "available" status
       when the checkout is created based on a reservation, 
       call the adjustQueuePositions(reservation.bookIsbn);
+      - when promoting a reservation, reduce available book copies
 
+      - when reservation status becomes expired, add back the available book copies.
+
+      - when cancelling a reservation with status available, add +1 bookcopies. cancelling a reservation with status pending does not add available book copies
+
+      - when creating a checkout, if there is an availableReservation, do not reduce available copies (because the copies have been reduced when the reservation is promoted)
   
   - reports functionality
   - notification through email
