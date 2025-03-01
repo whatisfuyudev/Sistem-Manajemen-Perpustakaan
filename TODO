@@ -10,18 +10,15 @@
    "
    
 2. do for then checkouts, then reservations, then reports, then notification, do more on auth functionalities
-  
   - test all endpoint, make an html page that interacts with it
-
-
-      - when reservation status becomes expired, add back the available book copies.
-
-      
-
-      
   
   - reports functionality
+    - make routes controllers services
+    - make html pages that interacts with it
+
   - notification through email
+    - when a reservation gets promoted and becomes available
+      send notification through email
 
 3. make user interface, reponsive html pages
   - homepage needs some fixing
@@ -56,6 +53,9 @@
   4. after modifying things, there is a send button, click and it sends the data to the api
 
 - add a search bar for checkout history and reservation history
+
+- pagination and or limit data fetching on checkout history and reservation history
+  so it does not load every single data immidiately
 
 - implement refresh tokens and expiration checking for main auth jwt_token (1 hour expiration time)
   - refresh tokens last for a long time, like 1 week or 1 month
