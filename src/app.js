@@ -184,7 +184,7 @@ app.get('/admin/reservations/history',
 
 app.get('/admin/reports', 
   authMiddleware.verifyToken, 
-  authMiddleware.isLibrarianOrAdmin, 
+  authMiddleware.isAdmin, 
   (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'report.html'));
 });

@@ -130,6 +130,8 @@ async function fetchAndRenderReport(type) {
     }
     
     const data = await response.json();
+
+
     renderReportTable(type, data);
   } catch (error) {
     console.error('Error fetching report data:', error);
@@ -161,11 +163,10 @@ function renderReportTable(type, data) {
       headers = ['User ID', 'Checkout Count'];
       break;
     case 'financial':
-      headers = ['Total Fines'];
+      headers = ['Status', 'Total Fines'];
       break;
     case 'custom':
-      // For custom report, we assume a generic checkout report similar to circulation
-      headers = ['ID', 'User ID', 'Book ISBN', 'Checkout Date', 'Due Date', 'Return Date', 'Status', 'Renewals', 'Fine'];
+      headers = ['ID', 'User ID', 'Book ISBN', 'Reservation ID', 'Checkout Date', 'Due Date', 'Return Date', 'Status', 'Renewals', 'Fine'];
       break;
     default:
       headers = [];
@@ -179,25 +180,97 @@ function renderReportTable(type, data) {
   headerRow += '</tr>';
   tableHeader.innerHTML = headerRow;
   
-  // Render table rows
-  if (!data || (Array.isArray(data) && data.length === 0)) {
-    tableBody.innerHTML = '<tr><td colspan="'+headers.length+'">No records found.</td></tr>';
+  // Normalize data based on report type
+  let rows = [];
+  if (type === 'circulation' && data.checkouts) {
+    rows = data.checkouts;
+  } else if (type === 'reservations' && data.reservations) {
+    rows = data.reservations;
+  } else if (type === 'overdue' && data.overdueCheckouts) {
+    rows = data.overdueCheckouts;
+  } else if (type === 'user-engagement' && data.userActivity) {
+    rows = data.userActivity;
+  } else if (type === 'financial' && Array.isArray(data)) {
+    rows = data;
+  } else if (Array.isArray(data)) {
+    rows = data;
+  }
+  
+  // Check if there are rows to display
+  if (!rows || rows.length === 0) {
+    tableBody.innerHTML = `<tr><td colspan="${headers.length}">No records found.</td></tr>`;
     return;
   }
   
-  // If the report returns an aggregated object (like circulation report), handle accordingly.
-  if (data.checkouts) {
-    // For circulation report (aggregated)
-    data.checkouts.forEach(item => {
+  // Render table rows
+  if (type === 'financial') {
+    let overallTotal = 0;
+    rows.forEach(item => {
+      // Sum the total fines; ensure the value is parsed as a float.
+      const fineAmount = parseFloat(item.totalFines) || 0;
+      overallTotal += fineAmount;
+      const row = `<tr>
+        <td>${item.status || 'Unknown'}</td>
+        <td>$${fineAmount.toFixed(2)}</td>
+      </tr>`;
+      tableBody.innerHTML += row;
+    });
+    // Append an extra row that sums all fines
+    const totalRow = `<tr style="font-weight:bold; background:#e9ecef;">
+      <td>Total Fines</td>
+      <td>$${overallTotal.toFixed(2)}</td>
+    </tr>`;
+    tableBody.innerHTML += totalRow;
+  } else if (type === 'circulation') {
+    rows.forEach(item => {
       const row = `<tr>
         <td>${item.date}</td>
         <td>${item.totalCheckouts}</td>
       </tr>`;
       tableBody.innerHTML += row;
     });
-  } else if (Array.isArray(data)) {
-    // Generic checkout records or others
-    data.forEach(item => {
+  } else if (type === 'reservations') {
+    rows.forEach(item => {
+      const row = `<tr>
+        <td>${item.id || '-'}</td>
+        <td>${item.userId || '-'}</td>
+        <td>${item.bookIsbn || '-'}</td>
+        <td>${item.requestDate ? new Date(item.requestDate).toLocaleDateString() : '-'}</td>
+        <td>${item.status || '-'}</td>
+      </tr>`;
+      tableBody.innerHTML += row;
+    });
+  } else if (type === 'overdue') {
+    rows.forEach(item => {
+      const row = `<tr>
+        <td>${item.id || '-'}</td>
+        <td>${item.userId || '-'}</td>
+        <td>${item.bookIsbn || '-'}</td>
+        <td>${item.dueDate ? new Date(item.dueDate).toLocaleDateString() : '-'}</td>
+        <td>$${item.fine || '0.00'}</td>
+      </tr>`;
+      tableBody.innerHTML += row;
+    });
+  } else if (type === 'inventory') {
+    rows.forEach(item => {
+      const row = `<tr>
+        <td>${item.isbn || '-'}</td>
+        <td>${item.title || '-'}</td>
+        <td>${item.availableCopies || '-'}</td>
+        <td>${item.totalCopies || '-'}</td>
+      </tr>`;
+      tableBody.innerHTML += row;
+    });
+  } else if (type === 'user-engagement') {
+    rows.forEach(item => {
+      const row = `<tr>
+        <td>${item.userId || '-'}</td>
+        <td>${item.checkoutCount || '-'}</td>
+      </tr>`;
+      tableBody.innerHTML += row;
+    });
+  } else if (type === 'custom') {
+    rows.forEach(item => {
       const row = `<tr>
         <td>${item.id || '-'}</td>
         <td>${item.userId || '-'}</td>
@@ -212,11 +285,39 @@ function renderReportTable(type, data) {
       </tr>`;
       tableBody.innerHTML += row;
     });
-  } else if (data.totalFines !== undefined) {
-    // For financial report
-    const row = `<tr><td>$${data.totalFines}</td></tr>`;
-    tableBody.innerHTML = row;
   }
+  
+  // If Financial tab, also render an explanation section.
+  if (type === 'financial') {
+    renderFinesExplanation();
+  }
+}
+
+// Render additional explanation section for the Financial Report
+function renderFinesExplanation() {
+  let explanationDiv = document.getElementById('finesExplanation');
+  if (!explanationDiv) {
+    explanationDiv = document.createElement('div');
+    explanationDiv.id = 'finesExplanation';
+    explanationDiv.style.marginTop = '20px';
+    explanationDiv.style.padding = '15px';
+    explanationDiv.style.background = '#f1f1f1';
+    explanationDiv.style.borderRadius = '8px';
+    explanationDiv.style.fontSize = '14px';
+    explanationDiv.style.lineHeight = '1.6';
+    document.getElementById('reportContent').appendChild(explanationDiv);
+  }
+  
+  explanationDiv.innerHTML = `
+    <h2>Understanding Financial Fines</h2>
+    <p>The <strong>Financial Report</strong> breaks down the fines collected from checkouts based on the item's status. In our system, fines typically arise when items are:</p>
+    <ul>
+      <li style="list-style-type: none;" ><strong>Overdue:</strong> Items returned after their due date incur a fine calculated per day.</li>
+      <li style="list-style-type: none;" ><strong>Lost:</strong> Items that are not returned are reported as lost, with a fine often equivalent to the replacement cost.</li>
+      <li style="list-style-type: none;" ><strong>Damaged:</strong> Items returned in a damaged condition may be subject to additional charges to cover repair or replacement.</li>
+    </ul>
+    <p>The table above lists each status along with the sum of fines associated with that category. The final row labeled <strong>Total Fines</strong> represents the aggregate sum across all categories, giving you a complete picture of the fines collected.</p>
+  `;
 }
 
 // Load the default report on initial page load (Circulation)

@@ -41,7 +41,7 @@ exports.getReservationReport = async (query) => {
   if (query.bookIsbn) where.bookIsbn = query.bookIsbn;
   // Group by status
   const reservations = await Reservation.findAll({ where, order: [['requestDate', 'DESC']] });
-  
+
   // Optionally, you can count or group by status
   const grouped = reservations.reduce((acc, res) => {
     acc[res.status] = (acc[res.status] || 0) + 1;
@@ -87,36 +87,43 @@ exports.getInventoryReport = async (query) => {
 /**
  * User Engagement Report: Aggregates user activity metrics.
  */
-exports.getUserEngagementReport = async (query) => {
-  // This report could combine data from Users and Checkouts
-  // For demonstration, we count checkouts per user.
-  const userActivity = await Checkout.findAll({
-    attributes: [
-      'userId',
-      [fn('COUNT', col('id')), 'checkoutCount']
-    ],
-    group: ['userId'],
-    order: [[literal('checkoutCount'), 'DESC']]
-  });
+  exports.getUserEngagementReport = async (query) => {
+    // This report could combine data from Users and Checkouts
+    // For demonstration, we count checkouts per user.
+    const userActivity = await Checkout.findAll({
+      attributes: [
+        'userId',
+        [fn('COUNT', col('id')), 'checkoutCount']
+      ],
+      group: ['userId'],
+      order: [[fn('COUNT', col('id')), 'DESC']]
+    });
+    
+    return userActivity;
+  };
   
-  return userActivity;
-};
 
 /**
- * Financial Report: Summarizes fines, overdue fees, and fine collections.
+ * Financial Report: Breaks down fines by source.
+ * Assumes that the Checkout model has a `fineType` column (e.g., 'overdue', 'lost', 'damaged', 'renewal').
  */
 exports.getFinancialReport = async (query) => {
-  const checkouts = await Checkout.findAll({
+  const fineBreakdown = await Checkout.findAll({
     attributes: [
+      'status', // Group by status instead of fineType
       [fn('SUM', col('fine')), 'totalFines']
     ],
     where: {
       fine: { [Op.gt]: 0 }
-    }
+    },
+    group: ['status'],
+    order: [[fn('SUM', col('fine')), 'DESC']]
   });
   
-  return checkouts[0];
+  return fineBreakdown;
 };
+
+
 
 /**
  * Custom Report: Supports ad hoc filters (e.g., date ranges, userId, etc.)
