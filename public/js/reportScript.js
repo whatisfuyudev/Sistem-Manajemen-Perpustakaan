@@ -1,3 +1,16 @@
+// Global pagination state and debouncing
+let currentPage = 1;
+const limit = 10; // Number of records per page
+let totalPages = 1;
+let debounceTimer;
+
+function debounce(fn, delay) {
+  return function(...args) {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => fn.apply(this, args), delay);
+  }
+}
+
 // Base API endpoints for each report type
 const API_ENDPOINTS = {
   circulation: '/api/reports/circulation',
@@ -17,8 +30,8 @@ tabs.forEach(tab => {
   tab.addEventListener('click', function() {
     tabs.forEach(btn => btn.classList.remove('active'));
     this.classList.add('active');
-    const reportType = this.getAttribute('data-report');
-    loadReport(reportType);
+    currentPage = 1; // Reset pagination when switching tabs
+    loadReport(this.getAttribute('data-report'));
   });
 });
 
@@ -60,7 +73,7 @@ async function loadReport(type) {
     filterHtml = `<div class="filter-form"><button id="loadReportBtn">Load Report</button></div>`;
   }
   
-  // Insert filter form and an empty table for results
+  // Insert filter form, an empty table, and pagination container for results
   reportContent.innerHTML = `
     <div id="filterContainer">
       ${filterHtml}
@@ -70,18 +83,19 @@ async function loadReport(type) {
       <thead id="tableHeader"></thead>
       <tbody id="tableBody"></tbody>
     </table>
+    <div id="paginationContainer" class="pagination"></div>
   `;
   
-  // Add event listener for the filter form button
-  document.getElementById('loadReportBtn').addEventListener('click', async () => {
+  // Debounce the fetch call to limit rapid requests
+  document.getElementById('loadReportBtn').addEventListener('click', debounce(async () => {
     await fetchAndRenderReport(type);
-  });
+  }, 300));
   
   // Optionally, auto-load the report on tab change
   await fetchAndRenderReport(type);
 }
 
-// Fetch and render report data based on type and filters
+// Fetch and render report data based on type, filters, and pagination
 async function fetchAndRenderReport(type) {
   const reportMessage = document.getElementById('reportMessage');
   const tableHeader = document.getElementById('tableHeader');
@@ -93,6 +107,12 @@ async function fetchAndRenderReport(type) {
   let url = API_ENDPOINTS[type];
   const params = new URLSearchParams();
   
+  // Add pagination parameters for paginated endpoints
+  if (['circulation','reservations','overdue','inventory','user-engagement','custom'].includes(type)) {
+    params.append('page', currentPage);
+    params.append('limit', limit);
+  }
+  
   // Collect filter data if applicable
   if (type === 'circulation') {
     const period = document.getElementById('period').value;
@@ -103,10 +123,8 @@ async function fetchAndRenderReport(type) {
     const userId = document.getElementById('userId').value;
     const bookIsbn = document.getElementById('bookIsbn').value;
     const status = document.getElementById('status').value;
-    if (startDate && endDate) {
-      params.append('startDate', startDate);
-      params.append('endDate', endDate);
-    }
+    if (startDate) params.append('startDate', startDate);
+    if (endDate) params.append('endDate', endDate);
     if (userId) params.append('userId', userId);
     if (bookIsbn) params.append('bookIsbn', bookIsbn);
     if (status) params.append('status', status);
@@ -130,17 +148,62 @@ async function fetchAndRenderReport(type) {
     }
     
     const data = await response.json();
-
-
-    renderReportTable(type, data);
+    
+    // Normalize the response based on report type
+    let rows = [];
+    if (data.data) {
+      rows = data.data;
+      currentPage = data.page;
+      totalPages = Math.ceil(data.totalCount / data.limit);
+    } else {
+      switch(type) {
+        case 'circulation':
+          rows = data.checkouts || [];
+          break;
+        case 'reservations':
+          rows = data.reservations || [];
+          currentPage = data.page || 1;
+          totalPages = data.totalCount ? Math.ceil(data.totalCount / data.limit) : 1;
+          break;
+        case 'overdue':
+          rows = data.overdueCheckouts || [];
+          currentPage = data.page || 1;
+          totalPages = data.totalCount ? Math.ceil(data.totalCount / data.limit) : 1;
+          break;
+        case 'inventory':
+          rows = data.books || [];
+          currentPage = data.page || 1;
+          totalPages = data.totalCount ? Math.ceil(data.totalCount / data.limit) : 1;
+          break;
+        case 'user-engagement':
+          rows = data.userActivity || [];
+          currentPage = data.page || 1;
+          totalPages = data.totalCount ? Math.ceil(data.totalCount / data.limit) : 1;
+          break;
+        case 'custom':
+          rows = data.records || [];
+          currentPage = data.page || 1;
+          totalPages = data.totalCount ? Math.ceil(data.totalCount / data.limit) : 1;
+          break;
+        case 'financial':
+          // Financial report returns an array
+          rows = data;
+          break;
+        default:
+          rows = [];
+      }
+    }
+    
+    renderReportTable(type, rows);
+    renderPagination(currentPage, totalPages, type);
   } catch (error) {
     console.error('Error fetching report data:', error);
     reportMessage.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
   }
 }
 
-// Render table header and rows based on report type and data
-function renderReportTable(type, data) {
+// Render table header and rows based on report type and data (without pagination metadata)
+function renderReportTable(type, rows) {
   const tableHeader = document.getElementById('tableHeader');
   const tableBody = document.getElementById('tableBody');
   
@@ -180,23 +243,6 @@ function renderReportTable(type, data) {
   headerRow += '</tr>';
   tableHeader.innerHTML = headerRow;
   
-  // Normalize data based on report type
-  let rows = [];
-  if (type === 'circulation' && data.checkouts) {
-    rows = data.checkouts;
-  } else if (type === 'reservations' && data.reservations) {
-    rows = data.reservations;
-  } else if (type === 'overdue' && data.overdueCheckouts) {
-    rows = data.overdueCheckouts;
-  } else if (type === 'user-engagement' && data.userActivity) {
-    rows = data.userActivity;
-  } else if (type === 'financial' && Array.isArray(data)) {
-    rows = data;
-  } else if (Array.isArray(data)) {
-    rows = data;
-  }
-  
-  // Check if there are rows to display
   if (!rows || rows.length === 0) {
     tableBody.innerHTML = `<tr><td colspan="${headers.length}">No records found.</td></tr>`;
     return;
@@ -206,7 +252,6 @@ function renderReportTable(type, data) {
   if (type === 'financial') {
     let overallTotal = 0;
     rows.forEach(item => {
-      // Sum the total fines; ensure the value is parsed as a float.
       const fineAmount = parseFloat(item.totalFines) || 0;
       overallTotal += fineAmount;
       const row = `<tr>
@@ -215,7 +260,7 @@ function renderReportTable(type, data) {
       </tr>`;
       tableBody.innerHTML += row;
     });
-    // Append an extra row that sums all fines
+    // Append extra row for aggregate fines
     const totalRow = `<tr style="font-weight:bold; background:#e9ecef;">
       <td>Total Fines</td>
       <td>$${overallTotal.toFixed(2)}</td>
@@ -293,6 +338,42 @@ function renderReportTable(type, data) {
   }
 }
 
+// Render pagination controls based on currentPage and totalPages
+function renderPagination(page, totalPages, type) {
+  const paginationContainer = document.getElementById('paginationContainer');
+  paginationContainer.innerHTML = '';
+  
+  // Only show pagination for report types that return a paginated list
+  if (['circulation','reservations','overdue','inventory','user-engagement','custom'].includes(type)) {
+    const prevBtn = document.createElement('button');
+    prevBtn.textContent = 'Previous';
+    prevBtn.disabled = (page <= 1);
+    prevBtn.addEventListener('click', async () => {
+      if (page > 1) {
+        currentPage = page - 1;
+        await fetchAndRenderReport(type);
+      }
+    });
+    
+    const nextBtn = document.createElement('button');
+    nextBtn.textContent = 'Next';
+    nextBtn.disabled = (page >= totalPages);
+    nextBtn.addEventListener('click', async () => {
+      if (page < totalPages) {
+        currentPage = page + 1;
+        await fetchAndRenderReport(type);
+      }
+    });
+    
+    const pageInfo = document.createElement('span');
+    pageInfo.textContent = `Page ${page} of ${totalPages}`;
+    
+    paginationContainer.appendChild(prevBtn);
+    paginationContainer.appendChild(pageInfo);
+    paginationContainer.appendChild(nextBtn);
+  }
+}
+
 // Render additional explanation section for the Financial Report
 function renderFinesExplanation() {
   let explanationDiv = document.getElementById('finesExplanation');
@@ -310,13 +391,13 @@ function renderFinesExplanation() {
   
   explanationDiv.innerHTML = `
     <h2>Understanding Financial Fines</h2>
-    <p>The <strong>Financial Report</strong> breaks down the fines collected from checkouts based on the item's status. In our system, fines typically arise when items are:</p>
+    <p>The <strong>Financial Report</strong> breaks down the fines collected from checkouts by their status. Fines typically arise when items are:</p>
     <ul>
-      <li style="list-style-type: none;" ><strong>Overdue:</strong> Items returned after their due date incur a fine calculated per day.</li>
-      <li style="list-style-type: none;" ><strong>Lost:</strong> Items that are not returned are reported as lost, with a fine often equivalent to the replacement cost.</li>
-      <li style="list-style-type: none;" ><strong>Damaged:</strong> Items returned in a damaged condition may be subject to additional charges to cover repair or replacement.</li>
+      <li><strong>Overdue:</strong> Items returned after their due date incur a fine calculated per day.</li>
+      <li><strong>Lost:</strong> Items that are not returned are reported as lost, with a fine often equivalent to the replacement cost.</li>
+      <li><strong>Damaged:</strong> Items returned in a damaged condition may incur additional charges to cover repair or replacement.</li>
     </ul>
-    <p>The table above lists each status along with the sum of fines associated with that category. The final row labeled <strong>Total Fines</strong> represents the aggregate sum across all categories, giving you a complete picture of the fines collected.</p>
+    <p>The table above displays the total fines grouped by status. The final row shows the overall total of fines collected, giving a complete picture of the library's financial impact from overdue, lost, and damaged items.</p>
   `;
 }
 

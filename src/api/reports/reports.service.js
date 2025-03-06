@@ -1,4 +1,3 @@
-// reports.service.js
 const { Op, fn, col, literal } = require('sequelize');
 const Checkout = require('../../models/checkout.model');
 const Reservation = require('../../models/reservation.model');
@@ -10,23 +9,20 @@ const { groupByPeriod } = require('../../utils/dateHelper');
 /**
  * Circulation Report: Aggregates checkouts, renewals, returns, and overdue transactions.
  * Accepts a period filter: 'daily', 'weekly', 'monthly'
+ * (Pagination is less critical here since the aggregation typically results in few groups.)
  */
 exports.getCirculationReport = async ({ period }) => {
-  // Fetch all checkouts with only the fields needed for grouping
   const checkouts = await Checkout.findAll({
     attributes: ['id', 'checkoutDate']
   });
   
-  // Use the groupByPeriod utility to group checkouts by the desired period (daily, weekly, monthly)
   const grouped = groupByPeriod(checkouts, period);
   
-  // Transform the grouped data into an aggregated format: count checkouts per group
   const aggregated = Object.keys(grouped).map(key => ({
     date: key,
     totalCheckouts: grouped[key].length
   }));
   
-  // Sort the aggregated results in descending order by date
   aggregated.sort((a, b) => new Date(b.date) - new Date(a.date));
   
   return { period, checkouts: aggregated };
@@ -34,83 +30,116 @@ exports.getCirculationReport = async ({ period }) => {
 
 /**
  * Reservation Report: Lists reservations segmented by status.
+ * Pagination added.
  */
 exports.getReservationReport = async (query) => {
   const where = {};
   if (query.userId) where.userId = query.userId;
   if (query.bookIsbn) where.bookIsbn = query.bookIsbn;
-  // Group by status
-  const reservations = await Reservation.findAll({ where, order: [['requestDate', 'DESC']] });
 
-  // Optionally, you can count or group by status
-  const grouped = reservations.reduce((acc, res) => {
+  const page = query.page ? parseInt(query.page) : 1;
+  const limit = query.limit ? parseInt(query.limit) : 10;
+  const offset = (page - 1) * limit;
+
+  // Use findAndCountAll for pagination
+  const { rows, count } = await Reservation.findAndCountAll({
+    where,
+    order: [['requestDate', 'DESC']],
+    limit,
+    offset
+  });
+
+  // For grouped status, we calculate from all reservations (without pagination)
+  const allReservations = await Reservation.findAll({ where });
+  const grouped = allReservations.reduce((acc, res) => {
     acc[res.status] = (acc[res.status] || 0) + 1;
     return acc;
   }, {});
-  
-  return { reservations, groupedByStatus: grouped };
+
+  return { reservations: rows, groupedByStatus: grouped, page, limit, totalCount: count };
 };
 
 /**
  * Overdue Report: Identifies overdue checkouts and aggregates overdue metrics.
+ * Pagination added.
  */
 exports.getOverdueReport = async (query) => {
   const now = new Date();
-  const overdueCheckouts = await Checkout.findAll({
+  const page = query.page ? parseInt(query.page) : 1;
+  const limit = query.limit ? parseInt(query.limit) : 10;
+  const offset = (page - 1) * limit;
+  
+  const { rows, count } = await Checkout.findAndCountAll({
     where: {
       status: { [Op.in]: ['active', 'overdue'] },
       dueDate: { [Op.lt]: now }
     },
-    order: [['dueDate', 'ASC']]
+    order: [['dueDate', 'ASC']],
+    limit,
+    offset
   });
   
-  // Calculate total overdue fine amounts (as a simple example)
-  const totalFine = overdueCheckouts.reduce((sum, checkout) => {
+  const totalFine = rows.reduce((sum, checkout) => {
     return sum + parseFloat(checkout.fine || 0);
   }, 0);
   
-  return { overdueCheckouts, totalFine };
+  return { overdueCheckouts: rows, totalFine, page, limit, totalCount: count };
 };
 
 /**
  * Inventory Report: Provides insights into book availability and condition.
+ * Pagination added.
  */
 exports.getInventoryReport = async (query) => {
-  // For this example, we assume Book model has availableCopies and a status field (if applicable)
-  const books = await Book.findAll({
+  const page = query.page ? parseInt(query.page) : 1;
+  const limit = query.limit ? parseInt(query.limit) : 10;
+  const offset = (page - 1) * limit;
+  
+  const { rows, count } = await Book.findAndCountAll({
     attributes: ['isbn', 'title', 'availableCopies', 'totalCopies'],
-    order: [['title', 'ASC']]
+    order: [['title', 'ASC']],
+    limit,
+    offset
   });
-  return books;
+  return { books: rows, page, limit, totalCount: count };
 };
 
 /**
  * User Engagement Report: Aggregates user activity metrics.
+ * Pagination added.
  */
-  exports.getUserEngagementReport = async (query) => {
-    // This report could combine data from Users and Checkouts
-    // For demonstration, we count checkouts per user.
-    const userActivity = await Checkout.findAll({
-      attributes: [
-        'userId',
-        [fn('COUNT', col('id')), 'checkoutCount']
-      ],
-      group: ['userId'],
-      order: [[fn('COUNT', col('id')), 'DESC']]
-    });
-    
-    return userActivity;
-  };
+exports.getUserEngagementReport = async (query) => {
+  const page = query.page ? parseInt(query.page) : 1;
+  const limit = query.limit ? parseInt(query.limit) : 10;
+  const offset = (page - 1) * limit;
   
+  const result = await Checkout.findAndCountAll({
+    attributes: [
+      'userId',
+      [fn('COUNT', col('id')), 'checkoutCount']
+    ],
+    group: ['userId'],
+    order: [[fn('COUNT', col('id')), 'DESC']],
+    limit,
+    offset,
+    subQuery: false
+  });
+
+  // If result.count is an array (due to grouping), take its length
+  const totalCount = Array.isArray(result.count) ? result.count.length : result.count;
+  
+  return { userActivity: result.rows, page, limit, totalCount };
+};
+
 
 /**
- * Financial Report: Breaks down fines by source.
- * Assumes that the Checkout model has a `fineType` column (e.g., 'overdue', 'lost', 'damaged', 'renewal').
+ * Financial Report: Breaks down fines by source (using 'status').
+ * No pagination added as the grouping typically yields few rows.
  */
 exports.getFinancialReport = async (query) => {
   const fineBreakdown = await Checkout.findAll({
     attributes: [
-      'status', // Group by status instead of fineType
+      'status',
       [fn('SUM', col('fine')), 'totalFines']
     ],
     where: {
@@ -123,26 +152,46 @@ exports.getFinancialReport = async (query) => {
   return fineBreakdown;
 };
 
-
-
 /**
  * Custom Report: Supports ad hoc filters (e.g., date ranges, userId, etc.)
+ * Pagination added.
  */
 exports.getCustomReport = async (filters) => {
   const where = {};
+  let endDate;
+  if (filters.endDate) {
+    endDate = new Date(filters.endDate);
+    endDate.setHours(23, 59, 59, 999);
+  }
+
   if (filters.startDate && filters.endDate) {
     where.checkoutDate = {
-      [Op.between]: [new Date(filters.startDate), new Date(filters.endDate)]
+      [Op.between]: [new Date(filters.startDate), endDate]
+    };
+  } else if (filters.startDate) {
+    where.checkoutDate = {
+      [Op.gte]: new Date(filters.startDate)
+    };
+  } else if (filters.endDate) {
+    where.checkoutDate = {
+      [Op.lte]: endDate
     };
   }
+  
   if (filters.userId) where.userId = filters.userId;
   if (filters.bookIsbn) where.bookIsbn = filters.bookIsbn;
   if (filters.status) where.status = filters.status;
   
-  const records = await Checkout.findAll({
+  const page = filters.page ? parseInt(filters.page) : 1;
+  const limit = filters.limit ? parseInt(filters.limit) : 10;
+  const offset = (page - 1) * limit;
+  
+  const { rows, count } = await Checkout.findAndCountAll({
     where,
-    order: [['checkoutDate', 'DESC']]
+    order: [['checkoutDate', 'DESC']],
+    limit,
+    offset
   });
   
-  return records;
+  return { records: rows, page, limit, totalCount: count };
 };

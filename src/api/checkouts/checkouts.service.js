@@ -107,7 +107,7 @@ exports.initiateCheckout = async (data) => {
 
 
 exports.processReturn = async (data) => {
-  const { checkoutId, returnDate, returnStatus } = data;
+  const { checkoutId, returnDate, returnStatus, customFine } = data;
   if (!checkoutId) {
     throw new Error('Missing checkoutId.');
   }
@@ -128,18 +128,26 @@ exports.processReturn = async (data) => {
     throw new Error('Return date cannot be before the checkout date.');
   }
   
-  // Determine final status and fine
-  // If the admin marks the item as "lost" or "damaged", use fixed fines.
-  // Otherwise, if "returned", calculate overdue fine if applicable.
   let fine = 0;
   let finalStatus = 'returned';
   
   if (returnStatus && (returnStatus === 'lost' || returnStatus === 'damaged')) {
     finalStatus = returnStatus;
-    if (returnStatus === 'lost') {
-      fine = 20.00; // Fixed fine for lost items
-    } else if (returnStatus === 'damaged') {
-      fine = 10.00; // Fixed fine for damaged items
+    
+    // Validate customFine if provided
+    if (customFine !== undefined && customFine !== null && customFine !== '') {
+      const parsedFine = parseFloat(customFine);
+      if (isNaN(parsedFine) || parsedFine < 1 || parsedFine > 1000000) {
+        throw new Error('Custom fine must be between 1 and 1,000,000 dollars.');
+      }
+      fine = parsedFine;
+    } else {
+      // Fallback default fines if customFine is not provided
+      if (returnStatus === 'lost') {
+        fine = 20.00;
+      } else if (returnStatus === 'damaged') {
+        fine = 10.00;
+      }
     }
   } else {
     // Standard returned: Calculate overdue fine if returned after due date
@@ -149,7 +157,6 @@ exports.processReturn = async (data) => {
     }
   }
   
-  // Update the checkout record
   const updatedCheckout = await checkout.update({
     returnDate: actualReturnDate,
     status: finalStatus,
@@ -169,6 +176,9 @@ exports.processReturn = async (data) => {
   
   return updatedCheckout;
 };
+
+
+
 
 
 exports.renewCheckout = async (checkoutId, data) => {

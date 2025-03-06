@@ -12,33 +12,16 @@
 2. do for then checkouts, then reservations, then reports, then notification, do more on auth functionalities
   - test all endpoint, make an html page that interacts with it
   
-  - processing checkout, when ever it is damaged or lost,
-    do custom fine? 
-
-    Understanding Financial Fines
-    The Financial Report breaks down the fines collected from checkouts based on the item's status. In our system, fines typically arise when items are:
-
-    Overdue: Items returned after their due date incur a fine calculated per day.
-    Lost: Items that are not returned are reported as lost, with a fine often equivalent to the replacement cost.
-    Damaged: Items returned in a damaged condition may be subject to additional charges to cover repair or replacement.
-    The table above lists each status along with the sum of fines associated with that category. The final row labeled Total Fines represents the aggregate sum across all categories, giving you a complete picture of the fines collected.
-
-
-  - reports functionality
-    - on custom tab, 
-      - when only start date is set and end date is not set, 
-        filter a checkout with checkoutDate that is equal or more than start date
-      - when only end date is set and start date is not set,
-        filter a checkout with checkoutDate that is equal or less than end date 
-
-    - pagination and other technologies that limits requests on every tab
-
-
   - notification through email
     - when a reservation gets promoted and becomes available
       send notification through email
+    - test all notifications endpoint
 
-3. make user interface, reponsive html pages
+3. error handling and loggin functionalities
+   - simple error message and the right http code,
+     no sending back end server error to front end lol
+
+4. make user interface, reponsive html pages
   - homepage needs some fixing
   - every page should be proper and interconnected
 

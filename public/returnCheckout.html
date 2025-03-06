@@ -77,6 +77,16 @@
       background-color: #f8d7da;
       color: #721c24;
     }
+    /* Additional note styling */
+    .note {
+      font-size: 13px;
+      color: #555;
+      margin-top: 5px;
+    }
+    /* Custom fine input hidden by default */
+    .custom-fine-group {
+      display: none;
+    }
     /* Responsive adjustments */
     @media (max-width: 600px) {
       .container {
@@ -110,12 +120,19 @@
           <option value="damaged">Damaged</option>
           <option value="lost">Lost</option>
         </select>
+        <div class="note">
+          Note: If the book is marked as Damaged or Lost, you can specify a custom fine below.
+        </div>
+      </div>
+      <div class="form-group custom-fine-group" id="customFineGroup">
+        <label for="customFine">Custom Fine Amount</label>
+        <input type="number" id="customFine" name="customFine" placeholder="Enter custom fine amount" step="0.01" min="0">
       </div>
       <button type="submit">Process Return</button>
     </form>
   </div>
   <script src="/public/js/returnCheckoutScript.js">
-    
+
   </script>
 </body>
 </html>

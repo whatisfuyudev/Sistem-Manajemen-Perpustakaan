@@ -30,6 +30,10 @@ sequelize
   .then(() => console.log("Database & tables synchronized"))
   .catch((err) => console.error("Error syncing database:", err));
 
+// Load environment variables from a .env file into process.env
+require('dotenv').config();
+
+
 // --------------------
 // Middleware Setup
 // --------------------
