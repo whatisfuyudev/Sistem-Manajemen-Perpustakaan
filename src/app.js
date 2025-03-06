@@ -82,6 +82,10 @@ app.use('/api/checkouts', checkoutRoutes);
 const reservationRoutes = require('./api/reservations/reservations.routes');
 app.use('/api/reservations', reservationRoutes);
 
+// Mount report routes
+const reportRoutes = require('./api/reports/reports.routes');
+app.use('/api/reports', reportRoutes);
+
 // Optionally, you can define a route for the homepage (if it’s static).
 // This example sends the static index.html from the public folder.
 app.get('/', (req, res) => {
@@ -176,6 +180,13 @@ app.get('/admin/reservations/history',
   authMiddleware.isLibrarianOrAdmin, 
   (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'reservationHistory.html'));
+});
+
+app.get('/admin/reports', 
+  authMiddleware.verifyToken, 
+  authMiddleware.isLibrarianOrAdmin, 
+  (req, res) => {
+  res.sendFile(path.join(__dirname, '../public', 'report.html'));
 });
 
 // // --------------------

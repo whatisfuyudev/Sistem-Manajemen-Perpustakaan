@@ -13,8 +13,9 @@ async function fetchUserData() {
       document.getElementById('phone').value = userData.phone || '';
       document.getElementById('address').value = userData.address || '';
       
-      // Update header display
+      // Update header and role display
       document.getElementById('userNameDisplay').textContent = userData.name || 'User Name';
+      document.getElementById('userRoleDisplay').textContent = userData.role || 'User Role';
       
       if (userData.profilePicture) {
         document.getElementById('profilePicDisplay').src = userData.profilePicture;
