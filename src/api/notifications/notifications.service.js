@@ -9,6 +9,7 @@ const smsHelper = require('../../utils/smsHelper');
  */
 exports.sendNotification = async (data) => {
   const { channel, recipient, subject, message } = data;
+  
   // Create a pending notification record
   const notificationRecord = await Notification.create({
     channel,
@@ -21,16 +22,21 @@ exports.sendNotification = async (data) => {
   try {
     let result;
     if (channel === 'email') {
-      result = await emailHelper.sendEmail({ to: recipient, subject, html: message });
+      result = await emailHelper.sendEmail({
+        to: recipient,
+        subject,
+        html: message
+      });
     } else if (channel === 'sms') {
       result = await smsHelper.sendSMS({ to: recipient, message });
     } else if (channel === 'inapp') {
-      // In‑app notifications may only require saving the record.
+      // For in-app notifications, only a record is saved.
       result = { message: 'In-app notification logged.' };
     } else {
       throw new Error('Unsupported notification channel.');
     }
     
+    // Update record status on success
     notificationRecord.status = 'sent';
     notificationRecord.deliveredAt = new Date();
     await notificationRecord.save();
@@ -38,7 +44,10 @@ exports.sendNotification = async (data) => {
   } catch (error) {
     notificationRecord.status = 'failed';
     await notificationRecord.save();
-    throw new Error('Notification sending failed: ' + error.message);
+    
+    // Improved error handling: if error.message is undefined, output the full error object
+    const errMsg = error.message || (typeof error === 'object' ? JSON.stringify(error) : error.toString());
+    throw new Error('Notification sending failed: ' + errMsg);
   }
 };
 

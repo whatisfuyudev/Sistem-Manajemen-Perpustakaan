@@ -1,28 +1,47 @@
 // src/utils/emailHelper.js
-const nodemailer = require('nodemailer');
+require('dotenv/config');
+const { MailerSend, EmailParams, Sender, Recipient } = require("mailersend");
 
+// Initialize MailerSend with your API key
+const mailerSend = new MailerSend({
+  apiKey: process.env.MAILERSEND_API_KEY,
+});
+
+/**
+ * Sends an email using MailerSend.
+ * @param {Object} options - Email options
+ * @param {string|string[]} options.to - Recipient email(s). Can be a comma-separated string.
+ * @param {string} options.subject - Email subject.
+ * @param {string} options.html - HTML content of the email.
+ */
 exports.sendEmail = async ({ to, subject, html }) => {
-  // Create a transporter using your email service settings
-  // For example, using Gmail's SMTP or any other provider.
-  // For a production system, replace these with your real credentials.
-  let transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST,          // e.g., "smtp.gmail.com"
-    port: process.env.EMAIL_PORT,          // e.g., 465 for secure
-    secure: process.env.EMAIL_SECURE === 'true', // true if port is 465
-    auth: {
-      user: process.env.EMAIL_USER,        // your email address
-      pass: process.env.EMAIL_PASS         // your email password or app password
-    }
-  });
+  // Create a sender instance from environment variables
+  const sender = new Sender(process.env.EMAIL_FROM, process.env.EMAIL_FROM_NAME || "Library Notifications");
 
-  // Send mail with defined transport object
-  let info = await transporter.sendMail({
-    from: `"Library Notifications" <${process.env.EMAIL_FROM}>`, // sender address
-    to, // recipient address
-    subject, // Subject line
-    html, // HTML body content
-  });
+  // Normalize recipients: if a string, split by commas; if an array, use as-is.
+  let recipients = [];
+  if (Array.isArray(to)) {
+    recipients = to.map(email => new Recipient(email.trim()));
+  } else {
+    const emails = to.split(",").map(email => email.trim()).filter(email => email);
+    recipients = emails.map(email => new Recipient(email));
+  }
 
-  console.log("Email sent: %s", info.messageId);
-  return info;
+  // Build email parameters
+  const emailParams = new EmailParams()
+    .setFrom(sender)
+    .setTo(recipients)
+    .setReplyTo(sender)
+    .setSubject(subject)
+    .setHtml(html)
+    .setText(html.replace(/<[^>]+>/g, '')); // generate plain text by stripping HTML tags
+
+  try {
+    const response = await mailerSend.email.send(emailParams);
+    console.log("Email sent:", response);
+    return response;
+  } catch (error) {
+    console.error("Error sending email:", error);
+    throw new Error("Notification sending failed: " + error.message);
+  }
 };

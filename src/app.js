@@ -90,6 +90,10 @@ app.use('/api/reservations', reservationRoutes);
 const reportRoutes = require('./api/reports/reports.routes');
 app.use('/api/reports', reportRoutes);
 
+// Mount notification routes
+const notificationRoutes = require('./api/notifications/notifications.routes');
+app.use('/api/notifications', notificationRoutes);
+
 // Optionally, you can define a route for the homepage (if it’s static).
 // This example sends the static index.html from the public folder.
 app.get('/', (req, res) => {
@@ -191,6 +195,13 @@ app.get('/admin/reports',
   authMiddleware.isAdmin, 
   (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'report.html'));
+});
+
+app.get('/admin/notifications', 
+  authMiddleware.verifyToken, 
+  authMiddleware.isAdmin, 
+  (req, res) => {
+  res.sendFile(path.join(__dirname, '../public', 'notification.html'));
 });
 
 // // --------------------
