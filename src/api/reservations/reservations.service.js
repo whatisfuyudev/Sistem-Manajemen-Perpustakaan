@@ -4,6 +4,7 @@ const Reservation = require('../../models/reservation.model');
 const Book = require('../../models/book.model');  // For integration with checkouts/inventory (if needed)
 const User = require('../../models/user.model')
 const queueHelper = require('../../utils/queueHelper');
+const emailHelper = require('../../utils/emailHelper');
 
 const MAX_ACTIVE_RESERVATIONS = 5;
 const RESERVATION_EXPIRATION_HOURS = 48; // Hours until an available reservation expires
@@ -154,6 +155,8 @@ exports.promoteNextReservation = async (bookIsbn) => {
   }
   
   // Optionally, send a notification to the user here.
+  emailHelper.sendReservationAvailableEmail(reservation);
+
   return reservation;
 };
 

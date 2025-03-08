@@ -1,6 +1,10 @@
 // src/utils/emailHelper.js
 require('dotenv/config');
 const { MailerSend, EmailParams, Sender, Recipient } = require("mailersend");
+// Import models (adjust paths as needed)
+const User = require('../models/user.model');
+const Book = require('../models/book.model');
+
 
 // Initialize MailerSend with your API key
 const mailerSend = new MailerSend({
@@ -44,4 +48,32 @@ exports.sendEmail = async ({ to, subject, html }) => {
     console.error("Error sending email:", error);
     throw new Error("Notification sending failed: " + error.message);
   }
+};
+
+// New function to send a reservation availability email
+exports.sendReservationAvailableEmail = async (reservation) => {
+
+  // Retrieve user data based on reservation.userId
+  const user = await User.findOne({ where: { id: reservation.userId } });
+  if (!user) {
+    throw new Error('User not found for reservation.');
+  }
+  
+  // Retrieve book data based on reservation.bookIsbn
+  const book = await Book.findOne({ where: { isbn: reservation.bookIsbn } });
+  if (!book) {
+    throw new Error('Book not found for reservation.');
+  }
+  
+  // Use library name from environment variable or fallback value
+  const libraryName = 'Library App';
+  const subject = 'Your Reserved Book is Now Available!';
+  const html = `
+    <p>Hi ${user.name || 'Patron'},</p>
+    <p>Good news—your reserved book, “${book.title}”, is now available for checkout. Please visit the library to borrow it.</p>
+    <p>Thank you,<br>${libraryName}</p>
+  `;
+  
+  // Send email using the sendEmail function
+  return await exports.sendEmail({ to: user.email, subject, html });
 };

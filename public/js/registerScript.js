@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (response.ok) {
         const result = await response.json();
-        messageDiv.textContent = 'Registration successful!';
+        messageDiv.textContent = 'Registration successful! Redirecting to login page...';
         messageDiv.className = 'message success';
         registerForm.reset();
 
