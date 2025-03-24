@@ -13,9 +13,12 @@
   - test all endpoint, make an html page that interacts with it
 
 
-3. error handling and loggin functionalities
+3. error handling and logging functionalities
    - simple error message and the right http code,
      no sending back end server error to front end lol
+      - change logging library into winstonjs from morganjs
+        - utilize winstonjs to save important logs
+      - add the universal error middleware
 
 4. make user interface, reponsive html pages
   - homepage needs some fixing
