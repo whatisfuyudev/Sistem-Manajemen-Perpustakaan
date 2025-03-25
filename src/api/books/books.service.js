@@ -3,7 +3,7 @@
 const { Op } = require('sequelize');
 const Book = require('../../models/book.model'); // Adjust path as needed
 const dataHelper = require('../../utils/dataHelper');
-
+const CustomError = require('../../utils/customError');
 
 /**
  * Create a new book.
@@ -15,7 +15,7 @@ exports.createBook = async (bookData) => {
   // Check if a book with the same ISBN already exists
   const existingBook = await Book.findOne({ where: { isbn: bookData.isbn } });
   if (existingBook) {
-    throw new Error('Book with this ISBN already exists.');
+    throw new CustomError('Book with this ISBN already exists.', 409);
   }
   
   // If totalCopies is provided but availableCopies is not, initialize availableCopies to totalCopies.

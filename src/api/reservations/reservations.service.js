@@ -5,6 +5,7 @@ const Book = require('../../models/book.model');  // For integration with checko
 const User = require('../../models/user.model')
 const queueHelper = require('../../utils/queueHelper');
 const emailHelper = require('../../utils/emailHelper');
+const CustomError = require('../../utils/customError');
 
 const MAX_ACTIVE_RESERVATIONS = 5;
 const RESERVATION_EXPIRATION_HOURS = 48; // Hours until an available reservation expires
@@ -12,19 +13,19 @@ const RESERVATION_EXPIRATION_HOURS = 48; // Hours until an available reservation
 exports.createReservation = async (data) => {
   const { userId, bookIsbn, notes } = data;
   if (!userId || !bookIsbn) {
-    throw new Error('Missing required fields: userId and bookIsbn.');
+    throw new CustomError('Missing required fields: userId and bookIsbn.', 400);
   }
 
   // Verify that the book exists
   const book = await Book.findOne({ where: { isbn: bookIsbn } });
   if (!book) {
-    throw new Error('Book not found.');
+    throw new CustomError('Book not found.', 404);
   }
 
   // Verify that the user exists
   const user = await User.findOne({ where: { id: userId } });
   if (!user) {
-    throw new Error('User not found.');
+    throw new CustomError('User not found.', 404);
   }
 
   // Check if the user already has an active reservation for this book
@@ -36,7 +37,7 @@ exports.createReservation = async (data) => {
     }
   });
   if (existingReservation) {
-    throw new Error('User already has an active reservation for this book.');
+    throw new CustomError('User already has an active reservation for this book.', 409);
   }
 
   // Check if the user already has too many active reservations (pending or available)
@@ -47,7 +48,7 @@ exports.createReservation = async (data) => {
     }
   });
   if (activeReservationsCount >= MAX_ACTIVE_RESERVATIONS) {
-    throw new Error('Reservation limit exceeded.');
+    throw new CustomError('Reservation limit exceeded.', 400);
   }
 
   // Determine the waitlist position by counting pending reservations for the same book
@@ -74,11 +75,11 @@ exports.createReservation = async (data) => {
 exports.cancelReservation = async (reservationId) => {
   const reservation = await Reservation.findOne({ where: { id: reservationId } });
   if (!reservation) {
-    throw new Error('Reservation not found.');
+    throw new CustomError('Reservation not found.', 404);
   }
   // Only pending or available reservations can be canceled
   if (!['pending', 'available'].includes(reservation.status)) {
-    throw new Error('Reservation cannot be canceled.');
+    throw new CustomError('Reservation cannot be canceled.', 400);
   }
   
   // Capture the current status before canceling
@@ -111,12 +112,12 @@ exports.cancelReservation = async (reservationId) => {
 exports.modifyReservation = async (reservationId, updateData) => {
   const reservation = await Reservation.findOne({ where: { id: reservationId } });
   if (!reservation) {
-    throw new Error('Reservation not found.');
+    throw new CustomError('Reservation not found.', 404);
   }
   
   // Only allow modifications if the reservation is pending
   if (reservation.status !== 'pending') {
-    throw new Error('Only pending reservations can be modified.');
+    throw new CustomError('Only pending reservations can be modified.', 400);
   }
   
   // Allow modifications on specific fields (e.g., notes)
@@ -137,7 +138,7 @@ exports.promoteNextReservation = async (bookIsbn) => {
     order: [['queuePosition', 'ASC']]
   });
   if (!reservation) {
-    throw new Error('No pending reservations for this book.');
+    throw new CustomError('No pending reservations for this book.', 404);
   }
   
   // Mark the reservation as available and set an expiration date (48 hours from now)

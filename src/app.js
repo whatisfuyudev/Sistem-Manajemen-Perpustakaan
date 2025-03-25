@@ -207,8 +207,8 @@ app.get('/admin/notifications',
 // // --------------------
 // // Global Error Handling
 // // --------------------
-// // Import a custom error-handling middleware to catch and process errors.
-// const errorHandler = require('./middleware/error.middleware');
-// app.use(errorHandler);
+// Place error-handling middleware as the last middleware
+const errorMiddleware = require('./middleware/error.middleware');
+app.use(errorMiddleware);
 
 module.exports = app;

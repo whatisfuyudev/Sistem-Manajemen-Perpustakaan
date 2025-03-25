@@ -1,6 +1,7 @@
 const User = require('../../models/user.model');
 const bcrypt = require('bcryptjs'); // Ensure bcryptjs is installed
 const dataHelper = require('../../utils/dataHelper');
+const CustomError = require('../../utils/customError');
 
 // to create user with admin role
 // modify directly in database (currently the only way)
@@ -8,11 +9,11 @@ exports.createUser = async (userData) => {
   // Check if a user with the same email already exists
   const existingUser = await User.findOne({ where: { email: userData.email } });
   if (existingUser) {
-    throw new Error('Email already exists.');
+    throw new CustomError('Email already exists.', 409);
   }
 
   if (userData.role === 'Admin') {
-    throw new Error('Creating Admin user is prohibited.');
+    throw new CustomError('Creating Admin user is prohibited.', 403);
   }
 
   // Hash the password before storing it
@@ -34,12 +35,19 @@ exports.getAllUsers = async () => {
 // Get user by ID
 exports.getUserById = async (id) => {
   const user = await User.findByPk(id);
+  if (!user) {
+    throw new CustomError('User not found.', 404);
+  }
   return user;
 };
 
 // Update user by ID (hash password if updated)
 exports.updateUser = async (id, updateData) => {
   const user = await User.findOne({ where: { id } });
+
+  if (!user) {
+    throw new CustomError('User not found.', 404);
+  }
 
   if (updateData.password) {
     const saltRounds = 10;
@@ -58,7 +66,7 @@ exports.updateUser = async (id, updateData) => {
     }
 
   if (updateData.role === 'Admin') {
-    throw new Error('Updating user role to Admin is prohibited.');
+    throw new CustomError('Updating user role to Admin is prohibited.', 403);
   }
 
   const [affectedCount, affectedRows] = await User.update(updateData, {

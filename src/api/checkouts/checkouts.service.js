@@ -4,6 +4,7 @@ const Book = require('../../models/book.model');
 const User = require('../../models/user.model');
 const Reservation = require('../../models/reservation.model'); // Import the reservation model
 const queueHelper = require('../../utils/queueHelper');
+const CustomError = require('../../utils/customError');
 
 // Helper to add days to a date
 function addDays(date, days) {
@@ -18,23 +19,23 @@ const MAX_RENEWALS = 2;
 exports.initiateCheckout = async (data) => {
   const { userId, bookIsbn, role, customDays } = data;
   if (!userId || !bookIsbn) {
-    throw new Error('Missing required fields: userId and bookIsbn.');
+    throw new CustomError('Missing required fields: userId and bookIsbn.', 400);
   }
   
   // Check if the user exists
   const user = await User.findOne({ where: { id: userId } });
   if (!user) {
-    throw new Error('User not found.');
+    throw new CustomError('User not found.', 404);
   }
   
   // Retrieve the book record
   const book = await Book.findOne({ where: { isbn: bookIsbn } });
   if (!book) {
-    throw new Error('Book not found.');
+    throw new CustomError('Book not found.', 404);
   }
   
   if (book.availableCopies <= 0) {
-    throw new Error('No available copies for checkout.');
+    throw new CustomError('No available copies for checkout.', 400);
   }
   
   // Calculate due date based on role or customDays:
@@ -101,7 +102,7 @@ exports.initiateCheckout = async (data) => {
     return checkout;
   } catch (error) {
     await transaction.rollback();
-    throw error;
+    throw new CustomError(error.message, 500);
   }
 };
 
@@ -109,23 +110,23 @@ exports.initiateCheckout = async (data) => {
 exports.processReturn = async (data) => {
   const { checkoutId, returnDate, returnStatus, customFine } = data;
   if (!checkoutId) {
-    throw new Error('Missing checkoutId.');
+    throw new CustomError('Missing checkoutId.', 400);
   }
   
   const checkout = await Checkout.findOne({ where: { id: checkoutId } });
   if (!checkout) {
-    throw new Error('Checkout record not found.');
+    throw new CustomError('Checkout record not found.', 404);
   }
   
   if (checkout.status !== 'active' && checkout.status !== 'overdue') {
-    throw new Error('Checkout is not active.');
+    throw new CustomError('Checkout is not active.', 400);
   }
   
   const actualReturnDate = returnDate ? new Date(returnDate) : new Date();
   
   // Validate: Return date should not be before the checkout date
   if (actualReturnDate < new Date(checkout.checkoutDate)) {
-    throw new Error('Return date cannot be before the checkout date.');
+    throw new CustomError('Return date cannot be before the checkout date.', 400);
   }
   
   let fine = 0;
@@ -138,7 +139,7 @@ exports.processReturn = async (data) => {
     if (customFine !== undefined && customFine !== null && customFine !== '') {
       const parsedFine = parseFloat(customFine);
       if (isNaN(parsedFine) || parsedFine < 1 || parsedFine > 1000000) {
-        throw new Error('Custom fine must be between 1 and 1,000,000 dollars.');
+        throw new CustomError('Custom fine must be between 1 and 1,000,000 dollars.', 400);
       }
       fine = parsedFine;
     } else {
@@ -184,15 +185,15 @@ exports.processReturn = async (data) => {
 exports.renewCheckout = async (checkoutId, data) => {
   const checkout = await Checkout.findOne({ where: { id: checkoutId } });
   if (!checkout) {
-    throw new Error('Checkout record not found.');
+    throw new CustomError('Checkout record not found.', 404);
   }
   
   if (checkout.status !== 'active') {
-    throw new Error('Only active checkouts can be renewed.');
+    throw new CustomError('Only active checkouts can be renewed.', 400);
   }
   
   if (checkout.renewalCount >= MAX_RENEWALS) {
-    throw new Error('Renewal limit exceeded.');
+    throw new CustomError('Renewal limit exceeded.', 400);
   }
   
   // Determine renewal period

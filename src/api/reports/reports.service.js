@@ -5,6 +5,7 @@ const Book = require('../../models/book.model');
 const User = require('../../models/user.model');
 // Assume you have some utility functions in dateHelper if needed
 const { groupByPeriod } = require('../../utils/dateHelper');
+const CustomError = require('../../utils/customError');
 
 /**
  * Circulation Report: Aggregates checkouts, renewals, returns, and overdue transactions.

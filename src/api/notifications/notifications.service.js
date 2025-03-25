@@ -2,6 +2,7 @@
 const Notification = require('../../models/notification.model');
 const emailHelper = require('../../utils/emailHelper');
 const smsHelper = require('../../utils/smsHelper');
+const CustomError = require('../../utils/customError');
 
 /**
  * Sends a notification via the specified channel.
@@ -33,7 +34,7 @@ exports.sendNotification = async (data) => {
       // For in-app notifications, only a record is saved.
       result = { message: 'In-app notification logged.' };
     } else {
-      throw new Error('Unsupported notification channel.');
+      throw new CustomError('Unsupported notification channel.', 400);
     }
     
     // Update record status on success
@@ -47,7 +48,7 @@ exports.sendNotification = async (data) => {
     
     // Improved error handling: if error.message is undefined, output the full error object
     const errMsg = error.message || (typeof error === 'object' ? JSON.stringify(error) : error.toString());
-    throw new Error('Notification sending failed: ' + errMsg);
+    throw new CustomError('Notification sending failed: ' + errMsg, 500);
   }
 };
 
@@ -74,10 +75,10 @@ exports.scheduleNotification = async (data) => {
 exports.markInAppNotificationRead = async (notificationId, read) => {
   const notification = await Notification.findOne({ where: { id: notificationId } });
   if (!notification) {
-    throw new Error('Notification not found.');
+    throw new CustomError('Notification not found.', 404);
   }
   if (notification.channel !== 'inapp') {
-    throw new Error('Only in-app notifications can be marked read.');
+    throw new CustomError('Only in-app notifications can be marked read.', 400);
   }
   notification.read = read;
   await notification.save();

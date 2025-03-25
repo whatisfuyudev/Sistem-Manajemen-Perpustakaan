@@ -2,13 +2,14 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../../models/user.model');
 const authConfig = require('../../config/auth.config');
+const CustomError = require('../../utils/customError');
 
 // Register a new user
 exports.registerUser = async (userData) => {
   // Check if the email already exists
   const existingUser = await User.findOne({ where: { email: userData.email } });
   if (existingUser) {
-    throw new Error('Email already exists.');
+    throw new CustomError('Email already exists.', 409); // 409 Conflict
   }
 
   // Hash the password before storing it
@@ -28,13 +29,13 @@ exports.loginUser = async (credentials) => {
   // Find the user by email
   const user = await User.findOne({ where: { email } });
   if (!user) {
-    throw new Error('User not found.');
+    throw new CustomError('User not found.', 404); // 404 Not Found
   }
 
   // Compare the provided password with the stored hashed password
   const isPasswordValid = await bcrypt.compare(password, user.password);
   if (!isPasswordValid) {
-    throw new Error('Invalid password.');
+    throw new CustomError('Invalid password.', 401); // 401 Unauthorized
   }
 
   // Generate a JWT token with minimal payload (user id and role)
