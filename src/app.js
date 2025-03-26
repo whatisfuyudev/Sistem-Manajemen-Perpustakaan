@@ -11,13 +11,14 @@
 const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
-const morgan = require('morgan');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const authMiddleware = require('./middleware/auth.middleware');
 // importing it so it runs even if the variable is not used
 const overdueChecker = require('./utils/checkoutOverdueChecker'); 
 const expiredChecker = require('./utils/reservationExpiredChecker');
+
+const loggerMiddleware = require('./middleware/logging.middleware'); // our Morgan configured with Winston
 
 const app = express();
 
@@ -50,11 +51,11 @@ app.use(express.json());
 // Parse URL-encoded payloads (for form submissions, etc.)
 app.use(express.urlencoded({ extended: true }));
 
-// HTTP request logging (using the 'combined' Apache format)
-app.use(morgan('combined'));
-
 // For cookie parsing
 app.use(cookieParser());
+
+// Use the logging middleware
+app.use(loggerMiddleware);
 
 // --------------------
 // Static Files

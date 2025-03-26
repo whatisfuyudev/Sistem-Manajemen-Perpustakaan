@@ -25,9 +25,6 @@ const storage = multer.diskStorage({
     // Files will be saved in the 'public/images/' directory
     let target = '../../public/images/';
     
-    console.log(req.body);
-    
-
     if (req.body._comesFrom === "profilePicture") {
       target += 'profile-pictures/';
     } else {

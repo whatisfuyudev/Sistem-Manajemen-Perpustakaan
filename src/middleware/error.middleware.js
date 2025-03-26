@@ -1,7 +1,9 @@
 // src/middleware/error.middleware.js
+const logger = require('../utils/logger');
+
 module.exports = (err, req, res, next) => {
     // Log the error details internally
-    console.error(err);
+    logger.error(err);
 
     // Set an appropriate HTTP status code (default to 500 for internal errors)
     const statusCode = err.status || 500;
