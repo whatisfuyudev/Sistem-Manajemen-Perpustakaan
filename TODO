@@ -9,13 +9,17 @@
    make it excellent, highly accurate like real world projects, and comprehensive and exhaustive
    "
    
-2.  do more on auth functionalities
-  - test all endpoint, make an html page that interacts with it
 
+2. make user interface, reponsive html pages
+  - make the user/client side first
+    - homepage needs some fixing
+      - make it similiar to https://www.libib.com/
+      - there will be homepage, individual book page, profile page, my reservations page, my checkouts page, register page, login page
+        - homepage has a link to profile page, register/login page, individual book page
+          - homepage also have search functionality
+        - profile page has a link to my reservations page and my checkouts page
 
-3. make user interface, reponsive html pages
-  - homepage needs some fixing
-  - every page should be proper and interconnected
+  - make the admin/librarian side
 
 ### General TODO
 - make sure the book service works properly, ensure data sanitization
@@ -28,7 +32,7 @@
   - New Endpoint to update a user by their id (admin/librarian only)
 
 - make the correct Flow for reserving a book
-  1. User is in homepage or in search result page
+  1. User is in homepage
   2. User click on book
   3. Go to individual book page with all book information and a button for reserving that book
   4. When user click that reserving book, it sends the correct and needed book data to the api
