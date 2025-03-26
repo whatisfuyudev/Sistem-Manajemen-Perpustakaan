@@ -34,6 +34,9 @@ sequelize
 // Load environment variables from a .env file into process.env
 require('dotenv').config();
 
+// Set EJS as the view engine
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, '../views'));
 
 // --------------------
 // Middleware Setup
@@ -94,6 +97,10 @@ app.use('/api/reports', reportRoutes);
 // Mount notification routes
 const notificationRoutes = require('./api/notifications/notifications.routes');
 app.use('/api/notifications', notificationRoutes);
+
+// Mount the new book page route
+const bookPageRoutes = require('./api/books/bookPage.routes');
+app.use('/books', bookPageRoutes);
 
 // Optionally, you can define a route for the homepage (if it’s static).
 // This example sends the static index.html from the public folder.

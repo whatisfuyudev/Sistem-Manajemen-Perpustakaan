@@ -16,7 +16,9 @@
       - make it similiar to https://www.libib.com/
       - there will be homepage, individual book page, profile page, my reservations page, my checkouts page, register page, login page
         - homepage has a link to profile page, register/login page, individual book page
+          - individual book page have reserve button, only available to logged in users
           - homepage also have search functionality
+            - search result page or search result section (ask gpt which is the best/right one)
         - profile page has a link to my reservations page and my checkouts page
 
   - make the admin/librarian side
