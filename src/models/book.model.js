@@ -53,6 +53,11 @@ const Book = sequelize.define('Book', {
     // Store multiple formats (e.g., "eBook", "audiobook") as an array of strings
     type: DataTypes.ARRAY(DataTypes.STRING),
     allowNull: true
+  },
+  pages: {
+    // New field: number of pages in the book
+    type: DataTypes.INTEGER,
+    allowNull: true
   }
 }, {
   tableName: 'books',
