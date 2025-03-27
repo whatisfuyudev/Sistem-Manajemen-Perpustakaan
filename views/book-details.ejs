@@ -55,12 +55,11 @@
     .detail-item span {
       font-weight: bold;
     }
-    .back-button {
+    /* Button styles */
+    .back-button, .reserve-button {
       display: inline-block;
       margin-top: 20px;
       padding: 10px 20px;
-      background: #007bff;
-      color: #fff;
       border: none;
       border-radius: 4px;
       cursor: pointer;
@@ -68,8 +67,20 @@
       text-decoration: none;
       font-size: 16px;
     }
+    .back-button {
+      background: #007bff;
+      color: #fff;
+    }
     .back-button:hover {
       background: #0056b3;
+    }
+    .reserve-button {
+      background: #28a745;
+      color: #fff;
+      margin-left: 10px;
+    }
+    .reserve-button:hover {
+      background: #218838;
     }
     @media (max-width: 600px) {
       .book-header {
@@ -78,6 +89,7 @@
       }
       .book-cover { width: 150px; }
       .book-info h1 { font-size: 1.5em; }
+      .back-button, .reserve-button { font-size: 14px; padding: 8px 16px; }
     }
   </style>
 </head>
@@ -91,7 +103,7 @@
       </div>
       <div class="book-info">
         <h1><%= book.title %></h1>
-        <p><strong>ISBN:</strong> <%= book.isbn %></p>
+        <p><strong >ISBN:</strong> <span id="isbnValue"><%= book.isbn %></span></p>
         <p><strong>Authors:</strong> <%= book.authors.join(', ') %></p>
         <% if (book.genres && book.genres.length) { %>
           <p><strong>Genres:</strong> <%= book.genres.join(', ') %></p>
@@ -135,10 +147,15 @@
       <% } %>
     </div>
     
-    <!-- Back Button -->
+    <!-- Buttons -->
     <div style="text-align: center;">
       <a class="back-button" href="/">Back</a>
+      <a class="reserve-button" href="javascript:void(0);" id="reserveButton">Reserve</a>
     </div>
   </div>
+  
+  <script src="/public/js/book-detailsScript.js">
+
+  </script>
 </body>
 </html>

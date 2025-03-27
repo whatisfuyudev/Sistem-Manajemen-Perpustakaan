@@ -34,7 +34,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       const img = document.createElement('img');
       img.src = "/public/images/book-covers/" + (book.coverImage ? book.coverImage : 'default.jpeg');
       img.alt = book.title;
+      // Set a consistent maximum height and maintain aspect ratio
+      img.style.maxHeight = "200px";
+      img.style.width = "auto";
       card.appendChild(img);
+
 
       // Book title element
       const title = document.createElement('div');

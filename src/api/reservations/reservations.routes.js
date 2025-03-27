@@ -5,7 +5,7 @@ const reservationsController = require('./reservations.controller');
 const authMiddleware = require('../../middleware/auth.middleware');
 
 // Create a new reservation
-router.post('/reserve', reservationsController.createReservation);
+router.post('/reserve', authMiddleware.verifyToken, reservationsController.createReservation);
 
 // Cancel an existing reservation
 router.put('/cancel/:id', reservationsController.cancelReservation);

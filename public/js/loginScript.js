@@ -25,9 +25,9 @@ document.addEventListener('DOMContentLoaded', function () {
         messageDiv.className = 'message success';
         loginForm.reset();
 
-        // Delay of 2 seconds before redirecting to login page
+        // Delay of 2 seconds before redirecting to home page
         setTimeout(() => {
-          window.location.href = '/profile';
+          window.location.href = '/';
         }, 2000);
       } else {
         const errorText = await response.text();

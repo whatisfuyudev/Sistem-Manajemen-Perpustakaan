@@ -1,0 +1,4 @@
+INSERT INTO users (id, name, email, password, role, phone, address, profilePicture, createdAt, updatedAt, accountStatus)
+VALUES 
+  (1, 'hanif', 'hanif@gmail.com', '$2b$10$FqxK85FbS7dYVIryYAffAuGvVLyzzycHBziAwmYdNQ1SytIoE3nW6', 'Patron', NULL, NULL, '/public/images/profile-pictures/password=admin.png', '2025-03-25 21:00:40.964+07', '2025-03-26 14:28:13.874+07', 'Active'),
+  (2, 'hanifadmin', 'hanifadmin@gmail.com', '$2b$10$JwDf6x77Rhmj.cpU1xMpru93jgPhU78bkogHCEsmrH/eVh9MnF2vC', 'Admin', NULL, NULL, NULL, '2025-03-27 13:50:40.101+07', '2025-03-27 13:50:40.101+07', 'Active');

@@ -7,6 +7,8 @@
    from the above project description, focusing on X, what are the core functionalities that it might possible has? make it accurate and comprehensive.
     
    make it excellent, highly accurate like real world projects, and comprehensive and exhaustive
+   
+   make it mobile responsive and modern and minimalist in style.
    "
    
 
@@ -16,9 +18,18 @@
       - make it similiar to https://www.libib.com/
       - there will be homepage, individual book page, profile page, my reservations page, my checkouts page, register page, login page
         - homepage has a link to profile page, register/login page, individual book page
-          - individual book page have reserve button, only available to logged in users
+          - individual book page have reserve button, only available to logged in users [done maybe]
           - homepage also have search functionality
-            - search result page or search result section (ask gpt which is the best/right one)
+            - modify exports.getAllBooks() service function so that it can 
+              limits the amount of book data fetched
+            - search bar have a button on its right side called "search"
+              - does the exact same thing when clicking enter on the search bar
+                - it redirects to "/books/search"
+                  - if the user has already written a something on the search bar,
+                    put it into the url parameters. on load search result page,
+                    call the /api/books/search with that url parameters (the same function
+                    is called when the user click the search bar/button in the search page).
+                    then display the result
         - profile page has a link to my reservations page and my checkouts page
 
   - make the admin/librarian side

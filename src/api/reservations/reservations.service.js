@@ -10,8 +10,10 @@ const CustomError = require('../../utils/customError');
 const MAX_ACTIVE_RESERVATIONS = 5;
 const RESERVATION_EXPIRATION_HOURS = 48; // Hours until an available reservation expires
 
-exports.createReservation = async (data) => {
-  const { userId, bookIsbn, notes } = data;
+exports.createReservation = async (body, userData) => {
+  const { bookIsbn, notes } = body;
+  const userId = userData.id;
+
   if (!userId || !bookIsbn) {
     throw new CustomError('Missing required fields: userId and bookIsbn.', 400);
   }

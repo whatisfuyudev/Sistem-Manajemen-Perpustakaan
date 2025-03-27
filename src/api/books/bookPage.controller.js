@@ -14,3 +14,13 @@ exports.getBookDetailsPage = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.getSearchResultsPage = async (req, res, next) => {
+  try {
+    
+    // Render the EJS template "book-details" with the book data
+    res.render('search-results');
+  } catch (error) {
+    next(error);
+  }
+};

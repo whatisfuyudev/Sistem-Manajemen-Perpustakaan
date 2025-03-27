@@ -4,7 +4,7 @@ const reservationsService = require('./reservations.service');
 exports.createReservation = async (req, res, next) => {
   try {
     // Expecting { userId, bookIsbn, ... } in req.body
-    const reservation = await reservationsService.createReservation(req.body);
+    const reservation = await reservationsService.createReservation(req.body, req.user);
     res.status(201).json(reservation);
   } catch (error) {
     next(error);

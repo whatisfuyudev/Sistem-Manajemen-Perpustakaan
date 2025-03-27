@@ -16,7 +16,6 @@ exports.verifyToken = (req, res, next) => {
     // Save decoded user id and role for use in other middleware/controllers
     req.user = { id: decoded.id, role: decoded.role };
     
-    
     next();
   });
 };

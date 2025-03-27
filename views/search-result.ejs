@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Book Search Results</title>
+  <style>
+    /* Base Reset */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      color: #333;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    /* Search Bar */
+    .search-container {
+      max-width: 600px;
+      margin: 0 auto 30px auto;
+      display: flex;
+    }
+    .search-container input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px 0 0 4px;
+      font-size: 16px;
+    }
+    .search-container button {
+      padding: 10px 20px;
+      border: none;
+      background-color: #007bff;
+      color: #fff;
+      font-size: 16px;
+      border-radius: 0 4px 4px 0;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    .search-container button:hover {
+      background-color: #0056b3;
+    }
+    /* Book Cards Grid */
+    .cards-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+    .book-card {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 10px;
+      text-align: center;
+      transition: transform 0.2s;
+      width: 200px;
+      /* Ensure a consistent card width on mobile and desktop */
+    }
+    .book-card:hover {
+      transform: translateY(-5px);
+    }
+    .book-card img {
+      width: 100%;
+      height: auto;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+    .book-title {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .book-authors {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 10px;
+    }
+    .view-details {
+      display: inline-block;
+      padding: 8px 12px;
+      background-color: #007bff;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 4px;
+      font-size: 14px;
+      transition: background-color 0.2s ease;
+    }
+    .view-details:hover {
+      background-color: #0056b3;
+    }
+    /* Mobile Responsive Adjustments */
+    @media (max-width: 600px) {
+      .cards-container {
+        flex-direction: column;
+        align-items: center;
+      }
+      .book-card {
+        width: 90%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Book Search Results</h1>
+  
+  <!-- Search Bar -->
+  <div class="search-container">
+    <input type="text" id="searchInput" placeholder="Search books by title...">
+    <button id="searchButton">Search</button>
+  </div>
+  
+  <!-- Cards Container -->
+  <div class="cards-container" id="cardsContainer">
+    <!-- Book cards will be injected here -->
+  </div>
+  
+  <script src="/public/js/search-resultScript.js">
+    
+  </script>
+</body>
+</html>
