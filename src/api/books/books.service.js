@@ -4,6 +4,7 @@ const { Op } = require('sequelize');
 const Book = require('../../models/book.model'); // Adjust path as needed
 const dataHelper = require('../../utils/dataHelper');
 const CustomError = require('../../utils/customError');
+const { log } = require('winston');
 
 /**
  * Create a new book.
@@ -147,11 +148,16 @@ exports.searchBooks = async (filters) => {
     whereClause.authors = { [Op.contains]: [author] };
   }
 
+  console.log(author);
+
   const { count, rows } = await Book.findAndCountAll({
     where: whereClause,
     offset,
     limit: parseInt(limit, 10)
   });
+
+  console.log('books:', rows);
+  
 
   return {
     total: count,

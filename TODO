@@ -30,6 +30,11 @@
                     call the /api/books/search with that url parameters (the same function
                     is called when the user click the search bar/button in the search page).
                     then display the result
+
+                  - search bar support different ways of searching
+                    - searching by author is not working
+                  - modify the script such that when searching with empty search bar, 
+                    it will fetch all   of books data but with pagination/limit
         - profile page has a link to my reservations page and my checkouts page
 
   - make the admin/librarian side

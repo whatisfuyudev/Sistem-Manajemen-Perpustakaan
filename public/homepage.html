@@ -67,8 +67,11 @@
     }
     /* Search Bar */
     .search-container {
-      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       margin-bottom: 30px;
+      gap: 10px;
     }
     .search-container input[type="text"] {
       width: 80%;
@@ -77,6 +80,19 @@
       font-size: 16px;
       border: 1px solid #ccc;
       border-radius: 4px;
+    }
+    .search-container button {
+      padding: 12px 20px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    .search-container button:hover {
+      background-color: #0056b3;
     }
     /* Featured Books Section */
     .books-section {
@@ -150,7 +166,13 @@
         gap: 8px;
         margin-top: 10px;
       }
+      .search-container {
+        flex-direction: column;
+      }
       .search-container input[type="text"] {
+        width: 100%;
+      }
+      .search-container button {
         width: 100%;
       }
     }
@@ -175,6 +197,7 @@
     <!-- Search Bar -->
     <div class="search-container">
       <input type="text" placeholder="Search by title, author, or ISBN..." id="searchInput">
+      <button id="searchButton">Search</button>
     </div>
 
     <!-- Featured Books Section -->
@@ -190,9 +213,10 @@
   <footer>
     <p>&copy; 2025 Library Management System. All rights reserved.</p>
   </footer>
-
+  
   <script src="/public/js/homepageScript.js">
 
   </script>
+
 </body>
 </html>

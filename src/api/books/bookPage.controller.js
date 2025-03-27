@@ -19,7 +19,7 @@ exports.getSearchResultsPage = async (req, res, next) => {
   try {
     
     // Render the EJS template "book-details" with the book data
-    res.render('search-results');
+    res.render('search-result');
   } catch (error) {
     next(error);
   }

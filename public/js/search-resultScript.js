@@ -1,6 +1,15 @@
 const cardsContainer = document.getElementById('cardsContainer');
-const searchInput = document.getElementById('searchInput');
+const searchTermInput = document.getElementById('searchTermInput');
+const genresInput = document.getElementById('genresInput');
+const authorInput = document.getElementById('authorInput');
 const searchButton = document.getElementById('searchButton');
+const prevButton = document.getElementById('prevButton');
+const nextButton = document.getElementById('nextButton');
+const pageIndicator = document.getElementById('pageIndicator');
+
+let currentPage = 1;
+const limit = 5;
+let totalResults = 0;
 
 // Function to create a book card element
 function createBookCard(book) {
@@ -9,10 +18,8 @@ function createBookCard(book) {
 
   // Cover image
   const img = document.createElement('img');
-  // If book.coverImage is present, use it; otherwise, use a default image.
   img.src = "/public/images/book-covers/" + (book.coverImage ? book.coverImage : 'default.jpeg');
   img.alt = book.title;
-  // Set a consistent maximum height
   img.style.maxHeight = "200px";
   img.style.width = "auto";
   card.appendChild(img);
@@ -29,7 +36,7 @@ function createBookCard(book) {
   authors.textContent = Array.isArray(book.authors) ? book.authors.join(', ') : '';
   card.appendChild(authors);
 
-  // View details link
+  // View Details link
   const detailsLink = document.createElement('a');
   detailsLink.href = `/books/details/${book.isbn}`;
   detailsLink.className = 'view-details';
@@ -39,29 +46,83 @@ function createBookCard(book) {
   return card;
 }
 
-// Function to render book cards based on an array of books
+// Function to render book cards
 function renderBooks(books) {
   cardsContainer.innerHTML = '';
   if (books.length === 0) {
-  cardsContainer.innerHTML = '<p>No books found.</p>';
-  return;
+    cardsContainer.innerHTML = '<p>No books found.</p>';
+    return;
   }
   books.forEach(book => {
-  const card = createBookCard(book);
-  cardsContainer.appendChild(card);
+    const card = createBookCard(book);
+    cardsContainer.appendChild(card);
   });
 }
 
-// Search functionality: filter books by title (case-insensitive)
+// Function to update pagination controls based on total results
+function updatePagination() {
+  const totalPages = Math.ceil(totalResults / limit);
+  pageIndicator.textContent = `Page ${currentPage} of ${totalPages}`;
+  prevButton.disabled = currentPage === 1;
+  nextButton.disabled = currentPage >= totalPages;
+}
+
+// Function to fetch search results from API
+async function fetchSearchResults(page = 1) {
+  const searchTerm = searchTermInput.value.trim();
+  const genres = genresInput.value.trim();
+  const author = authorInput.value.trim();
+
+  const params = new URLSearchParams(); 
+  if (searchTerm) params.append('searchTerm', searchTerm);
+  if (genres) params.append('genres', genres);
+  if (author) params.append('author', author);
+  params.append('page', page);
+  params.append('limit', limit);
+
+  try {
+    const response = await fetch(`/api/books/search?${params.toString()}`);
+    if (!response.ok) {
+      throw new Error('Search request failed.');
+    }
+    const result = await response.json();
+    totalResults = result.total;
+    renderBooks(result.books);
+    currentPage = result.page;
+    updatePagination();
+  } catch (error) {
+    console.error(error);
+    cardsContainer.innerHTML = '<p>Error loading search results.</p>';
+  }
+}
+
+// Event listeners for search
 searchButton.addEventListener('click', () => {
-    const searchTerm = searchInput.value.trim().toLowerCase();
-    const filteredBooks = sampleBooks.filter(book => book.title.toLowerCase().includes(searchTerm));
-    renderBooks(filteredBooks);
+  currentPage = 1;
+  fetchSearchResults(currentPage);
+});
+searchTermInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    currentPage = 1;
+    fetchSearchResults(currentPage);
+  }
 });
 
-// Optionally, add 'Enter' key functionality for search
-searchInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-    searchButton.click();
-    }
+// Pagination buttons events
+prevButton.addEventListener('click', () => {
+  if (currentPage > 1) {
+    currentPage--;
+    fetchSearchResults(currentPage);
+  }
 });
+nextButton.addEventListener('click', () => {
+  const totalPages = Math.ceil(totalResults / limit);
+  if (currentPage < totalPages) {
+    currentPage++;
+    fetchSearchResults(currentPage);
+  }
+});
+
+// Optional: Initial search to load page one (or you could wait for user input)
+fetchSearchResults(currentPage);

@@ -21,17 +21,23 @@
       text-align: center;
       margin-bottom: 20px;
     }
-    /* Search Bar */
+    /* Search Bar Container */
     .search-container {
       max-width: 600px;
       margin: 0 auto 30px auto;
       display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .search-container .row {
+      display: flex;
+      gap: 10px;
     }
     .search-container input[type="text"] {
       flex: 1;
       padding: 10px;
       border: 1px solid #ddd;
-      border-radius: 4px 0 0 4px;
+      border-radius: 4px;
       font-size: 16px;
     }
     .search-container button {
@@ -40,7 +46,7 @@
       background-color: #007bff;
       color: #fff;
       font-size: 16px;
-      border-radius: 0 4px 4px 0;
+      border-radius: 4px;
       cursor: pointer;
       transition: background-color 0.2s ease;
     }
@@ -62,7 +68,6 @@
       text-align: center;
       transition: transform 0.2s;
       width: 200px;
-      /* Ensure a consistent card width on mobile and desktop */
     }
     .book-card:hover {
       transform: translateY(-5px);
@@ -96,6 +101,29 @@
     .view-details:hover {
       background-color: #0056b3;
     }
+    /* Pagination Controls */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .pagination button {
+      padding: 8px 12px;
+      border: none;
+      background-color: #007bff;
+      color: #fff;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    .pagination button:hover {
+      background-color: #0056b3;
+    }
+    .pagination span {
+      font-size: 16px;
+    }
     /* Mobile Responsive Adjustments */
     @media (max-width: 600px) {
       .cards-container {
@@ -105,6 +133,9 @@
       .book-card {
         width: 90%;
       }
+      .search-container .row {
+        flex-direction: column;
+      }
     }
   </style>
 </head>
@@ -113,13 +144,26 @@
   
   <!-- Search Bar -->
   <div class="search-container">
-    <input type="text" id="searchInput" placeholder="Search books by title...">
-    <button id="searchButton">Search</button>
+    <div class="row">
+      <input type="text" id="searchTermInput" placeholder="Search by title..." />
+      <input type="text" id="genresInput" placeholder="Genres (comma separated)" />
+      <input type="text" id="authorInput" placeholder="Author" />
+    </div>
+    <div class="row">
+      <button id="searchButton">Search</button>
+    </div>
   </div>
   
   <!-- Cards Container -->
   <div class="cards-container" id="cardsContainer">
-    <!-- Book cards will be injected here -->
+    <!-- Book cards will be injected here dynamically -->
+  </div>
+  
+  <!-- Pagination Controls -->
+  <div class="pagination" id="paginationControls">
+    <button id="prevButton" disabled>Previous</button>
+    <span id="pageIndicator">Page 1</span>
+    <button id="nextButton" disabled>Next</button>
   </div>
   
   <script src="/public/js/search-resultScript.js">

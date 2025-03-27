@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       throw new Error('Invalid books data format.');
     }
 
-    // Randomly select 5 books
+    // Randomly select 5 books to display as featured
     const randomBooks = [];
     const usedIndices = new Set();
     const totalBooks = books.length;
@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     }
 
-    // Get the container to display book cards
+    // Render book cards
     const bookGrid = document.getElementById('bookGrid');
     randomBooks.forEach(book => {
       // Create a book card
@@ -34,11 +34,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       const img = document.createElement('img');
       img.src = "/public/images/book-covers/" + (book.coverImage ? book.coverImage : 'default.jpeg');
       img.alt = book.title;
-      // Set a consistent maximum height and maintain aspect ratio
       img.style.maxHeight = "200px";
       img.style.width = "auto";
       card.appendChild(img);
-
 
       // Book title element
       const title = document.createElement('div');
@@ -67,13 +65,25 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
-// Simple search functionality: redirect to search endpoint on Enter
+// Search functionality: on Enter key or button click, navigate to /books/search with query param
+function performSearch() {
+  const query = document.getElementById('searchInput').value.trim() + "";
+  
+  // Navigate to the search page with the search term as a URL parameter
+  window.location.href = '/books/search?searchTerm=' + encodeURIComponent(query);
+  
+}
+
+// Event listener for the Enter key
 document.getElementById('searchInput').addEventListener('keydown', (e) => {
   if (e.key === 'Enter') {
     e.preventDefault();
-    const query = e.target.value.trim();
-    if (query) {
-      window.location.href = '/api/books/search?searchTerm=' + encodeURIComponent(query);
-    }
+    performSearch();
   }
+});
+
+// Event listener for the Search button
+document.getElementById('searchButton').addEventListener('click', (e) => {
+  e.preventDefault();
+  performSearch();
 });
