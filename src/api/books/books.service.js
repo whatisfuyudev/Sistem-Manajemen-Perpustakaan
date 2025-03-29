@@ -1,10 +1,8 @@
 // src/api/books/books.service.js
-
-const { Op } = require('sequelize');
+const { Op, fn, col, where } = require('sequelize');
 const Book = require('../../models/book.model'); // Adjust path as needed
 const dataHelper = require('../../utils/dataHelper');
 const CustomError = require('../../utils/customError');
-const { log } = require('winston');
 
 /**
  * Create a new book.
@@ -140,15 +138,19 @@ exports.searchBooks = async (filters) => {
     // Optionally, add additional search criteria (e.g., ISBN or authors)
   }
   if (genres) {
-    // Since the genre field is an array, use the "contains" operator
-    whereClause.genres = { [Op.contains]: [genres] };
+    // Convert the genres array to a string and perform a case-insensitive search
+    whereClause.genres = where(
+      fn('lower', fn('array_to_string', col('genres'), ',')),
+      { [Op.iLike]: `%${genres.toLowerCase()}%` }
+    );
   }
   if (author) {
-    // Filter books whose authors array contains the specified author
-    whereClause.authors = { [Op.contains]: [author] };
+    // For case-insensitive search in an array field, convert the array to a string
+    whereClause.authors = where(
+      fn('lower', fn('array_to_string', col('authors'), ',')),
+      { [Op.iLike]: `%${author.toLowerCase()}%` }
+    );
   }
-
-  console.log(author);
 
   const { count, rows } = await Book.findAndCountAll({
     where: whereClause,
@@ -156,8 +158,6 @@ exports.searchBooks = async (filters) => {
     limit: parseInt(limit, 10)
   });
 
-  console.log('books:', rows);
-  
 
   return {
     total: count,

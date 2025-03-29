@@ -101,7 +101,22 @@ searchButton.addEventListener('click', () => {
   currentPage = 1;
   fetchSearchResults(currentPage);
 });
+
 searchTermInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    currentPage = 1;
+    fetchSearchResults(currentPage);
+  }
+});
+genresInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    currentPage = 1;
+    fetchSearchResults(currentPage);
+  }
+});
+authorInput.addEventListener('keypress', (e) => {
   if (e.key === 'Enter') {
     e.preventDefault();
     currentPage = 1;
@@ -124,5 +139,22 @@ nextButton.addEventListener('click', () => {
   }
 });
 
-// Optional: Initial search to load page one (or you could wait for user input)
-fetchSearchResults(currentPage);
+// On page load, check for URL parameter "title" and use it for initial search
+function initializeSearchFromURL() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const titleParam = urlParams.get('title');
+  if (titleParam) {
+    // Set the search input value to the title parameter
+    searchTermInput.value = titleParam;
+    // Perform an initial search using the title parameter
+    currentPage = 1;
+    fetchSearchResults(currentPage);
+  } else {
+    // Perform an initial search using the title parameter
+    currentPage = 1;
+    fetchSearchResults(currentPage);
+  }
+}
+
+// Call initialization on page load
+initializeSearchFromURL();

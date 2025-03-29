@@ -28,3 +28,9 @@ document.getElementById('reserveButton').addEventListener('click', async functio
       alert("An error occurred while creating the reservation.");
   }
 });
+
+document.getElementsByClassName('back-button')[0]
+    .addEventListener('click', async function() {
+        history.back();
+    })
+

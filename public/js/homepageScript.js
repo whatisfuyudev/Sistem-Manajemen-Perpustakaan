@@ -70,7 +70,7 @@ function performSearch() {
   const query = document.getElementById('searchInput').value.trim() + "";
   
   // Navigate to the search page with the search term as a URL parameter
-  window.location.href = '/books/search?searchTerm=' + encodeURIComponent(query);
+  window.location.href = '/books/search?title=' + encodeURIComponent(query);
   
 }
 
