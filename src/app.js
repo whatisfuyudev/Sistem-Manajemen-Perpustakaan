@@ -102,6 +102,14 @@ app.use('/api/notifications', notificationRoutes);
 const bookPageRoutes = require('./api/books/bookPage.routes');
 app.use('/books', bookPageRoutes);
 
+// Mount the new user page route
+const userPageRoutes = require('./api/users/userPage.routes');
+app.use('/', userPageRoutes);
+
+// Mount the new reservation page route
+const reservationPageRoutes = require('./api/reservations/reservationPage.routes');
+app.use('/', reservationPageRoutes);
+
 // Optionally, you can define a route for the homepage (if it’s static).
 // This example sends the static index.html from the public folder.
 app.get('/', (req, res) => {
@@ -138,10 +146,6 @@ app.get('/auth/register', (req, res) => {
 
 app.get('/auth/login', (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'login.html'));
-});
-
-app.get('/profile', authMiddleware.verifyToken, (req, res) => {
-  res.sendFile(path.join(__dirname, '../public', 'profile.html'));
 });
 
 app.get('/admin/checkouts/create', 
@@ -211,6 +215,7 @@ app.get('/admin/notifications',
   (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'notification.html'));
 });
+
 
 // // --------------------
 // // Global Error Handling

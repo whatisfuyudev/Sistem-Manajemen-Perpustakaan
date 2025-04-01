@@ -34,7 +34,7 @@ exports.getAllUsers = async () => {
 
 // Get user by ID
 exports.getUserById = async (id) => {
-  const user = await User.findByPk(id);
+  const user = await User.findOne({ where: { id } });
   if (!user) {
     throw new CustomError('User not found.', 404);
   }

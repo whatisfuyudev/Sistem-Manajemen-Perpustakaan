@@ -1,33 +1,5 @@
 let profilePictureUrl = '';
 
-// Function to fetch user data on page load
-async function fetchUserData() {
-  try {
-    const response = await fetch(`/api/users/single`);
-    if (response.ok) {
-      const userData = await response.json();
-      // Pre-fill form fields with the fetched user data
-      document.getElementById('name').value = userData.name || '';
-      document.getElementById('email').value = userData.email || '';
-      // Password field is left empty for security reasons
-      document.getElementById('phone').value = userData.phone || '';
-      document.getElementById('address').value = userData.address || '';
-      
-      // Update header and role display
-      document.getElementById('userNameDisplay').textContent = userData.name || 'User Name';
-      document.getElementById('userRoleDisplay').textContent = userData.role || 'User Role';
-      
-      if (userData.profilePicture) {
-        document.getElementById('profilePicDisplay').src = userData.profilePicture;
-      }
-    } else {
-      console.error('Failed to fetch user data.');
-    }
-  } catch (error) {
-    console.error('Error fetching user data:', error);
-  }
-}
-
 // Basic client-side validations and form submission handling
 document.getElementById('profileForm').addEventListener('submit', function(e) {
   e.preventDefault();
@@ -41,7 +13,7 @@ document.getElementById('profileForm').addEventListener('submit', function(e) {
   const password = document.getElementById('password').value;
   const phone = document.getElementById('phone').value.trim();
   const address = document.getElementById('address').value.trim();
-  const profilePicture = "" || profilePictureUrl;
+  const profilePicture = profilePictureUrl; // updated via upload
   
   // Simple regex for email validation
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -67,16 +39,13 @@ document.getElementById('profileForm').addEventListener('submit', function(e) {
     profilePicture
   };
 
-  // Remove empty fields
-  Object.keys(formData).forEach(key => {
-    const value = formData[key];
-    if ((typeof value === 'string' && value.trim() === '') ||
-        (typeof value === 'number' && isNaN(value))) {
-      delete formData[key];
-    }
-  });
-  
-  // Here you can send the data using fetch() if needed:
+
+  // Remove the profilePicture field if it's an empty string
+  if (typeof formData.profilePicture === 'string' && formData.profilePicture.trim() === '') {
+    delete formData.profilePicture;
+  }
+
+  // Send the data using fetch()
   fetch('/api/users/update', {
     method: 'PUT',
     headers: {
@@ -86,9 +55,6 @@ document.getElementById('profileForm').addEventListener('submit', function(e) {
   })
   .then(response => response.json())
   .then(data => {
-    // refresh page and modify every field to match new data
-
-
     messageDiv.textContent = 'Profile updated successfully!';
     messageDiv.className = 'message success';
   })
@@ -97,11 +63,6 @@ document.getElementById('profileForm').addEventListener('submit', function(e) {
     messageDiv.textContent = 'Error updating profile.';
     messageDiv.className = 'message error';
   });
-  
-  
-  // For now, show a success message directly:
-  messageDiv.textContent = 'Profile updated successfully!';
-  messageDiv.className = 'message success';
   
   // Optionally update the header display
   document.getElementById('userNameDisplay').textContent = name;
@@ -138,7 +99,7 @@ document.getElementById('submitBtnProfilePic').addEventListener('click', async f
       alert('Profile picture uploaded successfully!');
     } else {
       const errorText = await response.text();
-      alert("Upload failed:", errorText);
+      alert("Upload failed: " + errorText);
     }
   } catch (error) {
     console.error("Error during file upload:", error);
@@ -152,7 +113,6 @@ document.getElementById('logoutButton').addEventListener('click', async function
       method: 'POST'
     });
     if (response.ok) {
-      // Redirect to login page (adjust URL if needed)
       window.location.href = '/auth/login';
     } else {
       console.error('Logout failed.');
@@ -162,4 +122,7 @@ document.getElementById('logoutButton').addEventListener('click', async function
   }
 });
 
-document.addEventListener('DOMContentLoaded', fetchUserData);
+// Back button functionality
+document.getElementById('backButton').addEventListener('click', () => {
+  history.back();
+});

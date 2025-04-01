@@ -173,11 +173,32 @@ exports.getReservationHistory = async (query) => {
     where.bookIsbn = query.bookIsbn;
   }
   if (query.status) {
-    where.status = query.status;
+    if (query.status === 'inactive') {
+      // For inactive, include fulfilled, canceled, and expired reservations
+      where.status = { [Op.in]: ['fulfilled', 'canceled', 'expired'] };
+    } else {
+      where.status = query.status;
+    }
   }
-  const history = await Reservation.findAll({
+  
+  // Set default pagination values if not provided
+  const page = query.page ? parseInt(query.page, 10) : 1;
+  const limit = query.limit ? parseInt(query.limit, 10) : 10;
+  const offset = (page - 1) * limit;
+  
+  // Use findAndCountAll to get total count and paginated rows
+  const { count, rows } = await Reservation.findAndCountAll({
     where,
-    order: [['requestDate', 'DESC']]
+    order: [['requestDate', 'DESC']],
+    offset,
+    limit
   });
-  return history;
+  
+  return {
+    total: count,
+    reservations: rows,
+    page
+  };
 };
+
+

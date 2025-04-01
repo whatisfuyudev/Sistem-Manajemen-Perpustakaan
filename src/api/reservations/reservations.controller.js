@@ -49,3 +49,14 @@ exports.getReservationHistory = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.getMyReservations = async (req, res, next) => {
+  try {
+    // Get user id from the verified token (attached by authMiddleware.verifyToken)
+    const userId = req.user.id;
+    const history = await reservationsService.getReservationHistory({ ...req.query, userId });
+    res.status(200).json(history);
+  } catch (error) {
+    next(error);
+  }
+};

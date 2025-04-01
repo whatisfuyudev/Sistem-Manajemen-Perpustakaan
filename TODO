@@ -16,11 +16,14 @@
   - make the user/client side first
     - make it similiar to https://www.libib.com/
       - there will be homepage, individual book page, profile page, my reservations page, my checkouts page, register page, login page
-        - homepage has a link to profile page, register/login page, individual book page       
-          - make profile page
-            - convert profile page into ejs
-            - profile page has a link to my reservations page and my checkouts page
+        - homepage has a link to profile page, register/login page, individual book page,
+          my reservation page, my checkouts page      
+          - make my reservation page
+            - cancel reservation button (be sure to prompt so no misclick happens)
+            - modify reservation button and page
 
+          - make my checkout page
+          
   - make the admin/librarian side
 
 ### General TODO
@@ -32,13 +35,6 @@
 - make two different endpoints, one for admin/librarian, the other for client/patron/user
   - New Endpoint to get single user by their id (admin/librarian only)
   - New Endpoint to update a user by their id (admin/librarian only)
-
-- make the correct Flow for reserving a book
-  1. User is in homepage
-  2. User click on book
-  3. Go to individual book page with all book information and a button for reserving that book
-  4. When user click that reserving book, it sends the correct and needed book data to the api
-  5. A reservation is made
 
 - make the correct flow for cancelling a reservation
   1. user is on my reservation page
@@ -56,6 +52,7 @@
 - pagination and or limit data fetching on checkout history and reservation history
   so it does not load every single data immidiately
 
+- check whether the jwt token is expired or not
 - implement refresh tokens and expiration checking for main auth jwt_token (1 hour expiration time)
   - refresh tokens last for a long time, like 1 week or 1 month
 
@@ -67,3 +64,19 @@ this app will have two sides, one for patron (book enjoyer) and one for libraria
 - reservations is for user (only some of it, other endpoints is for admin/librarian)
 
 - rate limiting on apis
+- on homepage script, when the it loads and randomly picks five books, 
+  limit into only picking at most 100 books for performance reason while
+  maintining randomness. bonus points if it is possible to do this whole
+  randomize seaching thing directly with sequilize. 
+
+- maybe make a built in pop up so it works on mobile 
+  that will replace every alert pop up. also able to be
+  used for confirmation prompt thing.
+
+- more on home page like books based on author
+  books based in letters
+  idk ask gpt for books based on what that make sense
+
+- code cleanup, delete unused/test pages
+
+- auth middleware redirect to login page instead?

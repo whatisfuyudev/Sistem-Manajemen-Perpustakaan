@@ -19,4 +19,7 @@ router.put('/promote/:bookIsbn', authMiddleware.verifyToken, authMiddleware.isLi
 // Retrieve reservation history (supports query parameters for filtering)
 router.get('/history', authMiddleware.verifyToken, authMiddleware.isLibrarianOrAdmin,reservationsController.getReservationHistory);
 
+// New route for querying a user's own reservations
+router.get('/my', authMiddleware.verifyToken, reservationsController.getMyReservations);
+
 module.exports = router;
