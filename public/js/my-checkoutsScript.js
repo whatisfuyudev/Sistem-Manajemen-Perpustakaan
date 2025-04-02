@@ -2,15 +2,18 @@
 let userId = null;
 let checkoutsData = [];
 let currentPage = 1;
-const limit = 4;
+const limit = 8;
 let totalResults = 0;
-let currentFilter = 'all'; // Default filter
+let currentFilter = 'all';
 
 const checkoutsGrid = document.getElementById('checkoutsGrid');
 const filterButtons = document.querySelectorAll('.filters button');
 const prevButton = document.getElementById('prevButton');
 const nextButton = document.getElementById('nextButton');
 const pageIndicator = document.getElementById('pageIndicator');
+
+// Maximum number of renewals allowed
+const MAX_RENEWALS = 2;
 
 // Back button functionality
 document.getElementById('backButton').addEventListener('click', () => {
@@ -58,7 +61,7 @@ async function fetchCheckouts(page = 1, filter = 'all') {
   }
 }
 
-// Function to render checkout cards including book details and checkout info
+// Function to render checkout cards including book details, checkout info, and a "Renew" button
 async function renderCheckouts(data) {
   checkoutsGrid.innerHTML = '';
   if (data.length === 0) {
@@ -139,8 +142,45 @@ async function renderCheckouts(data) {
     } catch (error) {
       console.error('Error fetching book details:', error);
     }
-  
+    
+    // Add "Request Renewal" button if checkout is active, no pending request, and below max renewals
+    if (checkout.status === 'active' && checkout.renewalCount < MAX_RENEWALS && !checkout.renewalRequested) {
+      const renewButton = document.createElement('button');
+      renewButton.textContent = 'Request Renewal';
+      renewButton.className = 'renew-button';
+      renewButton.onclick = () => requestRenewal(checkout.id, card);
+      card.appendChild(renewButton);
+    }
+
     checkoutsGrid.appendChild(card);
+  }
+}
+
+async function requestRenewal(checkoutId, card) {
+  // Optionally, prompt the user for a custom renewal period using your custom pop-up.
+  // Using our custom modal popup instead of alert.
+  const renewalOption = 'standard'; // or 'custom'
+  let customDays = 14;
+  
+  try {
+    const response = await fetch(`/api/checkouts/request-renewal/${checkoutId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ renewalOption, customDays })
+    });
+    
+    if (response.ok) {
+      const result = await response.json();
+      card.querySelector('.checkout-details').textContent = 'Status: renewal requested';
+      await showModal({ message: 'Renewal request submitted successfully.' });
+      fetchCheckouts(currentPage, currentFilter); // Refresh the data
+    } else {
+      const error = await response.json();
+      await showModal({ message: 'Error: ' + error.message });
+    }
+  } catch (error) {
+    console.error('Error requesting renewal:', error);
+    await showModal({ message: 'An error occurred while requesting renewal.' });
   }
 }
 
@@ -180,3 +220,57 @@ filterButtons.forEach(button => {
 
 // Initial call to fetch user data (which then fetches checkouts)
 document.addEventListener('DOMContentLoaded', fetchUserData);
+
+/* Custom Modal Popup Functions */
+
+// Show a generic modal popup; returns a Promise that resolves with true (OK) or false (Cancel)
+function showModal({ message, showCancel = false }) {
+  return new Promise((resolve) => {
+    const overlay = document.getElementById('modal-overlay');
+    const modalMessage = document.getElementById('modal-message');
+    const okButton = document.getElementById('modal-ok');
+    const cancelButton = document.getElementById('modal-cancel');
+
+    // Set the message text
+    modalMessage.textContent = message;
+    
+    // Show or hide the cancel button based on the flag
+    if (showCancel) {
+      cancelButton.classList.remove('hidden');
+    } else {
+      cancelButton.classList.add('hidden');
+    }
+    
+    // Hide any input field if present
+    const inputField = document.getElementById('modal-input');
+    if (inputField) {
+      inputField.classList.add('hidden');
+    }
+    
+    // Display the modal
+    overlay.classList.remove('hidden');
+
+    // Clean up previous event listeners if any
+    const cleanUp = () => {
+      okButton.removeEventListener('click', onOk);
+      cancelButton.removeEventListener('click', onCancel);
+      overlay.classList.add('hidden');
+    };
+
+    const onOk = () => {
+      cleanUp();
+      resolve(true);
+    };
+
+    const onCancel = () => {
+      cleanUp();
+      resolve(false);
+    };
+
+    okButton.addEventListener('click', onOk);
+    if (showCancel) {
+      cancelButton.addEventListener('click', onCancel);
+    }
+  });
+}
+

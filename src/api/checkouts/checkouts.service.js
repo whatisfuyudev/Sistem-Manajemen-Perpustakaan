@@ -180,8 +180,39 @@ exports.processReturn = async (data) => {
   return updatedCheckout;
 };
 
-
-
+exports.requestRenewal = async (checkoutId, data) => {
+  const checkout = await Checkout.findOne({ where: { id: checkoutId } });
+  if (!checkout) {
+    throw new CustomError('Checkout record not found.', 404);
+  }
+  
+  if (checkout.status !== 'active') {
+    throw new CustomError('Only active checkouts can be renewed.', 400);
+  }
+  
+  if (checkout.renewalCount >= MAX_RENEWALS) {
+    throw new CustomError('Renewal limit exceeded.', 400);
+  }
+  
+  // Check if a renewal request is already pending.
+  if (checkout.renewalRequested) {
+    throw new CustomError('Renewal request already pending.', 400);
+  }
+  
+  // Determine renewal period:
+  // Default is 14 days unless custom is provided.
+  let renewalDays = 14;
+  if (data.renewalOption === 'custom' && data.customDays && Number(data.customDays) > 0) {
+    renewalDays = Number(data.customDays);
+  }
+  
+  // Mark the renewal request; do not update dueDate immediately.
+  checkout.renewalRequested = true;
+  checkout.requestedRenewalDays = renewalDays;  // Optionally record the requested period
+  await checkout.save();
+  
+  return { message: 'Renewal request submitted successfully.', checkout };
+};
 
 
 exports.renewCheckout = async (checkoutId, data) => {

@@ -78,8 +78,13 @@ CREATE TABLE notifications (
 
 ---------------------------------------------------------------------
 
--- Checkouts: Create ENUM type for status
-CREATE TYPE enum_checkouts_status AS ENUM ('active', 'returned', 'overdue', 'lost', 'damaged');
+-- (Optional) Create the enum type if it doesn't already exist
+DO $$
+BEGIN
+   IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'enum_checkouts_status') THEN
+     CREATE TYPE enum_checkouts_status AS ENUM ('active', 'returned', 'overdue', 'lost', 'damaged');
+   END IF;
+END$$;
 
 -- Create the checkouts table
 CREATE TABLE checkouts (
@@ -93,6 +98,8 @@ CREATE TABLE checkouts (
   "renewalCount" INTEGER NOT NULL DEFAULT 0,
   fine DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
   "reservationId" INTEGER,
+  "renewalRequested" BOOLEAN NOT NULL DEFAULT false,
+  "requestedRenewalDays" INTEGER,
   "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   CONSTRAINT fk_reservation FOREIGN KEY ("reservationId")

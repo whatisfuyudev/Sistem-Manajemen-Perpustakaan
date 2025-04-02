@@ -10,8 +10,11 @@ router.post('/checkout', checkoutsController.initiateCheckout);
 // Process a return
 router.post('/return', checkoutsController.processReturn);
 
+// New endpoint for requesting a renewal
+router.post('/request-renewal/:id', authMiddleware.verifyToken, checkoutsController.requestRenewal);
+
 // Renew an active checkout
-router.put('/renew/:id', checkoutsController.renewCheckout);
+router.put('/renew/:id', authMiddleware.verifyToken, authMiddleware.isLibrarianOrAdmin,  checkoutsController.renewCheckout);
 
 // Retrieve checkout history (optionally filtered by query parameters)
 router.get('/history', authMiddleware.verifyToken, checkoutsController.getCheckoutHistory);

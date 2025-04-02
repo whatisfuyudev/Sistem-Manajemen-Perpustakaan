@@ -21,6 +21,18 @@ exports.processReturn = async (req, res, next) => {
   }
 };
 
+exports.requestRenewal = async (req, res, next) => {
+  try {
+    const checkoutId = req.params.id;
+    // Pass the request body data (e.g., renewalOption, customDays) to the service
+    const result = await checkoutsService.requestRenewal(checkoutId, req.body);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+
 exports.renewCheckout = async (req, res, next) => {
   try {
     // Expects checkout ID in req.params.id and any additional data in req.body if needed
