@@ -1,3 +1,4 @@
+// src/api/checkouts/checkouts.service.js
 const sequelize = require('../../utils/db'); // Assuming you export your sequelize instance
 const Checkout = require('../../models/checkout.model');
 const Book = require('../../models/book.model');
@@ -5,6 +6,7 @@ const User = require('../../models/user.model');
 const Reservation = require('../../models/reservation.model'); // Import the reservation model
 const queueHelper = require('../../utils/queueHelper');
 const CustomError = require('../../utils/customError');
+const { Op } = require('sequelize');
 
 // Helper to add days to a date
 function addDays(date, days) {
@@ -214,20 +216,51 @@ exports.renewCheckout = async (checkoutId, data) => {
   return updatedCheckout;
 };
 
-exports.getCheckoutHistory = async (query) => {
+
+
+exports.getCheckoutHistory = async (query, authUser) => {
+  const { page = 1, limit = 10, bookIsbn, status } = query;
+  const offset = (page - 1) * limit;
   const where = {};
-  if (query.userId) {
-    where.userId = query.userId;
+
+  // Force filtering by user's own ID if the authenticated user is a Patron
+  if (authUser.role === 'Patron') {
+    where.userId = authUser.id;
+  } else {
+    // For librarians and admin, allow an optional userId filter if provided
+    if (query.userId) {
+      where.userId = query.userId;
+    }
   }
-  if (query.bookIsbn) {
-    where.bookIsbn = query.bookIsbn;
+
+  // Filter by book ISBN if provided
+  if (bookIsbn) {
+    where.bookIsbn = bookIsbn;
   }
-  // Additional filters can be added as needed
-  
-  const history = await Checkout.findAll({
+
+  // Filter by status if provided
+  if (status) {
+    if (status === 'others') {
+      // Example: "others" means not active, returned, or overdue
+      where.status = { [Op.notIn]: ['active', 'returned', 'overdue'] };
+    } else {
+      where.status = status;
+    }
+  }
+
+  // Use findAndCountAll to support pagination
+  const { count, rows } = await Checkout.findAndCountAll({
     where,
+    offset,
+    limit: parseInt(limit, 10),
     order: [['checkoutDate', 'DESC']]
   });
-  
-  return history;
+
+  return {
+    total: count,
+    checkouts: rows,
+    page: parseInt(page, 10)
+  };
 };
+
+

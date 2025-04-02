@@ -2,6 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const checkoutsController = require('./checkouts.controller');
+const authMiddleware = require('../../middleware/auth.middleware');
 
 // Initiate a new checkout
 router.post('/checkout', checkoutsController.initiateCheckout);
@@ -13,6 +14,6 @@ router.post('/return', checkoutsController.processReturn);
 router.put('/renew/:id', checkoutsController.renewCheckout);
 
 // Retrieve checkout history (optionally filtered by query parameters)
-router.get('/history', checkoutsController.getCheckoutHistory);
+router.get('/history', authMiddleware.verifyToken, checkoutsController.getCheckoutHistory);
 
 module.exports = router;

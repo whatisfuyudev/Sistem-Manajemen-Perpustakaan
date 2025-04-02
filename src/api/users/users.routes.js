@@ -32,7 +32,6 @@ router.get('/:id', userController.getUserByIdAdmin);
 // New Endpoint to update a user by their id (admin/librarian only)
 router.put('/:id', userController.updateUserAdmin);
 
-
 // Delete a user by id
 router.delete('/:id', userController.deleteUser);
 

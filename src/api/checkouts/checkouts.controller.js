@@ -31,11 +31,14 @@ exports.renewCheckout = async (req, res, next) => {
   }
 };
 
+// src/api/checkouts/checkouts.controller.js
 exports.getCheckoutHistory = async (req, res, next) => {
   try {
-    const history = await checkoutsService.getCheckoutHistory(req.query);
+    // Pass query parameters and the authenticated user's data to the service
+    const history = await checkoutsService.getCheckoutHistory(req.query, req.user);
     res.status(200).json(history);
   } catch (error) {
     next(error);
   }
 };
+
