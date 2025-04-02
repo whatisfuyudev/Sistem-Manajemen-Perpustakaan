@@ -54,7 +54,7 @@ async function fetchReservations(page = 1, filter = 'all') {
   }
 }
 
-// Function to render reservation cards including book details and extra reservation info
+// Function to render reservation cards including book and reservation details
 async function renderReservations(data) {
   reservationsGrid.innerHTML = '';
   if (data.length === 0) {
@@ -93,6 +93,7 @@ async function renderReservations(data) {
 
     if (reservation.notes) {
       const notesDiv = document.createElement('div');
+      notesDiv.className = 'notes';
       notesDiv.textContent = 'Notes: ' + reservation.notes;
       card.appendChild(notesDiv);
     }
@@ -131,9 +132,80 @@ async function renderReservations(data) {
       console.error('Error fetching book details:', error);
     }
 
+    // Cancel Button (Only for pending & available reservations)
+    if (['pending', 'available'].includes(reservation.status)) {
+      const cancelButton = document.createElement('button');
+      cancelButton.textContent = 'Cancel';
+      cancelButton.className = 'cancel-button';
+      cancelButton.onclick = () => cancelReservation(reservation.id, card);
+      card.appendChild(cancelButton);
+    }
+
+    // Modify Button (Only add if reservation is pending)
+    if (reservation.status === 'pending') {
+      const modifyButton = document.createElement('button');
+      modifyButton.textContent = 'Modify';
+      modifyButton.className = 'modify-button';
+      modifyButton.onclick = () => modifyReservation(reservation.id, reservation.notes, card);
+      card.appendChild(modifyButton);
+    }
+
     reservationsGrid.appendChild(card);
   }
 }
+
+// Cancel Reservation Function
+async function cancelReservation(reservationId, card) {
+  if (!confirm('Are you sure you want to cancel this reservation?')) return;
+
+  try {
+    const response = await fetch(`/api/reservations/cancel/${reservationId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+    if (response.ok) {
+      card.querySelector('.reservation-status').textContent = 'Status: canceled';
+      alert('Reservation canceled successfully.');
+    } else {
+      const error = await response.json();
+      alert('Error: ' + error.message);
+    }
+  } catch (error) {
+    console.error('Error canceling reservation:', error);
+    alert('An error occurred while canceling the reservation.');
+  }
+}
+
+// Modify Reservation Function (Edit Notes)
+async function modifyReservation(reservationId, currentNotes, card) {
+  const newNotes = prompt('Edit your notes:', currentNotes || '');
+  if (newNotes === null) return; // Cancel if user clicks "Cancel" in prompt
+
+  try {
+    const response = await fetch(`/api/reservations/modify/${reservationId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ notes: newNotes })
+    });
+
+    if (response.ok) {
+      card.querySelector('.notes')?.remove();
+      const notesDiv = document.createElement('div');
+      notesDiv.className = 'notes';
+      notesDiv.textContent = 'Notes: ' + newNotes;
+      card.appendChild(notesDiv);
+      alert('Notes updated successfully.');
+    } else {
+      const error = await response.json();
+      alert('Error: ' + error.message);
+    }
+  } catch (error) {
+    console.error('Error updating notes:', error);
+    alert('An error occurred while updating the notes.');
+  }
+}
+
 
 // Pagination: update controls based on current page and total results
 function updatePagination() {
@@ -169,6 +241,173 @@ filterButtons.forEach(button => {
     fetchReservations(currentPage, currentFilter);
   });
 });
+
+// Show a generic modal popup; returns a Promise that resolves with true (OK) or false (Cancel)
+function showModal({ message, showCancel = false }) {
+  return new Promise((resolve) => {
+    const overlay = document.getElementById('modal-overlay');
+    const modalMessage = document.getElementById('modal-message');
+    const okButton = document.getElementById('modal-ok');
+    const cancelButton = document.getElementById('modal-cancel');
+
+    // Set the message text
+    modalMessage.textContent = message;
+    
+    // Show or hide the cancel button based on the flag
+    if (showCancel) {
+      cancelButton.classList.remove('hidden');
+    } else {
+      cancelButton.classList.add('hidden');
+    }
+    
+    // Hide any input field if present
+    const inputField = document.getElementById('modal-input');
+    if (inputField) {
+      inputField.classList.add('hidden');
+    }
+    
+    // Display the modal
+    overlay.classList.remove('hidden');
+
+    // Clean up previous event listeners if any
+    const cleanUp = () => {
+      okButton.removeEventListener('click', onOk);
+      cancelButton.removeEventListener('click', onCancel);
+      overlay.classList.add('hidden');
+    };
+
+    const onOk = () => {
+      cleanUp();
+      resolve(true);
+    };
+
+    const onCancel = () => {
+      cleanUp();
+      resolve(false);
+    };
+
+    okButton.addEventListener('click', onOk);
+    if (showCancel) {
+      cancelButton.addEventListener('click', onCancel);
+    }
+  });
+}
+
+// Show a modal popup that includes an input field for text; returns a Promise that resolves with the input text, or null if canceled.
+function showPromptModal({ message, defaultValue = '' }) {
+  return new Promise((resolve) => {
+    const overlay = document.getElementById('modal-overlay');
+    const modalMessage = document.getElementById('modal-message');
+    const okButton = document.getElementById('modal-ok');
+    const cancelButton = document.getElementById('modal-cancel');
+
+    // Create or select the input field inside the modal.
+    let inputField = document.getElementById('modal-input');
+    if (!inputField) {
+      inputField = document.createElement('input');
+      inputField.type = 'text';
+      inputField.id = 'modal-input';
+      inputField.style.width = '100%';
+      inputField.style.marginTop = '10px';
+      inputField.style.padding = '8px';
+      inputField.style.fontSize = '16px';
+      // Insert the input field above the buttons if not already present
+      const modal = document.querySelector('.modal');
+      modal.insertBefore(inputField, document.querySelector('.modal-buttons'));
+    }
+    inputField.value = defaultValue;
+    inputField.classList.remove('hidden');
+
+    // Set the message text
+    modalMessage.textContent = message;
+    
+    // Ensure cancel button is visible for prompt functionality
+    cancelButton.classList.remove('hidden');
+    
+    // Display the modal
+    overlay.classList.remove('hidden');
+
+    const cleanUp = () => {
+      okButton.removeEventListener('click', onOk);
+      cancelButton.removeEventListener('click', onCancel);
+      overlay.classList.add('hidden');
+      inputField.classList.add('hidden'); // hide the input field after use
+    };
+
+    const onOk = () => {
+      cleanUp();
+      resolve(inputField.value);
+    };
+
+    const onCancel = () => {
+      cleanUp();
+      resolve(null);
+    };
+
+    okButton.addEventListener('click', onOk);
+    cancelButton.addEventListener('click', onCancel);
+  });
+}
+
+// Cancel Reservation Function using custom modal for confirmation
+async function cancelReservation(reservationId, card) {
+  const confirmed = await showModal({ message: 'Are you sure you want to cancel this reservation?', showCancel: true });
+  if (!confirmed) return;
+
+  try {
+    const response = await fetch(`/api/reservations/cancel/${reservationId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+    if (response.ok) {
+      // Update UI: update status text
+      card.querySelector('.reservation-status').textContent = 'Status: canceled';
+      await showModal({ message: 'Reservation canceled successfully!', showCancel: false });
+    } else {
+      const error = await response.json();
+      await showModal({ message: 'Error: ' + error.message, showCancel: false });
+    }
+  } catch (error) {
+    console.error('Error canceling reservation:', error);
+    await showModal({ message: 'An error occurred while canceling the reservation.', showCancel: false });
+  }
+}
+
+// Modify Reservation Function (Edit Notes) using custom prompt modal
+async function modifyReservation(reservationId, currentNotes, card) {
+  const newNotes = await showPromptModal({ message: 'Edit your notes:', defaultValue: currentNotes || '' });
+  if (newNotes === null) return; // User canceled
+
+  try {
+    const response = await fetch(`/api/reservations/modify/${reservationId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ notes: newNotes })
+    });
+
+    if (response.ok) {
+      // Update UI: if there is a notes element, update it; otherwise, add one
+      let notesDiv = card.querySelector('.notes');
+      if (!notesDiv) {
+        notesDiv = document.createElement('div');
+        notesDiv.className = 'notes';
+        card.appendChild(notesDiv);
+      }
+      notesDiv.textContent = 'Notes: ' + newNotes;
+      await showModal({ message: 'Notes updated successfully!', showCancel: false });
+    } else {
+      const error = await response.json();
+      await showModal({ message: 'Error: ' + error.message, showCancel: false });
+    }
+  } catch (error) {
+    console.error('Error updating notes:', error);
+    await showModal({ message: 'An error occurred while updating the notes.', showCancel: false });
+  }
+}
+
+// For testing purposes, you might call these functions on certain events.
+// For instance, attach confirmAction() to a delete button click event.
 
 // Fetch reservations when page loads
 document.addEventListener('DOMContentLoaded', fetchUserData);

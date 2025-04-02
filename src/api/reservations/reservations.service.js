@@ -108,6 +108,10 @@ exports.cancelReservation = async (reservationId) => {
   return reservation;
 };
 
+exports.getReservationById = async (reservationId) => {
+  const reservation = await Reservation.findOne({ where: { id: reservationId } });
+  return reservation;
+};
 
 
 // currently only able to modify the notes

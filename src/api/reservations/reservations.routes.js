@@ -7,17 +7,17 @@ const authMiddleware = require('../../middleware/auth.middleware');
 // Create a new reservation
 router.post('/reserve', authMiddleware.verifyToken, reservationsController.createReservation);
 
-// Cancel an existing reservation
-router.put('/cancel/:id', reservationsController.cancelReservation);
+// Cancel any existing reservation
+router.put('/cancel/:id', authMiddleware.verifyToken, reservationsController.cancelReservation);
 
-// Modify reservation details (e.g., notes)
-router.put('/modify/:id', reservationsController.modifyReservation);
+// Modify existing reservation
+router.put('/modify/:id', authMiddleware.verifyToken, reservationsController.modifyReservation);
 
 // Promote the next pending reservation for a book when available
 router.put('/promote/:bookIsbn', authMiddleware.verifyToken, authMiddleware.isLibrarianOrAdmin, reservationsController.promoteNextReservation);
 
 // Retrieve reservation history (supports query parameters for filtering)
-router.get('/history', authMiddleware.verifyToken, authMiddleware.isLibrarianOrAdmin,reservationsController.getReservationHistory);
+router.get('/history', authMiddleware.verifyToken, authMiddleware.isLibrarianOrAdmin, reservationsController.getReservationHistory);
 
 // New route for querying a user's own reservations
 router.get('/my', authMiddleware.verifyToken, reservationsController.getMyReservations);

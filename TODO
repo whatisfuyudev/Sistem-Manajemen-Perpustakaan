@@ -18,18 +18,15 @@
       - there will be homepage, individual book page, profile page, my reservations page, my checkouts page, register page, login page
         - homepage has a link to profile page, register/login page, individual book page,
           my reservation page, my checkouts page      
-          - make my reservation page
-            - cancel reservation button (be sure to prompt so no misclick happens)
-            - modify reservation button and page
-
           - make my checkout page
+            - look at https://www.behance.net/gallery/215498175/Library-Management-System-Web-Application?tracking_source=search_projects|library+management&l=1 for inspirations
+
           
   - make the admin/librarian side
 
 ### General TODO
 - make sure the book service works properly, ensure data sanitization
-- prevent upload cover image abuse (only upload the image at the same time as clicking update book data)
-- make ui html page
+- prevent upload cover image abuse (upload the image at the same time as clicking update book data)
 - make the html homepage that display all books (search up responsive design)
 - at user routes, create new user is only for admin access
 - make two different endpoints, one for admin/librarian, the other for client/patron/user
@@ -77,6 +74,17 @@ this app will have two sides, one for patron (book enjoyer) and one for libraria
   books based in letters
   idk ask gpt for books based on what that make sense
 
-- code cleanup, delete unused/test pages
+- code cleanup, 
+  - delete unused/test pages
+  - css cleanup, no duplicate style
+  - js cleanup, no duplicate code
+  - delete any console.log/console.error on front end
+  - move custom pop up (inside myReservation html and js)
+    into its own file so it is reuseable accross the whole app
+    - change alert or prompt to custom pop up
+
+
+- try changing the return http code error on controllers
+  into customError() instead.
 
 - auth middleware redirect to login page instead?

@@ -14,6 +14,20 @@ exports.createReservation = async (req, res, next) => {
 exports.cancelReservation = async (req, res, next) => {
   try {
     const reservationId = req.params.id;
+    
+    // Check if the authenticated user is a Patron
+    if (req.user.role === 'Patron') {
+      // Retrieve the reservation first
+      const reservation = await reservationsService.getReservationById(reservationId);
+      if (!reservation) {
+        return res.status(404).json({ message: 'Reservation not found.' });
+      }
+      // If the reservation does not belong to the authenticated user, return error
+      if (reservation.userId !== req.user.id) {
+        return res.status(403).json({ message: 'You can only cancel your own reservation.' });
+      }
+    }
+    
     const result = await reservationsService.cancelReservation(reservationId);
     res.status(200).json(result);
   } catch (error) {
@@ -21,11 +35,26 @@ exports.cancelReservation = async (req, res, next) => {
   }
 };
 
+
 exports.modifyReservation = async (req, res, next) => {
   try {
+    const { notes } = req.body;
     const reservationId = req.params.id;
-    const updatedReservation = await reservationsService.modifyReservation(reservationId, req.body);
-    res.status(200).json(updatedReservation);
+
+    const reservation = await reservationsService.getReservationById(reservationId);
+    if (!reservation) {
+      return res.status(404).json({ message: 'Reservation not found.' });
+    }
+
+    // Only the owner or an admin can modify
+    if (req.user.role === 'Patron' && reservation.userId !== req.user.id) {
+      return res.status(403).json({ message: 'You can only modify your own reservation.' });
+    }
+
+    reservation.notes = notes;
+    await reservation.save();
+
+    res.status(200).json({ message: 'Reservation updated successfully.' });
   } catch (error) {
     next(error);
   }
