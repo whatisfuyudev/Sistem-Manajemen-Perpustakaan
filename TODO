@@ -88,3 +88,5 @@ this app will have two sides, one for patron (book enjoyer) and one for libraria
   into customError() instead.
 
 - auth middleware redirect to login page instead?
+
+- fix margin/gap between text and things inside reservation card on myreservations page
