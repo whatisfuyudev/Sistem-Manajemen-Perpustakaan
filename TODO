@@ -37,7 +37,7 @@
         (tip: recycle the test pages, example: createBook.html and its script)
 
       - fix checkouts section
-        - individual reservation page
+        - individual checkout page
         - searching checkouts based on multiple criteria
         - add a new checkout page
         - renew a checkout with modal confirmation
