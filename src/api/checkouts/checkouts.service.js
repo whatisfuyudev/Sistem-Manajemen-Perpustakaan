@@ -241,7 +241,9 @@ exports.renewCheckout = async (checkoutId, data) => {
   
   const updatedCheckout = await checkout.update({
     renewalCount: checkout.renewalCount + 1,
-    dueDate: newDueDate
+    dueDate: newDueDate,
+    renewalRequested: false,      // Reset renewal request flag
+    requestedRenewalDays: null      // Clear the requested renewal days
   });
   
   return updatedCheckout;

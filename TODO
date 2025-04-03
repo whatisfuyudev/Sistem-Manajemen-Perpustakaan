@@ -21,28 +21,69 @@
           - make my checkout page
             - back end side request renewal 
               and admin/librarian renewal needs to be connected to each other.
-            - front end is a bit buggy when requesting renewal
+            
+            - front end is a bit buggy when requesting renewal 
 
   - make the admin/librarian side
+    - construct admin panel so you can test the my checkout page [now]
+      - fix books section
+        - searching functionalities
+          - search by title, isbn, authors, genres. 
+            might want to implement the same search for client side
+        - adding new book page
+        - individual book page (for admin/librarian)
+        - editing book page
+        - delete book with prompt/modal for confirmation
+        (tip: recycle the test pages, example: createBook.html and its script)
+
+      - fix checkouts section
+        - individual reservation page
+        - searching checkouts based on multiple criteria
+        - add a new checkout page
+        - renew a checkout with modal confirmation
+        - process a return checkout page
+        - new way to visualize each checkout data
+          like maybe show books and user too
+        (tip: recycle the test pages)
+
+      - fix reservations section
+        - individual reservation page
+        - searching reservations based on multiple criteria
+        - add new reservation page
+        - cancel any active reservation with modal confirmation
+        - modify any reservation notes?
+        - promote a reservation with modal confirmation
+        - new way to visualize each reservation data
+          like maybe show books and user too
+        (tip: recycle the test pages)
+
+      - fix users section
+        - individual user page
+        - able to add new user (new page)
+        - able to edit a single user data (new page)
+        - able to delete a user with modal confirmation
+        - able to query user data based on multiple criteria.
+
+      - fix notifications section
+        - individual notification page
+        - able to manually send a notification (new page)
+        - able to schedule send a notification (new page)
+        - able to query notification data based on multiple criteria
+
+
+      - rework the reports section based on docs
+    
+    - move it into proper endpoint
 
 ### General TODO
+- schedule notification functionality or notifications functionalities in general
+- implement single search bar that supports multiple type of searching
 - make sure the book service works properly, ensure data sanitization
 - prevent upload cover image abuse (upload the image at the same time as clicking update book data)
 - at user routes, create new user is only for admin access
 - make two different endpoints, one for admin/librarian, the other for client/patron/user
   - New Endpoint to get single user by their id (admin/librarian only)
   - New Endpoint to update a user by their id (admin/librarian only)
-
-- make the correct flow for cancelling a reservation
-  1. user is on my reservation page
-  2. on each reservation there will be a button that
-     when pressed, will send the reservation id to the api
-
-- make the correct modify reservation flow
-  1. user is on my reservation page
-  2. user click on a reservation, redirect to individual reservation page
-  3. there is a button to modify it
-  4. after modifying things, there is a send button, click and it sends the data to the api
 
 - add a search bar for checkout history and reservation history
 
@@ -94,3 +135,4 @@ this app will have two sides, one for patron (book enjoyer) and one for libraria
 - on homepage top bar part thing, collapse it in mobile
 
 - new ui on my reservations and my checkouts page, modern
+

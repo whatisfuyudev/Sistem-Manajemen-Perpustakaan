@@ -314,12 +314,18 @@
   <div id="modal-overlay" class="modal-overlay hidden">
     <div class="modal">
       <p id="modal-message"></p>
+      <select id="checkoutDuration" name="checkoutDuration" required>
+        <option value="standard" selected>Standard</option>
+        <option value="custom">Custom</option>
+      </select>
+      <!-- The custom input field will be inserted here dynamically when "custom" is selected -->
       <div class="modal-buttons">
         <button id="modal-ok">OK</button>
         <button id="modal-cancel" class="hidden">Cancel</button>
       </div>
     </div>
   </div>
+
   
   <script src="/public/js/my-checkoutsScript.js">
  

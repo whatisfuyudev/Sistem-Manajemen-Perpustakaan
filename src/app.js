@@ -221,6 +221,12 @@ app.get('/admin/notifications',
 });
 
 
+// testing, move elsewhere after finishing it
+app.get('/test/report', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public', 'testreport.html'));
+});
+
+
 // // --------------------
 // // Global Error Handling
 // // --------------------

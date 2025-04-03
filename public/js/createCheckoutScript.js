@@ -30,8 +30,8 @@ document.getElementById('checkoutForm').addEventListener('submit', async functio
     bookIsbn,
     role,
     checkoutDuration,
-    // If custom is chosen, send the user-entered days; otherwise, send the default 7
-    customDays: checkoutDuration === 'custom' ? customDays : '7'
+    // If custom is chosen, send the user-entered days; otherwise, send the default 14
+    customDays: checkoutDuration === 'custom' ? customDays : '14'
   };
 
   try {

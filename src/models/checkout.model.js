@@ -54,6 +54,15 @@ const Checkout = sequelize.define('Checkout', {
     // Optionally, you can add onUpdate and onDelete constraints:
     // onUpdate: 'CASCADE',
     // onDelete: 'SET NULL'
+  },
+  renewalRequested: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
+  },
+  requestedRenewalDays: {
+    type: DataTypes.INTEGER,
+    allowNull: true
   }
 }, {
   tableName: 'checkouts',

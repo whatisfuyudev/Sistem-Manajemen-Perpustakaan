@@ -157,11 +157,16 @@ async function renderCheckouts(data) {
 }
 
 async function requestRenewal(checkoutId, card) {
-  // Optionally, prompt the user for a custom renewal period using your custom pop-up.
-  // Using our custom modal popup instead of alert.
-  const renewalOption = 'standard'; // or 'custom'
-  let customDays = 14;
+  // Show the renewal prompt modal
+  const result = await showPromptModal({ message: 'Choose your renewal option:' });
   
+  if (!result) {
+    // User canceled the prompt
+    return;
+  }
+  
+  const { renewalOption, customDays } = result;
+
   try {
     const response = await fetch(`/api/checkouts/request-renewal/${checkoutId}`, {
       method: 'POST',
@@ -170,10 +175,11 @@ async function requestRenewal(checkoutId, card) {
     });
     
     if (response.ok) {
-      const result = await response.json();
-      card.querySelector('.checkout-details').textContent = 'Status: renewal requested';
+      const resultData = await response.json();
+      card.querySelector('.checkout-details').textContent = 'Status: Renewal requested';
+      // Optionally show a modal confirming success
       await showModal({ message: 'Renewal request submitted successfully.' });
-      fetchCheckouts(currentPage, currentFilter); // Refresh the data
+      fetchCheckouts(currentPage, currentFilter); // Refresh data
     } else {
       const error = await response.json();
       await showModal({ message: 'Error: ' + error.message });
@@ -183,6 +189,7 @@ async function requestRenewal(checkoutId, card) {
     await showModal({ message: 'An error occurred while requesting renewal.' });
   }
 }
+
 
 // Pagination: update controls based on current page and total results
 function updatePagination() {
@@ -222,39 +229,59 @@ filterButtons.forEach(button => {
 document.addEventListener('DOMContentLoaded', fetchUserData);
 
 /* Custom Modal Popup Functions */
+// Utility to reset the modal to its default state.
+function resetModal() {
+  // Remove any custom input field if present.
+  const inputField = document.getElementById('modal-input');
+  if (inputField) {
+    inputField.remove();
+  }
+  // Reset the select element to its default value (if it exists)
+  const checkoutDuration = document.getElementById('checkoutDuration');
+  if (checkoutDuration) {
+    checkoutDuration.selectedIndex = 0;
+    checkoutDuration.classList.add('hidden'); // Hide select in generic modal mode.
+  }
+}
 
-// Show a generic modal popup; returns a Promise that resolves with true (OK) or false (Cancel)
+// Generic modal: returns a Promise that resolves with true (OK) or false (Cancel)
 function showModal({ message, showCancel = false }) {
   return new Promise((resolve) => {
     const overlay = document.getElementById('modal-overlay');
     const modalMessage = document.getElementById('modal-message');
     const okButton = document.getElementById('modal-ok');
     const cancelButton = document.getElementById('modal-cancel');
+    const checkoutDuration = document.getElementById('checkoutDuration');
 
     // Set the message text
     modalMessage.textContent = message;
-    
+
+    // Hide the select element if present
+    if (checkoutDuration) {
+      checkoutDuration.classList.add('hidden');
+    }
+
     // Show or hide the cancel button based on the flag
     if (showCancel) {
       cancelButton.classList.remove('hidden');
     } else {
       cancelButton.classList.add('hidden');
     }
-    
+
     // Hide any input field if present
     const inputField = document.getElementById('modal-input');
     if (inputField) {
       inputField.classList.add('hidden');
     }
-    
+
     // Display the modal
     overlay.classList.remove('hidden');
 
-    // Clean up previous event listeners if any
     const cleanUp = () => {
       okButton.removeEventListener('click', onOk);
       cancelButton.removeEventListener('click', onCancel);
       overlay.classList.add('hidden');
+      resetModal();
     };
 
     const onOk = () => {
@@ -274,3 +301,87 @@ function showModal({ message, showCancel = false }) {
   });
 }
 
+// Prompt modal: uses a select element to choose between 'standard' and 'custom'.
+// If 'custom' is selected, spawns an input field for custom value.
+// Returns a Promise that resolves with an object { renewalOption, customDays } or null if canceled.
+function showPromptModal({ message, defaultValue = '14', showCancel = true }) {
+  return new Promise((resolve) => {
+    const overlay = document.getElementById('modal-overlay');
+    const modalMessage = document.getElementById('modal-message');
+    const okButton = document.getElementById('modal-ok');
+    const cancelButton = document.getElementById('modal-cancel');
+    const checkoutDuration = document.getElementById('checkoutDuration');
+
+    // Set the message text
+    modalMessage.textContent = message;
+
+    // Show the select element for the prompt and ensure it's visible.
+    checkoutDuration.classList.remove('hidden');
+
+    // Remove any previous custom input if it exists.
+    let inputField = document.getElementById('modal-input');
+    if (inputField) {
+      inputField.remove();
+    }
+
+    // Display the modal
+    overlay.classList.remove('hidden');
+
+    // Show or hide the cancel button based on the flag
+    if (showCancel) {
+      cancelButton.classList.remove('hidden');
+    } else {
+      cancelButton.classList.add('hidden');
+    }
+
+    const onSelectChange = () => {
+      if (checkoutDuration.value === 'custom') {
+        // Create the input field if not already present.
+        if (!document.getElementById('modal-input')) {
+          inputField = document.createElement('input');
+          inputField.type = 'text';
+          inputField.id = 'modal-input';
+          inputField.placeholder = 'Enter custom value';
+          inputField.value = defaultValue;
+          // Insert the input field after the select element.
+          checkoutDuration.insertAdjacentElement('afterend', inputField);
+        } else {
+          inputField.classList.remove('hidden');
+        }
+      } else {
+        if (inputField) {
+          inputField.classList.add('hidden');
+        }
+      }
+    };
+
+    checkoutDuration.addEventListener('change', onSelectChange);
+
+    const cleanUp = () => {
+      okButton.removeEventListener('click', onOk);
+      cancelButton.removeEventListener('click', onCancel);
+      checkoutDuration.removeEventListener('change', onSelectChange);
+      overlay.classList.add('hidden');
+      resetModal();
+    };
+
+    const onOk = () => {
+      const renewalOption = checkoutDuration.value;
+      let customDays = null;
+      if (renewalOption === 'custom') {
+        const inputElem = document.getElementById('modal-input');
+        customDays = inputElem ? inputElem.value.trim() : '';
+      }
+      cleanUp();
+      resolve({ renewalOption, customDays });
+    };
+
+    const onCancel = () => {
+      cleanUp();
+      resolve(null);
+    };
+
+    okButton.addEventListener('click', onOk);
+    cancelButton.addEventListener('click', onCancel);
+  });
+}

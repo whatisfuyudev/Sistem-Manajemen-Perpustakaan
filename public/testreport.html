@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Library Admin Panel</title>
+  <style>
+    /* Base Reset & Typography */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background: #f9f9f9;
+      color: #333;
+      padding: 20px;
+    }
+    header {
+      background-color: #007bff;
+      padding: 15px;
+      text-align: center;
+      color: #fff;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+    header h1 {
+      font-size: 24px;
+    }
+    /* Navigation Tabs */
+    .nav-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      background: #eee;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .nav-tabs button {
+      flex: 1 1 auto;
+      padding: 12px 20px;
+      border: none;
+      background: #eee;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .nav-tabs button:hover {
+      background: #ddd;
+    }
+    .nav-tabs button.active {
+      background: #28a745;
+      color: #fff;
+      font-weight: bold;
+    }
+    /* Content Area */
+    .content-area {
+      background: #fff;
+      padding: 20px;
+      border-radius: 4px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      min-height: 300px;
+    }
+    .filter-form {
+      margin-bottom: 20px;
+    }
+    .filter-form label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    .filter-form input,
+    .filter-form select {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .filter-form button {
+      background: #007bff;
+      color: #fff;
+      border: none;
+      padding: 10px;
+      width: 100%;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background 0.3s;
+    }
+    .filter-form button:hover {
+      background: #0056b3;
+    }
+    /* Table Styling */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    table th, table td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+    table th {
+      background: #007bff;
+      color: #fff;
+    }
+    /* Pagination */
+    .pagination {
+      margin-top: 15px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+    }
+    .pagination button {
+      background: #007bff;
+      color: #fff;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .pagination button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .pagination span {
+      font-size: 14px;
+    }
+    /* Card Grid for list view (for Books, Checkouts, etc.) */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      background: #fff;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-3px);
+    }
+    .card img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+    .card h3 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+    .card p {
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+    .card .actions button {
+      margin-right: 5px;
+      padding: 6px 10px;
+      font-size: 14px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .card .actions button.edit {
+      background: #ffc107;
+      color: #333;
+    }
+    .card .actions button.delete {
+      background: #dc3545;
+      color: #fff;
+    }
+    .card .actions button:hover {
+      opacity: 0.9;
+    }
+    /* Modal Popup */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+    .hidden { display: none; }
+    .modal {
+      background: #fff;
+      border-radius: 4px;
+      max-width: 400px;
+      width: 100%;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    #modal-message { font-size: 16px; margin-bottom: 20px; }
+    .modal-buttons { margin-top: 16px; display: flex; justify-content: center; gap: 10px; }
+    .modal-buttons button { padding: 10px 20px; font-size: 14px; border: none; border-radius: 4px; cursor: pointer; transition: background 0.2s ease; }
+    #modal-ok { background: #28a745; color: #fff; }
+    #modal-cancel { background: #dc3545; color: #fff; }
+    @media (max-width: 600px) {
+      .nav-tabs button { font-size: 14px; padding: 10px; }
+      .content-area { padding: 15px; }
+      table th, table td { font-size: 12px; padding: 8px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Library Admin Panel</h1>
+  </header>
+  <!-- Navigation Tabs -->
+  <div class="nav-tabs">
+    <button data-tab="books" class="active">Books</button>
+    <button data-tab="checkouts">Checkouts</button>
+    <button data-tab="reservations">Reservations</button>
+    <button data-tab="users">Users</button>
+    <button data-tab="notifications">Notifications</button>
+    <button data-tab="reports">Reports</button>
+  </div>
+  
+  <!-- Content Area -->
+  <div class="content-area" id="contentArea">
+    <!-- Dynamic content loads here -->
+  </div>
+  
+  <!-- Modal Popup -->
+  <div id="modal-overlay" class="modal-overlay hidden">
+    <div class="modal">
+      <p id="modal-message"></p>
+      <div class="modal-buttons">
+        <button id="modal-ok">OK</button>
+        <button id="modal-cancel" class="hidden">Cancel</button>
+      </div>
+    </div>
+  </div>
+  
+  <script src="/public/js/testreportScript.js">
+
+  </script>
+</body>
+</html>
