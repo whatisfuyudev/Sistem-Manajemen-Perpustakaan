@@ -212,6 +212,108 @@
       .content-area { padding: 15px; }
       table th, table td { font-size: 12px; padding: 8px; }
     }
+
+    /* Container for the search component */
+    .search-container {
+      max-width: 600px;
+      margin: 0 auto 20px;
+      margin-top: 20px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .search-container form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .search-container input[type="text"],
+    .search-container input[type="number"],
+    .search-container select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+    .search-container button {
+      padding: 12px;
+      background: #007bff;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .search-container button:hover {
+      background: #0056b3;
+    }
+    /* Advanced search toggle */
+    .advanced-toggle {
+      background: none;
+      border: none;
+      color: #007bff;
+      cursor: pointer;
+      text-align: left;
+      padding: 0;
+      font-size: 0.9rem;
+      margin-top: -10px;
+    }
+    .advanced-search {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      border-top: 1px solid #ccc;
+      padding-top: 15px;
+    }
+    /* Mobile Responsiveness */
+    @media (max-width: 480px) {
+      .search-container {
+        padding: 15px;
+      }
+      .search-container button,
+      .search-container input,
+      .search-container select {
+        font-size: 0.9rem;
+        padding: 8px;
+      }
+    }
+
+    /* Advanced Search Area */
+    .advanced-search {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      border-top: 1px solid #ccc;
+      padding-top: 15px;
+    }
+
+    /* Mobile Responsive Adjustments for Advanced Search */
+    @media (max-width: 480px) {
+      .search-container {
+        padding: 15px;
+      }
+      .search-container input,
+      .search-container select,
+      .search-container button {
+        font-size: 0.9rem;
+        padding: 8px;
+      }
+      .advanced-search {
+        gap: 8px;
+        padding-top: 10px;
+      }
+    }
+
+    .truncated-text {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 300px; /* Set maximum width here */
+    }
+
   </style>
 </head>
 <body>

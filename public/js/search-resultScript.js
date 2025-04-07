@@ -96,6 +96,11 @@ async function fetchSearchResults(page = 1) {
   }
 }
 
+// Back button functionality
+document.getElementById('backButton').addEventListener('click', () => {
+  history.back();
+});
+
 // Event listeners for search
 searchButton.addEventListener('click', () => {
   currentPage = 1;

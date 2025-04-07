@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Versatile Search Bar</title>
+  <style>
+    /* Base Reset & Typography */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background: #f9f9f9;
+      color: #333;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    /* Container for the search component */
+    .search-container {
+      max-width: 600px;
+      margin: 0 auto 20px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .search-container form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .search-container input[type="text"],
+    .search-container input[type="number"],
+    .search-container select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+    .search-container button {
+      padding: 12px;
+      background: #007bff;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .search-container button:hover {
+      background: #0056b3;
+    }
+    /* Advanced search toggle */
+    .advanced-toggle {
+      background: none;
+      border: none;
+      color: #007bff;
+      cursor: pointer;
+      text-align: left;
+      padding: 0;
+      font-size: 0.9rem;
+      margin-top: -10px;
+    }
+    .advanced-search {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      border-top: 1px solid #ccc;
+      padding-top: 15px;
+    }
+    /* Mobile Responsiveness */
+    @media (max-width: 480px) {
+      .search-container {
+        padding: 15px;
+      }
+      .search-container button,
+      .search-container input,
+      .search-container select {
+        font-size: 0.9rem;
+        padding: 8px;
+      }
+    }
+
+    /* Advanced Search Area */
+    .advanced-search {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      border-top: 1px solid #ccc;
+      padding-top: 15px;
+    }
+
+    /* Mobile Responsive Adjustments for Advanced Search */
+    @media (max-width: 480px) {
+      .search-container {
+        padding: 15px;
+      }
+      .search-container input,
+      .search-container select,
+      .search-container button {
+        font-size: 0.9rem;
+        padding: 8px;
+      }
+      .advanced-search {
+        gap: 8px;
+        padding-top: 10px;
+      }
+    }
+
+  </style>
+</head>
+<body>
+  <h1>Book Search</h1>
+  <div class="search-container">
+    <form id="searchForm">
+       <!-- Basic search: Single search bar for title (default) -->
+      <input type="text" id="basicSearch" placeholder="Search by title (or use advanced options below)" />
+       <!--Toggle for advanced search options -->
+      <button type="button" class="advanced-toggle" id="toggleAdvanced">Show Advanced Search Options</button>
+      <div class="advanced-search" id="advancedSearch">
+        <input type="text" id="searchIsbn" placeholder="Search by ISBN" />
+        <input type="text" id="searchAuthors" placeholder="Search by authors (comma-separated)" />
+        <input type="text" id="searchGenres" placeholder="Search by genres (comma-separated)" />
+      </div>
+      <button type="submit">Search</button>
+    </form>
+  </div>
+
+  <!-- Results Area -->
+  <div id="resultsContainer"></div>
+
+  <script src="/public/js/testSearchbarScript.js">
+
+  </script>
+ </body>
+ </html>  
+
+
+<!-- line --------------------------------------------------------------------------------- -->
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sidebar Search Bar</title>
+  <style>
+    /* Base Reset & Typography */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background: #f9f9f9;
+      color: #333;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+
+
+    
+    /* Layout: Sidebar & Main Content */
+    .container {
+      display: flex;
+      width: 100%;
+      max-width: 800px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    .sidebar {
+      background: #007bff;
+      color: #fff;
+      padding: 20px;
+      min-width: 150px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .sidebar label {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .sidebar select {
+      padding: 8px;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+    .main-content {
+      flex: 1;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .main-content input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .main-content button {
+      padding: 12px;
+      font-size: 1rem;
+      background: #28a745;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .main-content button:hover {
+      background: #218838;
+    }
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+      .container {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        min-width: 0;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .sidebar select {
+        width: 45%;
+      }
+      .main-content {
+        padding: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  
+
+
+  <div class="container">
+    <!-- Sidebar with custom dropdown for criteria selection 
+    <div class="sidebar">
+      <label for="searchCriteria">Search By:</label>
+      <select id="searchCriteria">
+        <option value="title" selected>Title</option>
+        <option value="isbn">ISBN</option>
+        <option value="authors">Authors</option>
+        <option value="genres">Genres</option>
+      </select>
+    </div>
+    <!-- Main content with search input and button 
+    <div class="main-content">
+      <input type="text" id="searchQuery" placeholder="Enter your search term..." />
+      <button id="searchBtn">Search</button>
+    </div>
+  </div>
+
+  <script src="/public/js/testSearchbarScript.js">
+
+  </script>
+</body>
+</html>
+ -->

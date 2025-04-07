@@ -226,6 +226,12 @@ app.get('/test/report', (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'testreport.html'));
 });
 
+// testing, move elsewhere after finishing it
+app.get('/test/search', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public', 'testSearchbar.html'));
+});
+
+
 
 // // --------------------
 // // Global Error Handling

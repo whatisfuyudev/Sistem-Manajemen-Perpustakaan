@@ -92,68 +92,152 @@ async function loadBooksModule() {
   // Create header with "Add New Book" button and filter form
   contentArea.innerHTML = `
     <h2>Books Management</h2>
-    <div class="filter-form" id="booksFilterForm">
-      <input type="text" id="booksSearchTerm" placeholder="Search books by title..." />
-      <button id="booksSearchBtn">Search</button>
-      <button id="addBookBtn">Add New Book</button>
-    </div>
-    <div id="booksList"></div>
-    <div id="booksPagination" class="pagination"></div>
+
+    <div class="search-container">
+    <form id="searchForm">
+       <!-- Basic search: Single search bar for title (default) -->
+      <input type="text" id="basicSearch" placeholder="Search by title (or use advanced options below)" />
+       <!--Toggle for advanced search options -->
+      <button type="button" class="advanced-toggle" id="toggleAdvanced">Show Advanced Search Options</button>
+      <div class="advanced-search" id="advancedSearch">
+        <input type="text" id="searchIsbn" placeholder="Search by ISBN" />
+        <input type="text" id="searchAuthors" placeholder="Search by authors (comma-separated)" />
+        <input type="text" id="searchGenres" placeholder="Search by genres (comma-separated)" />
+      </div>
+      <button type="submit">Search</button>
+    </form>
+  </div>
+
+  <div id="booksList"></div>
+  <div id="booksPagination" class="pagination"></div>
   `;
-  document.getElementById('booksSearchBtn').addEventListener('click', () => {
-    currentPage = 1;
-    fetchBooks();
-  });
-  document.getElementById('addBookBtn').addEventListener('click', async () => {
-    // Show a prompt modal for new book details (you can customize the prompt UI)
-    const title = await showPromptModal({ message: 'Enter book title:' });
-    if (!title) return;
-    // Similarly prompt for ISBN and other fields
-    const isbn = await showPromptModal({ message: 'Enter ISBN:' });
-    if (!isbn) return;
-    // You could build a form modal for multiple inputs; for brevity, we prompt sequentially.
-    const authors = await showPromptModal({ message: 'Enter authors (comma-separated):' });
-    const genres = await showPromptModal({ message: 'Enter genres (comma-separated):' });
-    const totalCopies = await showPromptModal({ message: 'Enter total copies:' });
-    // Create payload
-    const payload = { title, isbn, authors, genres, totalCopies };
-    try {
-      const res = await fetch(API.books.create, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (res.ok) {
-        await showModal({ message: 'Book added successfully.' });
-        fetchBooks();
+  // Now that the content is loaded, get the element and add the listener.
+  const toggleBtn = document.getElementById('toggleAdvanced');
+  const advancedSearchDiv = document.getElementById('advancedSearch');
+  if (toggleBtn && advancedSearchDiv) {
+    toggleBtn.addEventListener('click', () => {
+      if (advancedSearchDiv.style.display === 'flex') {
+        advancedSearchDiv.style.display = 'none';
+        toggleBtn.textContent = 'Show Advanced Search Options';
       } else {
-        const err = await res.json();
-        await showModal({ message: 'Error: ' + err.message, showCancel: false });
+        advancedSearchDiv.style.display = 'flex';
+        toggleBtn.textContent = 'Hide Advanced Search Options';
       }
-    } catch (error) {
-      console.error(error);
-      await showModal({ message: 'An error occurred while adding the book.' });
-    }
-  });
+    });
+  }
+
+  // Handle the search form submission
+  document.getElementById('searchForm').addEventListener('submit', fetchBooks);
+
+  // add new book functioanlity
+  // document.getElementById('addBookBtn').addEventListener('click', async () => {
+  //   // Show a prompt modal for new book details (you can customize the prompt UI)
+  //   const title = await showPromptModal({ message: 'Enter book title:' });
+  //   if (!title) return;
+  //   // Similarly prompt for ISBN and other fields
+  //   const isbn = await showPromptModal({ message: 'Enter ISBN:' });
+  //   if (!isbn) return;
+  //   // You could build a form modal for multiple inputs; for brevity, we prompt sequentially.
+  //   const authors = await showPromptModal({ message: 'Enter authors (comma-separated):' });
+  //   const genres = await showPromptModal({ message: 'Enter genres (comma-separated):' });
+  //   const totalCopies = await showPromptModal({ message: 'Enter total copies:' });
+  //   // Create payload
+  //   const payload = { title, isbn, authors, genres, totalCopies };
+  //   try {
+  //     const res = await fetch(API.books.create, {
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       body: JSON.stringify(payload)
+  //     });
+  //     if (res.ok) {
+  //       await showModal({ message: 'Book added successfully.' });
+  //       fetchBooks();
+  //     } else {
+  //       const err = await res.json();
+  //       await showModal({ message: 'Error: ' + err.message, showCancel: false });
+  //     }
+  //   } catch (error) {
+  //     console.error(error);
+  //     await showModal({ message: 'An error occurred while adding the book.' });
+  //   }
+  // });
+
+  // fetch books after the tab is loaded
   fetchBooks();
 }
 
-async function fetchBooks() {
-  const searchTerm = document.getElementById('booksSearchTerm').value;
-  const params = new URLSearchParams({ page: currentPage, limit: 10 });
-  if (searchTerm) {
-    params.append('searchTerm', searchTerm);
-  }
+
+// async function fetchBooks() {
+//   const searchTerm = document.getElementById('booksSearchTerm').value;
+//   const params = new URLSearchParams({ page: currentPage, limit: 10 });
+//   if (searchTerm) {
+//     params.append('searchTerm', searchTerm);
+//   }
+//   try {
+//     const res = await fetch(API.books.search + '?' + params.toString());
+//     if (!res.ok) throw new Error('Failed to fetch books.');
+//     const data = await res.json();
+//     renderBooks(data.books, data.total, currentPage);
+//   } catch (error) {
+//     console.error(error);
+//     contentArea.innerHTML += '<p>Error loading books.</p>';
+//   }
+// }
+
+async function fetchBooks(e) {
+  if(e)
+    e.preventDefault();
+  // Get basic search term (assumed to search title)
+  const basicSearch = document.getElementById('basicSearch').value.trim();
+  const isbn = document.getElementById('searchIsbn').value.trim();
+  const authors = document.getElementById('searchAuthors').value.trim();
+  const genres = document.getElementById('searchGenres').value.trim();
+  
+  // Build search filters object. If basicSearch is provided, use it as title search.
+  const filters = {};
+  if (basicSearch) filters.searchTerm = basicSearch;
+  if (isbn) filters.isbn = isbn;
+  if (authors) filters.author = authors;  // your API expects a query parameter "author"
+  if (genres) filters.genres = genres;     // your API expects a query parameter "genres"
+  
+  // Optionally, add pagination params here if needed:
+  filters.page = 1;
+  filters.limit = 10;
+  
   try {
-    const res = await fetch(API.books.search + '?' + params.toString());
-    if (!res.ok) throw new Error('Failed to fetch books.');
-    const data = await res.json();
-    renderBooks(data.books, data.total, currentPage);
+    const queryString = new URLSearchParams(filters).toString();
+    const response = await fetch('/api/books/search?' + queryString);
+    if (!response.ok) throw new Error('Search request failed.');
+    const result = await response.json();
+    console.log(result);
+    // call render books function
+    renderBooks(result.books, result.total, currentPage);
   } catch (error) {
     console.error(error);
-    contentArea.innerHTML += '<p>Error loading books.</p>';
   }
 }
+
+// old version
+// function renderBooks(books, total, page) {
+//   const booksList = document.getElementById('booksList');
+//   if (!books || books.length === 0) {
+//     booksList.innerHTML = '<p>No books found.</p>';
+//     return;
+//   }
+//   booksList.innerHTML = '<div class="card-grid">' + books.map(book => `
+//     <div class="card">
+//       <img src="/public/images/book-covers/${book.coverImage || 'default.jpeg'}" alt="${book.title}" />
+//       <h3>${book.title}</h3>
+//       <p>ISBN: ${book.isbn}</p>
+//       <p>Authors: ${Array.isArray(book.authors) ? book.authors.join(', ') : ''}</p>
+//       <div class="actions">
+//         <button class="edit" onclick="editBook('${book.isbn}')">Edit</button>
+//         <button class="delete" onclick="deleteBook('${book.isbn}')">Delete</button>
+//       </div>
+//     </div>
+//   `).join('') + '</div>';
+//   renderPaginationControls(total, page, fetchBooks, 'booksPagination');
+// }
 
 function renderBooks(books, total, page) {
   const booksList = document.getElementById('booksList');
@@ -161,20 +245,67 @@ function renderBooks(books, total, page) {
     booksList.innerHTML = '<p>No books found.</p>';
     return;
   }
-  booksList.innerHTML = '<div class="card-grid">' + books.map(book => `
-    <div class="card">
-      <img src="/public/images/book-covers/${book.coverImage || 'default.jpeg'}" alt="${book.title}" />
-      <h3>${book.title}</h3>
-      <p>ISBN: ${book.isbn}</p>
-      <p>Authors: ${Array.isArray(book.authors) ? book.authors.join(', ') : ''}</p>
-      <div class="actions">
-        <button class="edit" onclick="editBook('${book.isbn}')">Edit</button>
-        <button class="delete" onclick="deleteBook('${book.isbn}')">Delete</button>
-      </div>
+
+  // Create a table layout similar to the provided design
+  let html = `
+    <table class="books-table">
+      <thead>
+        <tr>
+          <th style="width: 40px;">
+            <input type="checkbox" />
+          </th>
+          <th>Book ID (ISBN)</th>
+          <th>Book Title</th>
+          <th>Authors</th>
+          <th>Genres</th>
+          <th>Publication Year</th>
+          <th>Total Copies</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+  html += books.map(book => {
+    // Join authors array and genres array into comma-separated strings
+    const authors = Array.isArray(book.authors) ? book.authors.join(', ') : '';
+    const genres = Array.isArray(book.genres) ? book.genres.join(', ') : '';
+
+    return `
+      <tr>
+
+        <td><input type="checkbox" /></td>
+
+        <td class="truncated-text">${book.isbn || '-'}</td>
+
+        <td class="truncated-text">${book.title || '-'}</td>
+
+        <td class="truncated-text">${authors || '-'}</td>
+
+        <td class="truncated-text">${genres || '-'}</td>
+
+        <td class="truncated-text">${book.publicationYear || '-'}</td>
+
+        <td class="truncated-text">${book.totalCopies || 0}</td>
+
+      </tr>
+    `;
+  }).join('');
+
+  html += `
+      </tbody>
+    </table>
+    <!-- Optionally display total books at the bottom or any other info -->
+    <div class="table-footer">
+      <p>Total Books: ${total}</p>
     </div>
-  `).join('') + '</div>';
+  `;
+
+  booksList.innerHTML = html;
+
+  // Render pagination controls
   renderPaginationControls(total, page, fetchBooks, 'booksPagination');
 }
+
 
 async function editBook(isbn) {
   // Fetch existing book data, then prompt for new data

@@ -22,18 +22,27 @@
             - back end side request renewal 
               and admin/librarian renewal needs to be connected to each other.
             
-            - front end is a bit buggy when requesting renewal 
+            - test request renewal from front end to back end to front end again.
 
   - make the admin/librarian side
     - construct admin panel so you can test the my checkout page [now]
       - fix books section
-        - searching functionalities
-          - search by title, isbn, authors, genres. 
-            might want to implement the same search for client side
-        - adding new book page
-        - individual book page (for admin/librarian)
-        - editing book page
-        - delete book with prompt/modal for confirmation
+
+        - add new book button, look at behance design
+          - adding new book page
+
+        - table data result
+          - pagination not working
+          - each data, make it clickable, goes to individual book page
+          - individual book page (for admin/librarian)
+          - inside individual book page edit button point to edit page
+          - editing book page
+
+        
+        - delete utilizing the checkbox on the left side
+          - delete book with prompt/modal for confirmation
+        
+        
         (tip: recycle the test pages, example: createBook.html and its script)
 
       - fix checkouts section
@@ -116,6 +125,7 @@ this app will have two sides, one for patron (book enjoyer) and one for libraria
   idk ask gpt for books based on what that make sense
 
 - code cleanup, 
+  - move test search page html file into a new temporary folder or delete it
   - delete unused/test pages
   - css cleanup, no duplicate style
   - js cleanup, no duplicate code

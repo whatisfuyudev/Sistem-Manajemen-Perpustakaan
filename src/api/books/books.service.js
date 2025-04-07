@@ -124,31 +124,45 @@ exports.deleteBook = async (isbn) => {
 
 /**
  * Search and filter books.
- * Supports searching by title (case-insensitive), filtering by genre, author,
+ * Supports searching by title (case-insensitive), ISBN, filtering by genre, author,
  * and supports pagination.
  */
 exports.searchBooks = async (filters) => {
-  const { searchTerm, genres, author, page = 1, limit = 10 } = filters;
+  const { searchTerm, isbn, genres, author, page = 1, limit = 10 } = filters;
   const offset = (page - 1) * limit;
   const whereClause = {};
 
   if (searchTerm) {
     // Search in title using a case-insensitive partial match
     whereClause.title = { [Op.iLike]: `%${searchTerm}%` };
-    // Optionally, add additional search criteria (e.g., ISBN or authors)
   }
+  
+  if (isbn) {
+    // Search for ISBN using a case-insensitive partial match
+    whereClause.isbn = { [Op.iLike]: `%${isbn}%` };
+  }
+
   if (genres) {
-    // Convert the genres array to a string and perform a case-insensitive search
-    whereClause.genres = where(
-      fn('lower', fn('array_to_string', col('genres'), ',')),
-      { [Op.iLike]: `%${genres.toLowerCase()}%` }
+    // Split the input by comma and trim each term
+    const genreTerms = genres.split(',').map(term => term.trim().toLowerCase());
+    // Build an array of conditions using Op.and so that each term must match
+    whereClause[Op.and] = genreTerms.map(term => 
+      where(
+        fn('lower', fn('array_to_string', col('genres'), ',')),
+        { [Op.iLike]: `%${term}%` }
+      )
     );
   }
+
   if (author) {
-    // For case-insensitive search in an array field, convert the array to a string
-    whereClause.authors = where(
-      fn('lower', fn('array_to_string', col('authors'), ',')),
-      { [Op.iLike]: `%${author.toLowerCase()}%` }
+    // Split the input by comma and trim each term
+    const authorTerms = author.split(',').map(term => term.trim().toLowerCase());
+    // Build an array of conditions using Op.and so that each term must match
+    whereClause[Op.and] = authorTerms.map(term => 
+      where(
+        fn('lower', fn('array_to_string', col('authors'), ',')),
+        { [Op.iLike]: `%${term}%` }
+      )
     );
   }
 
@@ -158,10 +172,10 @@ exports.searchBooks = async (filters) => {
     limit: parseInt(limit, 10)
   });
 
-
   return {
     total: count,
     books: rows,
     page: parseInt(page, 10)
   };
 };
+
