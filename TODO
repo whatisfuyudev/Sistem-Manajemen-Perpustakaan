@@ -25,19 +25,15 @@
             - test request renewal from front end to back end to front end again.
 
   - make the admin/librarian side
-    - construct admin panel so you can test the my checkout page [now]
+    - construct admin panel so you can test the my checkout page 
       - fix books section
 
-        - add new book button, look at behance design
-          - adding new book page
-
         - table data result
-          - pagination not working
-          - each data, make it clickable, goes to individual book page
-          - individual book page (for admin/librarian)
           - inside individual book page edit button point to edit page
           - editing book page
 
+        - add new book button, look at behance design
+          - adding new book page
         
         - delete utilizing the checkbox on the left side
           - delete book with prompt/modal for confirmation
@@ -86,7 +82,6 @@
 
 ### General TODO
 - schedule notification functionality or notifications functionalities in general
-- implement single search bar that supports multiple type of searching
 - make sure the book service works properly, ensure data sanitization
 - prevent upload cover image abuse (upload the image at the same time as clicking update book data)
 - at user routes, create new user is only for admin access
@@ -94,10 +89,6 @@
   - New Endpoint to get single user by their id (admin/librarian only)
   - New Endpoint to update a user by their id (admin/librarian only)
 
-- add a search bar for checkout history and reservation history
-
-- pagination and or limit data fetching on checkout history and reservation history
-  so it does not load every single data immidiately
 
 - check whether the jwt token is expired or not
 - implement refresh tokens and expiration checking for main auth jwt_token (1 hour expiration time)
@@ -115,10 +106,6 @@ this app will have two sides, one for patron (book enjoyer) and one for libraria
   limit into only picking at most 100 books for performance reason while
   maintining randomness. bonus points if it is possible to do this whole
   randomize seaching thing directly with sequilize. 
-
-- maybe make a built in pop up so it works on mobile 
-  that will replace every alert pop up. also able to be
-  used for confirmation prompt thing.
 
 - more on home page like books based on author
   books based in letters
@@ -146,3 +133,5 @@ this app will have two sides, one for patron (book enjoyer) and one for libraria
 
 - new ui on my reservations and my checkouts page, modern
 
+- overdue & expired checker mechannism where it will run if
+  it has not run that day, something to do with boolean flag

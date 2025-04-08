@@ -4,6 +4,7 @@ const express = require('express');
 const router = express.Router();
 const booksController = require('./books.controller');
 const dataHelper = require('../../utils/dataHelper');
+const authMiddleware = require('../../middleware/auth.middleware');
 
 // Route for searching/filtering books (must come before the parameterized route)
 router.get('/search', booksController.searchBooks);

@@ -89,29 +89,32 @@ async function loadModule(module) {
 
 /* ------------------------ BOOKS MODULE ------------------------ */
 async function loadBooksModule() {
-  // Create header with "Add New Book" button and filter form
+  // Set up the module HTML with a search container and a new Delete Selected button
   contentArea.innerHTML = `
     <h2>Books Management</h2>
-
     <div class="search-container">
-    <form id="searchForm">
-       <!-- Basic search: Single search bar for title (default) -->
-      <input type="text" id="basicSearch" placeholder="Search by title (or use advanced options below)" />
-       <!--Toggle for advanced search options -->
-      <button type="button" class="advanced-toggle" id="toggleAdvanced">Show Advanced Search Options</button>
-      <div class="advanced-search" id="advancedSearch">
-        <input type="text" id="searchIsbn" placeholder="Search by ISBN" />
-        <input type="text" id="searchAuthors" placeholder="Search by authors (comma-separated)" />
-        <input type="text" id="searchGenres" placeholder="Search by genres (comma-separated)" />
-      </div>
-      <button type="submit">Search</button>
-    </form>
-  </div>
-
-  <div id="booksList"></div>
-  <div id="booksPagination" class="pagination"></div>
+      <form id="searchForm">
+        <!-- Basic search: Single search bar for title (default) -->
+        <input type="text" id="basicSearch" placeholder="Search by title (or use advanced options below)" />
+        <!-- Toggle for advanced search options -->
+        <button type="button" class="advanced-toggle" id="toggleAdvanced">Show Advanced Search Options</button>
+        <div class="advanced-search" id="advancedSearch">
+          <input type="text" id="searchIsbn" placeholder="Search by ISBN" />
+          <input type="text" id="searchAuthors" placeholder="Search by authors (comma-separated)" />
+          <input type="text" id="searchGenres" placeholder="Search by genres (comma-separated)" />
+        </div>
+        <button type="submit">Search</button>
+      </form>
+    </div>
+    <!-- Delete Selected Button -->
+    <div style="margin: 10px 0;">
+      <button id="deleteSelectedBtn" style="background: #dc3545; color: #fff; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer;">Delete Selected</button>
+    </div>
+    <div id="booksList"></div>
+    <div id="booksPagination" class="pagination"></div>
   `;
-  // Now that the content is loaded, get the element and add the listener.
+
+  // Attach event listener to the toggleAdvanced button
   const toggleBtn = document.getElementById('toggleAdvanced');
   const advancedSearchDiv = document.getElementById('advancedSearch');
   if (toggleBtn && advancedSearchDiv) {
@@ -126,9 +129,44 @@ async function loadBooksModule() {
     });
   }
 
-  // Handle the search form submission
+  // Attach event listener to the search form submission
   document.getElementById('searchForm').addEventListener('submit', fetchBooks);
 
+  // Attach event listener to the new Delete Selected button
+  const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+  if (deleteSelectedBtn) {
+  deleteSelectedBtn.addEventListener('click', async () => {
+    // Get all checkboxes in the table body that are checked
+    const selectedCheckboxes = document.querySelectorAll('.books-table tbody input[type="checkbox"]:checked');
+    if (selectedCheckboxes.length === 0) {
+      await showModal({ message: 'Please select at least one book to delete.' });
+      return;
+    }
+    
+    const confirmed = await showModal({ message: 'Are you sure you want to delete the selected book(s)?', showCancel: true });
+    if (!confirmed) return;
+    
+    // Collect ISBNs from each selected checkbox's row
+    const isbns = Array.from(selectedCheckboxes)
+      .map(checkbox => {
+        const row = checkbox.closest('tr');
+        return row.getAttribute('data-isbn');
+      })
+      .filter(isbn => isbn); // remove null or undefined
+    
+    // Call deleteBook with the array of ISBNs
+    try {
+      await deleteBook(isbns);
+    } catch (error) {
+      console.error('Bulk deletion failed:', error);
+    }
+
+      
+      await showModal({ message: 'Selected book(s) deleted successfully.' });
+      fetchBooks();
+    });
+  }
+  
   // add new book functioanlity
   // document.getElementById('addBookBtn').addEventListener('click', async () => {
   //   // Show a prompt modal for new book details (you can customize the prompt UI)
@@ -162,10 +200,9 @@ async function loadBooksModule() {
   //   }
   // });
 
-  // fetch books after the tab is loaded
+  // Fetch books after the tab is loaded
   fetchBooks();
 }
-
 
 // async function fetchBooks() {
 //   const searchTerm = document.getElementById('booksSearchTerm').value;
@@ -201,7 +238,7 @@ async function fetchBooks(e) {
   if (genres) filters.genres = genres;     // your API expects a query parameter "genres"
   
   // Optionally, add pagination params here if needed:
-  filters.page = 1;
+  filters.page = currentPage;
   filters.limit = 10;
   
   try {
@@ -209,7 +246,6 @@ async function fetchBooks(e) {
     const response = await fetch('/api/books/search?' + queryString);
     if (!response.ok) throw new Error('Search request failed.');
     const result = await response.json();
-    console.log(result);
     // call render books function
     renderBooks(result.books, result.total, currentPage);
   } catch (error) {
@@ -241,19 +277,16 @@ async function fetchBooks(e) {
 
 function renderBooks(books, total, page) {
   const booksList = document.getElementById('booksList');
-  if (!books || books.length === 0) {
+  if (!books || !Array.isArray(books) || books.length === 0) {
     booksList.innerHTML = '<p>No books found.</p>';
     return;
   }
 
-  // Create a table layout similar to the provided design
   let html = `
     <table class="books-table">
       <thead>
         <tr>
-          <th style="width: 40px;">
-            <input type="checkbox" />
-          </th>
+          <th style="width: 40px;"><input type="checkbox" id="selectAllCheckbox" /></th>
           <th>Book ID (ISBN)</th>
           <th>Book Title</th>
           <th>Authors</th>
@@ -266,27 +299,17 @@ function renderBooks(books, total, page) {
   `;
 
   html += books.map(book => {
-    // Join authors array and genres array into comma-separated strings
-    const authors = Array.isArray(book.authors) ? book.authors.join(', ') : '';
-    const genres = Array.isArray(book.genres) ? book.genres.join(', ') : '';
-
+    const authorsStr = Array.isArray(book.authors) ? book.authors.join(', ') : '';
+    const genresStr = Array.isArray(book.genres) ? book.genres.join(', ') : '';
     return `
-      <tr>
-
+      <tr class="clickable" data-isbn="${book.isbn}">
         <td><input type="checkbox" /></td>
-
         <td class="truncated-text">${book.isbn || '-'}</td>
-
         <td class="truncated-text">${book.title || '-'}</td>
-
-        <td class="truncated-text">${authors || '-'}</td>
-
-        <td class="truncated-text">${genres || '-'}</td>
-
+        <td class="truncated-text">${authorsStr || '-'}</td>
+        <td class="truncated-text">${genresStr || '-'}</td>
         <td class="truncated-text">${book.publicationYear || '-'}</td>
-
         <td class="truncated-text">${book.totalCopies || 0}</td>
-
       </tr>
     `;
   }).join('');
@@ -294,53 +317,100 @@ function renderBooks(books, total, page) {
   html += `
       </tbody>
     </table>
-    <!-- Optionally display total books at the bottom or any other info -->
     <div class="table-footer">
       <p>Total Books: ${total}</p>
     </div>
   `;
 
   booksList.innerHTML = html;
-
-  // Render pagination controls
   renderPaginationControls(total, page, fetchBooks, 'booksPagination');
-}
 
-
-async function editBook(isbn) {
-  // Fetch existing book data, then prompt for new data
-  try {
-    const res = await fetch(API.books.get + isbn);
-    if (!res.ok) throw new Error('Failed to fetch book data.');
-    const book = await res.json();
-    const newTitle = await showPromptModal({ message: 'Edit book title:', defaultValue: book.title });
-    if (newTitle === null) return;
-    const payload = { title: newTitle };
-    const updateRes = await fetch(API.books.update(isbn), {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+  // Attach click listener to the header checkbox to select/deselect all checkboxes in the tbody
+  const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+  if (selectAllCheckbox) {
+    selectAllCheckbox.addEventListener('click', () => {
+      const checkboxes = document.querySelectorAll('.books-table tbody input[type="checkbox"]');
+      checkboxes.forEach(checkbox => {
+        checkbox.checked = selectAllCheckbox.checked;
+      });
     });
-    if (updateRes.ok) {
-      await showModal({ message: 'Book updated successfully.' });
-      fetchBooks();
-    } else {
-      const err = await updateRes.json();
-      await showModal({ message: 'Error: ' + err.message });
-    }
-  } catch (error) {
-    console.error(error);
-    await showModal({ message: 'An error occurred while editing the book.' });
   }
+
+  // Attach click listeners to each clickable row (but ignore clicks on the checkbox cell)
+  const clickableRows = document.querySelectorAll('.books-table tbody tr.clickable');
+  clickableRows.forEach(row => {
+    row.addEventListener('click', (e) => {
+      // Check if the click happened in the first cell
+      const cell = e.target.closest('td');
+      if (cell && cell.cellIndex === 0) {
+        // Click in the checkbox cell; do nothing (allow checkbox toggling only)
+        return;
+      }
+      // Otherwise navigate to the book details page using the data-isbn attribute
+      const isbn = row.getAttribute('data-isbn');
+      if (isbn) {
+        window.location.href = 'http://localhost:5000/books/admin/details/' + isbn;
+      }
+    });
+  });
 }
 
-async function deleteBook(isbn) {
+
+// old version
+// async function editBook(isbn) {
+//   // Fetch existing book data, then prompt for new data
+//   try {
+//     const res = await fetch(API.books.get + isbn);
+//     if (!res.ok) throw new Error('Failed to fetch book data.');
+//     const book = await res.json();
+//     const newTitle = await showPromptModal({ message: 'Edit book title:', defaultValue: book.title });
+//     if (newTitle === null) return;
+//     const payload = { title: newTitle };
+//     const updateRes = await fetch(API.books.update(isbn), {
+//       method: 'PUT',
+//       headers: { 'Content-Type': 'application/json' },
+//       body: JSON.stringify(payload)
+//     });
+//     if (updateRes.ok) {
+//       await showModal({ message: 'Book updated successfully.' });
+//       fetchBooks();
+//     } else {
+//       const err = await updateRes.json();
+//       await showModal({ message: 'Error: ' + err.message });
+//     }
+//   } catch (error) {
+//     console.error(error);
+//     await showModal({ message: 'An error occurred while editing the book.' });
+//   }
+// }
+
+async function deleteBook(isbnOrArray) {
+  // If an array of ISBNs is passed, process them one by one
+  if (Array.isArray(isbnOrArray)) {
+    for (const isbn of isbnOrArray) {
+      try {
+        // Send DELETE request for each book; no modal confirmation here
+        const res = await fetch(API.books.delete(isbn), { method: 'DELETE' });
+        if (!res.ok) {
+          const err = await res.json();
+          console.error('Failed to delete book with ISBN ' + isbn + ': ' + err.message);
+        }
+      } catch (error) {
+        console.error('Error deleting book with ISBN ' + isbn, error);
+      }
+    }
+    // After processing all deletion requests, show a confirmation and refresh
+    await showModal({ message: 'Selected book(s) deleted successfully.' });
+    fetchBooks();
+    return;
+  }
+  
+  // Single ISBN deletion flow: Ask for confirmation before deletion.
   const confirmed = await showModal({ message: 'Are you sure you want to delete this book?', showCancel: true });
   if (!confirmed) return;
+  
   try {
-    const res = await fetch(API.books.delete(isbn), {
-      method: 'DELETE'
-    });
+    const res = await fetch(API.books.delete(isbnOrArray), { method: 'DELETE' });
     if (res.ok) {
       await showModal({ message: 'Book deleted successfully.' });
       fetchBooks();
@@ -353,6 +423,7 @@ async function deleteBook(isbn) {
     await showModal({ message: 'An error occurred while deleting the book.' });
   }
 }
+
 
 /* ------------------------ CHECKOUTS MODULE ------------------------ */
 async function loadCheckoutsModule() {

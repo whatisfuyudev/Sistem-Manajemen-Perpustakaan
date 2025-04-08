@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= book.title %> - Book Details</title>
+  <style>
+    /* Basic Reset */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f4f4;
+      color: #333;
+      padding: 20px;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 8px;
+      padding: 30px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      font-size: 2em;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    h2 {
+      font-size: 1.4em;
+      margin-bottom: 15px;
+      margin-top: 25px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 8px;
+      color: #555;
+    }
+
+    /* Top Buttons */
+    .top-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .top-buttons button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    #backButton {
+      background-color: #6c757d;
+      color: #fff;
+    }
+    #backButton:hover {
+      background-color: #5a6268;
+    }
+
+    /* Cover Image */
+    .cover-image {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .cover-image img {
+      max-width: 300px;
+      border-radius: 6px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+
+    /* Two-column grid for label-value pairs */
+    .info-grid {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      row-gap: 12px;
+      column-gap: 30px;
+      margin-bottom: 20px;
+    }
+    .info-label {
+      font-weight: bold;
+      color: #666;
+    }
+    .info-value {
+      color: #333;
+    }
+
+    /* Minimal table-like styling for sections */
+    .section { margin-bottom: 30px; }
+
+    /* Responsive Adjustments */
+    @media (max-width: 600px) {
+      .info-grid { grid-template-columns: 1fr; }
+      .info-label { margin-bottom: 5px; }
+      .cover-image img { max-width: 80%; }
+    }
+
+    #editButton {
+    padding: 8px 16px;
+    border-radius: 4px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+  }
+
+  #editButton:hover {
+    background-color: #0056b3;
+  }
+
+  #editButtonContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Top Buttons: Back -->
+    <div class="top-buttons">
+      <button id="backButton">Back</button>
+    </div>
+
+    <h1><%= book.title %></h1>
+    
+    <!-- Cover Image -->
+    <div class="cover-image">
+      <img src="/public/images/book-covers/<%= book.coverImage ? book.coverImage : 'default-cover.jpg' %>" alt="<%= book.title %> Cover Image">
+    </div>
+
+    <!-- Book Information Section -->
+    <div class="section">
+      <h2>Book Information</h2>
+      <div class="info-grid">
+        <!-- ISBN -->
+        <div class="info-label">ISBN</div>
+        <div class="info-value"><%= book.isbn %></div>
+
+        <!-- Title -->
+        <div class="info-label">Title</div>
+        <div class="info-value"><%= book.title %></div>
+
+        <!-- Authors -->
+        <div class="info-label">Author(s)</div>
+        <div class="info-value">
+          <% if (book.authors && book.authors.length) { %>
+            <%= book.authors.join(', ') %>
+          <% } else { %>
+            -
+          <% } %>
+        </div>
+
+        <!-- Genres -->
+        <div class="info-label">Genres</div>
+        <div class="info-value">
+          <% if (book.genres && book.genres.length) { %>
+            <%= book.genres.join(', ') %>
+          <% } else { %>
+            -
+          <% } %>
+        </div>
+
+        <!-- Publisher -->
+        <div class="info-label">Publisher</div>
+        <div class="info-value"><%= book.publisher || '-' %></div>
+
+        <!-- Publication Year -->
+        <div class="info-label">Publication Year</div>
+        <div class="info-value"><%= book.publicationYear || '-' %></div>
+      </div>
+    </div>
+
+    <!-- Features Information Section -->
+    <div class="section">
+      <h2>Features Information</h2>
+      <div class="info-grid">
+        <!-- Description -->
+        <div class="info-label">Description</div>
+        <div class="info-value">
+          <% if (book.description) { %>
+            <%= book.description %>
+          <% } else { %>
+            -
+          <% } %>
+        </div>
+
+        <!-- Total Copies -->
+        <div class="info-label">Total Copies</div>
+        <div class="info-value"><%= book.totalCopies || 0 %></div>
+
+        <!-- Available Copies -->
+        <div class="info-label">Available Copies</div>
+        <div class="info-value"><%= book.availableCopies || 0 %></div>
+
+        <!-- Formats -->
+        <div class="info-label">Formats</div>
+        <div class="info-value">
+          <% if (book.formats && book.formats.length) { %>
+            <%= book.formats.join(', ') %>
+          <% } else { %>
+            -
+          <% } %>
+        </div>
+
+        <!-- Pages -->
+        <div class="info-label">Pages</div>
+        <div class="info-value"><%= book.pages || '-' %></div>
+      </div>
+    </div>
+
+    <div id="editButtonContainer">
+      <!-- Edit Button -->
+      <button id="editButton" data-isbn="<%= book.isbn %>">Edit</button>
+    </div>
+  </div>
+  
+  <script src="/public/js/admin-book-detailsScript.js">
+
+  </script>
+</body>
+</html>
+
+

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Edit <%= book.title %> - Book Details</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    /* Basic Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f4f4;
+      color: #333;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 8px;
+      padding: 30px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1 {
+      font-size: 2em;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    input[type="text"],
+    input[type="number"],
+    textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+    textarea { resize: vertical; }
+    .cover-image {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .cover-image img {
+      max-width: 300px;
+      border-radius: 6px;
+      cursor: pointer;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+    /* Button Styles */
+    .button-group {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+    .button-group button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    #saveButton {
+      background-color: #28a745;
+      color: #fff;
+    }
+    #saveButton:hover {
+      background-color: #218838;
+    }
+    #cancelButton {
+      background-color: #dc3545;
+      color: #fff;
+    }
+    #cancelButton:hover {
+      background-color: #c82333;
+    }
+    /* Responsive Adjustments */
+    @media (max-width: 600px) {
+      .cover-image img {
+        max-width: 80%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Edit Book: <%= book.title %></h1>
+    
+    <!-- Form for Editing Book Data -->
+    <form id="editBookForm" method="POST" action="/api/books/update/<%= book.isbn %>" enctype="multipart/form-data">
+      <!-- Cover Image Section -->
+      <div class="cover-image">
+        <label for="coverUpload">
+          <img id="bookCoverImage" src="/public/images/book-covers/<%= book.coverImage ? book.coverImage : 'default-cover.jpg' %>" alt="<%= book.title %> Cover">
+        </label>
+        <input type="file" id="coverUpload" name="coverImage" style="display: none;">
+      </div>
+
+      <!-- Book Data Fields -->
+      <div class="form-group">
+        <label for="isbn">ISBN</label>
+        <input type="text" id="isbn" name="isbn" value="<%= book.isbn %>" readonly>
+      </div>
+      <div class="form-group">
+        <label for="title">Title</label>
+        <input type="text" id="title" name="title" value="<%= book.title %>" required>
+      </div>
+      <div class="form-group">
+        <label for="authors">Authors (comma separated)</label>
+        <input type="text" id="authors" name="authors" value="<%= book.authors ? book.authors.join(', ') : '' %>" required>
+      </div>
+      <div class="form-group">
+        <label for="genres">Genres (comma separated)</label>
+        <input type="text" id="genres" name="genres" value="<%= book.genres ? book.genres.join(', ') : '' %>">
+      </div>
+      <div class="form-group">
+        <label for="publisher">Publisher</label>
+        <input type="text" id="publisher" name="publisher" value="<%= book.publisher || '' %>">
+      </div>
+      <div class="form-group">
+        <label for="publicationYear">Publication Year</label>
+        <input type="number" id="publicationYear" name="publicationYear" value="<%= book.publicationYear || '' %>">
+      </div>
+      <div class="form-group">
+        <label for="description">Description</label>
+        <textarea id="description" name="description"><%= book.description || '' %></textarea>
+      </div>
+      <div class="form-group">
+        <label for="totalCopies">Total Copies</label>
+        <input type="number" id="totalCopies" name="totalCopies" value="<%= book.totalCopies %>" required>
+      </div>
+      <div class="form-group">
+        <label for="availableCopies">Available Copies</label>
+        <input type="number" id="availableCopies" name="availableCopies" value="<%= book.availableCopies %>" required>
+      </div>
+      <div class="form-group">
+        <label for="formats">Formats (comma separated)</label>
+        <input type="text" id="formats" name="formats" value="<%= book.formats ? book.formats.join(', ') : '' %>">
+      </div>
+      <div class="form-group">
+        <label for="pages">Pages</label>
+        <input type="number" id="pages" name="pages" value="<%= book.pages || '' %>">
+      </div>
+
+      <!-- Buttons: Save and Cancel -->
+      <div class="button-group">
+        <button type="button" id="cancelButton">Cancel</button>
+        <button type="submit" id="saveButton">Save</button>
+      </div>
+    </form>
+  </div>
+
+  <script src="/public/js/admin-book-editScript.js">
+
+  </script>
+</body>
+</html>
+
