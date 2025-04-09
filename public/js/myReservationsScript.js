@@ -106,7 +106,7 @@ async function renderReservations(data) {
 
         // Book cover image
         const img = document.createElement('img');
-        img.src = "/public/images/book-covers/" + (book.coverImage ? book.coverImage : 'default.jpeg');
+        img.src = "" + (book.coverImage ? book.coverImage : '/public/images/book-covers/default.jpeg');
         img.alt = book.title;
         img.style.maxHeight = "200px";
         img.style.width = "auto";

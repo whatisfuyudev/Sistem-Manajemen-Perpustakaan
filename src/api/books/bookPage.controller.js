@@ -30,6 +30,15 @@ exports.getAdminEditBookPage = async (req, res, next) => {
   }
 };
 
+exports.getAdminAddBookPage = async (req, res, next) => {
+  try {
+    // Render the EJS template "admin-book-add" 
+    res.render('admin-book-add');
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.getBookDetailsPage = async (req, res, next) => {
   try {
     const { isbn } = req.params;

@@ -8,11 +8,16 @@ exports.deleteFile = (filename, callback) => {
   if (!filename) {
     return null;
   }
+
   // Construct the file path based on a safe base directory
   const baseDir = path.join(__dirname, '../../');
   const fileToDelete = path.join(baseDir, filename);
 
-  // Optionally, add validation to ensure fileToDelete is within baseDir
+  // Validate that fileToDelete is within baseDir.
+  const relative = path.relative(baseDir, fileToDelete);
+  if (relative.startsWith('..') || path.isAbsolute(relative)) {
+    return callback(new Error('Invalid file path: File is outside the allowed directory.'));
+  }
 
   fs.unlink(fileToDelete, (err) => {
     callback(err);

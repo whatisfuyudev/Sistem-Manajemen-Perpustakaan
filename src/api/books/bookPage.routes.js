@@ -20,6 +20,14 @@ router.get(
   bookPageController.getAdminEditBookPage
 );
 
+// New endpoint for rendering the add new book page; restricted to admin/librarian
+router.get(
+  '/admin/add',
+  authMiddleware.verifyToken,
+  authMiddleware.isLibrarianOrAdmin,
+  bookPageController.getAdminAddBookPage
+);
+
 // Route for getting search result page (must come before the parameterized route)
 router.get('/search', bookPageController.getSearchResultsPage);
 

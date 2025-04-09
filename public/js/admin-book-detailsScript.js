@@ -9,8 +9,5 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Back button functionality
-  document.getElementById('backButton').addEventListener('click', function() {
-    history.back();
-  });
+
 });

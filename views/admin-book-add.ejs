@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Edit Book: <%= book.title %></title>
+  <title>Add New Book</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     /* Basic Reset */
@@ -27,15 +27,19 @@
       margin-bottom: 20px;
       text-align: center;
     }
-    .cover-image {
-      text-align: center;
+    .back-button-container {
       margin-bottom: 20px;
     }
-    .cover-image img {
-      max-width: 300px;
-      border-radius: 6px;
-      cursor: pointer;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    .back-button {
+      background: #6c757d;
+      padding: 10px 20px;
+      border-radius: 4px;
+      color: #fff;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .back-button:hover {
+      background-color: #5a6268;
     }
     .form-group {
       margin-bottom: 15px;
@@ -54,7 +58,9 @@
       border-radius: 4px;
       font-size: 1rem;
     }
-    textarea { resize: vertical; }
+    textarea {
+      resize: vertical;
+    }
     .button-group {
       display: flex;
       justify-content: space-between;
@@ -81,27 +87,6 @@
     #cancelButton:hover {
       background-color: #c82333;
     }
-    @media (max-width: 600px) {
-      .cover-image img { max-width: 80%; }
-    }
-
-    .back-button-container {
-      margin-bottom: 20px;
-    }
-
-    .back-button {
-      background: #6c757d;
-      padding: 10px 20px;
-      border-radius: 4px;
-      color: #fff;
-      text-decoration: none;
-      display: inline-block;
-    }
-
-    .back-button:hover {
-      background-color: #5a6268;
-    }
-
     /* Modal Popup */
     .modal-overlay {
       position: fixed;
@@ -131,75 +116,72 @@
     .modal-buttons button { padding: 10px 20px; font-size: 14px; border: none; border-radius: 4px; cursor: pointer; transition: background 0.2s ease; }
     #modal-ok { background: #28a745; color: #fff; }
     #modal-cancel { background: #dc3545; color: #fff; }
-
+    @media (max-width: 600px) {
+      .cover-image img { max-width: 80%; }
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="back-button-container">
-      <a href="/books/admin/details/<%= book.isbn %>" class="back-button">Back</a>
+      <!-- change to proper endpoint -->
+      <a href="/test/report" class="back-button">Back</a>
     </div>
 
-    <h1>Edit Book: <%= book.title %></h1>
+    <h1>Add New Book</h1>
   
-    <!-- Form for Editing Book Data -->
-    <form id="editBookForm" enctype="multipart/form-data">
+    <!-- Form for Adding New Book Data -->
+    <form id="addBookForm" enctype="multipart/form-data">
       <!-- Cover Image Section -->
-      <div class="cover-image">
-        <label for="coverUpload">
-          <img id="bookCoverImage" src="<%= book.coverImage ? book.coverImage : '/public/images/book-covers/default-cover.jpg' %>" alt="<%= book.title %> Cover">
-        </label>
-        <input type="file" id="uploadedImage" name="uploadedImage" style="display: none;">
-        <!-- Hidden input to store the cover image path after upload -->
-        <input type="hidden" id="coverImageInput" name="coverImage" value="">
+      <div class="form-group">
+        <label for="coverUpload">Cover Image</label>
+        <input type="file" id="coverUpload" name="uploadedImage">
       </div>
-
       <!-- Book Data Fields -->
       <div class="form-group">
         <label for="isbn">ISBN</label>
-        <input type="text" id="isbn" name="isbn" value="<%= book.isbn %>" readonly>
+        <input type="text" id="isbn" name="isbn" placeholder="Enter ISBN" required>
       </div>
       <div class="form-group">
         <label for="title">Title</label>
-        <input type="text" id="title" name="title" value="<%= book.title %>" required>
+        <input type="text" id="title" name="title" placeholder="Enter book title" required>
       </div>
       <div class="form-group">
         <label for="authors">Authors (comma separated)</label>
-        <input type="text" id="authors" name="authors" value="<%= book.authors ? book.authors.join(', ') : '' %>" required>
+        <input type="text" id="authors" name="authors" placeholder="Enter authors" required>
       </div>
       <div class="form-group">
         <label for="genres">Genres (comma separated)</label>
-        <input type="text" id="genres" name="genres" value="<%= book.genres ? book.genres.join(', ') : '' %>">
+        <input type="text" id="genres" name="genres" placeholder="Enter genres">
       </div>
       <div class="form-group">
         <label for="publisher">Publisher</label>
-        <input type="text" id="publisher" name="publisher" value="<%= book.publisher || '' %>">
+        <input type="text" id="publisher" name="publisher" placeholder="Enter publisher">
       </div>
       <div class="form-group">
         <label for="publicationYear">Publication Year</label>
-        <input type="number" id="publicationYear" name="publicationYear" value="<%= book.publicationYear || '' %>">
+        <input type="number" id="publicationYear" name="publicationYear" placeholder="Enter publication year">
       </div>
       <div class="form-group">
         <label for="description">Description</label>
-        <textarea id="description" name="description"><%= book.description || '' %></textarea>
+        <textarea id="description" name="description" placeholder="Enter book description"></textarea>
       </div>
       <div class="form-group">
         <label for="totalCopies">Total Copies</label>
-        <input type="number" id="totalCopies" name="totalCopies" value="<%= book.totalCopies %>" required>
+        <input type="number" id="totalCopies" name="totalCopies" placeholder="Enter total copies" required>
       </div>
-      <div class="form-group">
-        <label for="availableCopies">Available Copies</label>
-        <input type="number" id="availableCopies" name="availableCopies" value="<%= book.availableCopies %>" required>
-      </div>
-      <div class="form-group">
-        <label for="formats">Formats (comma separated)</label>
-        <input type="text" id="formats" name="formats" value="<%= book.formats ? book.formats.join(', ') : '' %>">
-      </div>
+      <!-- New Form Group for Pages -->
       <div class="form-group">
         <label for="pages">Pages</label>
-        <input type="number" id="pages" name="pages" value="<%= book.pages || '' %>">
+        <input type="number" id="pages" name="pages" placeholder="Enter number of pages">
       </div>
-
+      <!-- New Form Group for Formats -->
+      <div class="form-group">
+        <label for="formats">Formats (comma separated)</label>
+        <input type="text" id="formats" name="formats" placeholder="Enter formats (e.g., eBook, audiobook)">
+      </div>
+      <!-- Hidden field for coverImage path (set after upload) -->
+      <input type="hidden" id="coverImageInput" name="coverImage">
       <!-- Buttons: Save and Cancel -->
       <div class="button-group">
         <button type="button" id="saveButton">Save</button>
@@ -219,9 +201,8 @@
     </div>
   </div>
 
-  <script src="/public/js/admin-book-editScript.js">
-
+  <script src="/public/js/admin-book-addScript.js">
+    
   </script>
 </body>
 </html>
-

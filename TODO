@@ -24,22 +24,13 @@
             
             - test request renewal from front end to back end to front end again.
 
+        - rework profile page 
+
   - make the admin/librarian side
     - construct admin panel so you can test the my checkout page 
       - fix books section
+        - book routes authmiddleware guard
 
-        - table data result
-          - inside individual book page edit button point to edit page
-          - editing book page
-
-        - add new book button, look at behance design
-          - adding new book page
-        
-        - delete utilizing the checkbox on the left side
-          - delete book with prompt/modal for confirmation
-        
-        
-        (tip: recycle the test pages, example: createBook.html and its script)
 
       - fix checkouts section
         - individual checkout page
@@ -79,6 +70,13 @@
       - rework the reports section based on docs
     
     - move it into proper endpoint
+      - "/test/report" needs to be changed on
+        - admin book add script.js
+        - app.js
+        - admin book add.ejs
+        - admin book detail.ejs
+
+
 
 ### General TODO
 - schedule notification functionality or notifications functionalities in general

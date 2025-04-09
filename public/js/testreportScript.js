@@ -106,9 +106,10 @@ async function loadBooksModule() {
         <button type="submit">Search</button>
       </form>
     </div>
-    <!-- Delete Selected Button -->
-    <div style="margin: 10px 0;">
+    <!-- Delete Selected Button, move inline css styling into header tag -->
+    <div style="margin: 10px 0; display: flex; gap: 10px;">
       <button id="deleteSelectedBtn" style="background: #dc3545; color: #fff; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer;">Delete Selected</button>
+      <button id="addBookBtn" style="background: #007bff; color: #fff; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer;">Add New Book</button>
     </div>
     <div id="booksList"></div>
     <div id="booksPagination" class="pagination"></div>
@@ -154,72 +155,27 @@ async function loadBooksModule() {
       })
       .filter(isbn => isbn); // remove null or undefined
     
-    // Call deleteBook with the array of ISBNs
-    try {
-      await deleteBook(isbns);
-    } catch (error) {
-      console.error('Bulk deletion failed:', error);
-    }
-
-      
-      await showModal({ message: 'Selected book(s) deleted successfully.' });
-      fetchBooks();
+      // Call deleteBook with the array of ISBNs
+      try {
+        await deleteBook(isbns);
+      } catch (error) {
+        console.error('Bulk deletion failed:', error);
+      }
     });
   }
-  
-  // add new book functioanlity
-  // document.getElementById('addBookBtn').addEventListener('click', async () => {
-  //   // Show a prompt modal for new book details (you can customize the prompt UI)
-  //   const title = await showPromptModal({ message: 'Enter book title:' });
-  //   if (!title) return;
-  //   // Similarly prompt for ISBN and other fields
-  //   const isbn = await showPromptModal({ message: 'Enter ISBN:' });
-  //   if (!isbn) return;
-  //   // You could build a form modal for multiple inputs; for brevity, we prompt sequentially.
-  //   const authors = await showPromptModal({ message: 'Enter authors (comma-separated):' });
-  //   const genres = await showPromptModal({ message: 'Enter genres (comma-separated):' });
-  //   const totalCopies = await showPromptModal({ message: 'Enter total copies:' });
-  //   // Create payload
-  //   const payload = { title, isbn, authors, genres, totalCopies };
-  //   try {
-  //     const res = await fetch(API.books.create, {
-  //       method: 'POST',
-  //       headers: { 'Content-Type': 'application/json' },
-  //       body: JSON.stringify(payload)
-  //     });
-  //     if (res.ok) {
-  //       await showModal({ message: 'Book added successfully.' });
-  //       fetchBooks();
-  //     } else {
-  //       const err = await res.json();
-  //       await showModal({ message: 'Error: ' + err.message, showCancel: false });
-  //     }
-  //   } catch (error) {
-  //     console.error(error);
-  //     await showModal({ message: 'An error occurred while adding the book.' });
-  //   }
-  // });
+
+  // Attach event listener to the new "Add New Book" button.
+  const addBookBtn = document.getElementById('addBookBtn');
+  if (addBookBtn) {
+    addBookBtn.addEventListener('click', () => {
+      // Redirect to the add book page
+      window.location.href = '/books/admin/add';
+    });
+  }
 
   // Fetch books after the tab is loaded
   fetchBooks();
 }
-
-// async function fetchBooks() {
-//   const searchTerm = document.getElementById('booksSearchTerm').value;
-//   const params = new URLSearchParams({ page: currentPage, limit: 10 });
-//   if (searchTerm) {
-//     params.append('searchTerm', searchTerm);
-//   }
-//   try {
-//     const res = await fetch(API.books.search + '?' + params.toString());
-//     if (!res.ok) throw new Error('Failed to fetch books.');
-//     const data = await res.json();
-//     renderBooks(data.books, data.total, currentPage);
-//   } catch (error) {
-//     console.error(error);
-//     contentArea.innerHTML += '<p>Error loading books.</p>';
-//   }
-// }
 
 async function fetchBooks(e) {
   if(e)
@@ -252,28 +208,6 @@ async function fetchBooks(e) {
     console.error(error);
   }
 }
-
-// old version
-// function renderBooks(books, total, page) {
-//   const booksList = document.getElementById('booksList');
-//   if (!books || books.length === 0) {
-//     booksList.innerHTML = '<p>No books found.</p>';
-//     return;
-//   }
-//   booksList.innerHTML = '<div class="card-grid">' + books.map(book => `
-//     <div class="card">
-//       <img src="/public/images/book-covers/${book.coverImage || 'default.jpeg'}" alt="${book.title}" />
-//       <h3>${book.title}</h3>
-//       <p>ISBN: ${book.isbn}</p>
-//       <p>Authors: ${Array.isArray(book.authors) ? book.authors.join(', ') : ''}</p>
-//       <div class="actions">
-//         <button class="edit" onclick="editBook('${book.isbn}')">Edit</button>
-//         <button class="delete" onclick="deleteBook('${book.isbn}')">Delete</button>
-//       </div>
-//     </div>
-//   `).join('') + '</div>';
-//   renderPaginationControls(total, page, fetchBooks, 'booksPagination');
-// }
 
 function renderBooks(books, total, page) {
   const booksList = document.getElementById('booksList');
@@ -354,35 +288,6 @@ function renderBooks(books, total, page) {
     });
   });
 }
-
-
-// old version
-// async function editBook(isbn) {
-//   // Fetch existing book data, then prompt for new data
-//   try {
-//     const res = await fetch(API.books.get + isbn);
-//     if (!res.ok) throw new Error('Failed to fetch book data.');
-//     const book = await res.json();
-//     const newTitle = await showPromptModal({ message: 'Edit book title:', defaultValue: book.title });
-//     if (newTitle === null) return;
-//     const payload = { title: newTitle };
-//     const updateRes = await fetch(API.books.update(isbn), {
-//       method: 'PUT',
-//       headers: { 'Content-Type': 'application/json' },
-//       body: JSON.stringify(payload)
-//     });
-//     if (updateRes.ok) {
-//       await showModal({ message: 'Book updated successfully.' });
-//       fetchBooks();
-//     } else {
-//       const err = await updateRes.json();
-//       await showModal({ message: 'Error: ' + err.message });
-//     }
-//   } catch (error) {
-//     console.error(error);
-//     await showModal({ message: 'An error occurred while editing the book.' });
-//   }
-// }
 
 async function deleteBook(isbnOrArray) {
   // If an array of ISBNs is passed, process them one by one

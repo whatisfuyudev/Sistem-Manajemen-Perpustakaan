@@ -32,10 +32,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       // Cover image element
       const img = document.createElement('img');
-      img.src = "/public/images/book-covers/" + (book.coverImage ? book.coverImage : 'default.jpeg');
+      img.src = "" + (book.coverImage ? book.coverImage : '/public/images/book-covers/default-cover.jpg');
       img.alt = book.title;
       img.style.maxHeight = "200px";
-      img.style.width = "auto";
+      img.style.width= "auto";  
+      img.style.objectFit= "cover";  
       card.appendChild(img);
 
       // Book title element
