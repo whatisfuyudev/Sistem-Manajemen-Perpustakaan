@@ -120,18 +120,6 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'homepage.html'));
 });
 
-app.get('/books/delete', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public', 'deleteBook.html'));
-});
-
-app.get('/books/update', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public', 'updateBook.html'));
-});
-
-app.get('/books/add', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public', 'createBook.html'));
-});
-
 app.get('/users/create', (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'createUser.html'));
 });

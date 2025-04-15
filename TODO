@@ -62,7 +62,6 @@
         - able to schedule send a notification (new page)
         - able to query notification data based on multiple criteria
 
-
       - rework the reports section based on docs
     
     - move it into proper endpoint
