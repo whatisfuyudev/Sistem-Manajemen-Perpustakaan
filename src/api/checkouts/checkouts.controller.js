@@ -32,7 +32,6 @@ exports.requestRenewal = async (req, res, next) => {
   }
 };
 
-
 exports.renewCheckout = async (req, res, next) => {
   try {
     // Expects checkout ID in req.params.id and any additional data in req.body if needed
@@ -43,10 +42,12 @@ exports.renewCheckout = async (req, res, next) => {
   }
 };
 
-// src/api/checkouts/checkouts.controller.js
 exports.getCheckoutHistory = async (req, res, next) => {
   try {
     // Pass query parameters and the authenticated user's data to the service
+    console.log('Received reservationId:', req.query.reservationId);
+
+
     const history = await checkoutsService.getCheckoutHistory(req.query, req.user);
     res.status(200).json(history);
   } catch (error) {

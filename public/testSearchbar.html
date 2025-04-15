@@ -17,6 +17,7 @@
       text-align: center;
       margin-bottom: 20px;
     }
+    
     /* Container for the search component */
     .search-container {
       max-width: 600px;
@@ -26,20 +27,28 @@
       border-radius: 8px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
+
+    /* Form layout inside the search container */
     .search-container form {
       display: flex;
       flex-direction: column;
       gap: 15px;
     }
+
+    /* Consistent styling for all input types and select elements */
     .search-container input[type="text"],
     .search-container input[type="number"],
+    .search-container input[type="date"],
     .search-container select {
       width: 100%;
       padding: 10px;
       border: 1px solid #ccc;
       border-radius: 4px;
       font-size: 1rem;
+      background: #fff;
     }
+
+    /* Styling for the submit and toggle buttons */
     .search-container button {
       padding: 12px;
       background: #007bff;
@@ -53,7 +62,8 @@
     .search-container button:hover {
       background: #0056b3;
     }
-    /* Advanced search toggle */
+
+    /* Advanced search toggle button specific styling */
     .advanced-toggle {
       background: none;
       border: none;
@@ -62,8 +72,9 @@
       text-align: left;
       padding: 0;
       font-size: 0.9rem;
-      margin-top: -10px;
     }
+
+    /* Advanced search section styling */
     .advanced-search {
       display: none;
       flex-direction: column;
@@ -71,27 +82,24 @@
       border-top: 1px solid #ccc;
       padding-top: 15px;
     }
-    /* Mobile Responsiveness */
+
+    /* Responsive adjustments for mobile */
     @media (max-width: 480px) {
       .search-container {
         padding: 15px;
       }
-      .search-container button,
       .search-container input,
-      .search-container select {
+      .search-container select,
+      .search-container button {
         font-size: 0.9rem;
         padding: 8px;
       }
+      .advanced-search {
+        gap: 8px;
+        padding-top: 10px;
+      }
     }
 
-    /* Advanced Search Area */
-    .advanced-search {
-      display: none;
-      flex-direction: column;
-      gap: 10px;
-      border-top: 1px solid #ccc;
-      padding-top: 15px;
-    }
 
     /* Mobile Responsive Adjustments for Advanced Search */
     @media (max-width: 480px) {
@@ -113,17 +121,33 @@
   </style>
 </head>
 <body>
-  <h1>Book Search</h1>
+  <h1>Checkouts Search</h1>
   <div class="search-container">
     <form id="searchForm">
        <!-- Basic search: Single search bar for title (default) -->
-      <input type="text" id="basicSearch" placeholder="Search by title (or use advanced options below)" />
+       <input type="text" id="userId" placeholder="User ID (admin only)" />
        <!--Toggle for advanced search options -->
       <button type="button" class="advanced-toggle" id="toggleAdvanced">Show Advanced Search Options</button>
       <div class="advanced-search" id="advancedSearch">
-        <input type="text" id="searchIsbn" placeholder="Search by ISBN" />
-        <input type="text" id="searchAuthors" placeholder="Search by authors (comma-separated)" />
-        <input type="text" id="searchGenres" placeholder="Search by genres (comma-separated)" />
+        <!-- Advanced Filters -->
+        <input type="text" id="bookIsbn" placeholder="Book ISBN" />
+        <input type="text" id="reservationId" placeholder="Reservation ID" />
+        <select id="status">
+          <option value="">-- Status --</option>
+          <option value="active">Active</option>
+          <option value="returned">Returned</option>
+          <option value="overdue">Overdue</option>
+          <option value="lost">Lost</option>
+          <option value="damaged">Damaged</option>
+          <option value="others">Others</option>
+        </select>
+        <input type="date" id="startDate" placeholder="Start Date" />
+        <input type="date" id="endDate" placeholder="End Date" />
+        <select id="dateField">
+          <option value="checkoutDate">Checkout Date</option>
+          <option value="dueDate">Due Date</option>
+          <option value="returnDate">Return Date</option>
+        </select>
       </div>
       <button type="submit">Search</button>
     </form>

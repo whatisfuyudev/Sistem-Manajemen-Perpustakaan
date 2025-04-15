@@ -14,59 +14,61 @@ toggleBtn.addEventListener('click', () => {
 // Handle the search form submission
 document.getElementById('searchForm').addEventListener('submit', async (e) => {
   e.preventDefault();
-  // Get basic search term (assumed to search title)
-  const basicSearch = document.getElementById('basicSearch').value.trim();
-  const isbn = document.getElementById('searchIsbn').value.trim();
-  const authors = document.getElementById('searchAuthors').value.trim();
-  const genres = document.getElementById('searchGenres').value.trim();
-  
-  // Build search filters object. If basicSearch is provided, use it as title search.
-  const filters = {};
-  if (basicSearch) filters.searchTerm = basicSearch;
-  if (isbn) filters.isbn = isbn;
-  if (authors) filters.author = authors;  // your API expects a query parameter "author"
-  if (genres) filters.genres = genres;     // your API expects a query parameter "genres"
-  
-  // Optionally, add pagination params here if needed:
-  filters.page = 1;
-  filters.limit = 10;
+
+  const filters = {
+    userId: document.getElementById('userId').value.trim(),
+    bookIsbn: document.getElementById('bookIsbn').value.trim(),
+    reservationId: document.getElementById('reservationId').value.trim(),
+    status: document.getElementById('status').value,
+    startDate: document.getElementById('startDate').value,
+    endDate: document.getElementById('endDate').value,
+    dateField: document.getElementById('dateField').value,
+    page: 1,
+    limit: 10
+  };
+
+  // Remove empty fields
+  Object.keys(filters).forEach(key => {
+    if (!filters[key]) delete filters[key];
+  });
+
+  console.log('filters is: ', filters);
   
   try {
     const queryString = new URLSearchParams(filters).toString();
-    const response = await fetch('/api/books/search?' + queryString);
+    const response = await fetch(`/api/checkouts/history?${queryString}`);
     if (!response.ok) throw new Error('Search request failed.');
     const result = await response.json();
-    renderResults(result);
+    renderCheckoutResults(result);
   } catch (error) {
     console.error(error);
     document.getElementById('resultsContainer').innerHTML = '<p>Error occurred during search.</p>';
   }
 });
 
+
 // Function to render search results
-function renderResults(data) {
+function renderCheckoutResults(data) {
+  console.log(data);
   const container = document.getElementById('resultsContainer');
-  if (!data.books || data.books.length === 0) {
-    container.innerHTML = '<p>No books found.</p>';
+  if (!data.checkouts || data.checkouts.length === 0) {
+    container.innerHTML = '<p>No checkouts found.</p>';
     return;
   }
-  
-  let html = '<div class="card-grid">';
-  data.books.forEach(book => {
-    html += `
-      <div class="card">
-        <img src="/public/images/book-covers/${book.coverImage || 'default.jpeg'}" alt="${book.title}" />
-        <h3>${book.title}</h3>
-        <p>ISBN: ${book.isbn}</p>
-        <p>Authors: ${Array.isArray(book.authors) ? book.authors.join(', ') : ''}</p>
-        <p>Genres: ${Array.isArray(book.genres) ? book.genres.join(', ') : ''}</p>
-      </div>
-    `;
+
+  let html = '<ul>';
+  data.checkouts.forEach(item => {
+    html += `<li>
+      <strong>Book ISBN:</strong> ${item.bookIsbn} |
+      <strong>User ID:</strong> ${item.userId} |
+      <strong>Status:</strong> ${item.status} |
+      <strong>Due:</strong> ${new Date(item.dueDate).toLocaleDateString()}
+    </li>`;
   });
-  html += '</div>';
-  // Optionally add pagination details here if your API returns total counts.
+  html += '</ul>';
   container.innerHTML = html;
 }
+
 
 
 // <!-- line --------------------------------------------------------------------------------- -->

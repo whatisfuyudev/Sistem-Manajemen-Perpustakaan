@@ -6,7 +6,7 @@ const User = require('../../models/user.model');
 const Reservation = require('../../models/reservation.model'); // Import the reservation model
 const queueHelper = require('../../utils/queueHelper');
 const CustomError = require('../../utils/customError');
-const { Op } = require('sequelize');
+const { Op, fn, col, where } = require('sequelize');
 
 // Helper to add days to a date
 function addDays(date, days) {
@@ -249,41 +249,56 @@ exports.renewCheckout = async (checkoutId, data) => {
   return updatedCheckout;
 };
 
-
-
 exports.getCheckoutHistory = async (query, authUser) => {
-  const { page = 1, limit = 10, bookIsbn, status } = query;
+  const { page = 1, limit = 10, bookIsbn, status, reservationId, startDate, endDate, dateField } = query;
   const offset = (page - 1) * limit;
-  const where = {};
+  const whereClause = {};
 
-  // Force filtering by user's own ID if the authenticated user is a Patron
+  // If the user is a Patron, force filtering by their own ID.
   if (authUser.role === 'Patron') {
-    where.userId = authUser.id;
+    whereClause.userId = authUser.id;
   } else {
-    // For librarians and admin, allow an optional userId filter if provided
+    // For librarians and admin, allow optional filtering by userId.
     if (query.userId) {
-      where.userId = query.userId;
+      whereClause.userId = query.userId;
     }
   }
 
-  // Filter by book ISBN if provided
+  // Filter by Book ISBN if provided.
   if (bookIsbn) {
-    where.bookIsbn = bookIsbn;
+    whereClause.bookIsbn = bookIsbn;
   }
 
-  // Filter by status if provided
+  // Filter by Reservation Id if provided.
+  if (reservationId !== undefined && reservationId !== '') {
+    whereClause.reservationId = parseInt(reservationId, 10);
+  }
+  
+
+  // Filter by Status if provided.
   if (status) {
     if (status === 'others') {
-      // Example: "others" means not active, returned, or overdue
-      where.status = { [Op.notIn]: ['active', 'returned', 'overdue'] };
+      // "others" means not active, returned, or overdue.
+      whereClause.status = { [Op.notIn]: ['active', 'returned', 'overdue'] };
     } else {
-      where.status = status;
+      whereClause.status = status;
     }
   }
 
-  // Use findAndCountAll to support pagination
+  // Apply date range filtering.
+  // Choose which date field to filter on. Default is checkoutDate.
+  const fieldToFilter = dateField ? dateField : 'checkoutDate';
+  if (startDate && endDate) {
+    whereClause[fieldToFilter] = { [Op.between]: [new Date(startDate), new Date(endDate)] };
+  } else if (startDate) {
+    whereClause[fieldToFilter] = { [Op.gte]: new Date(startDate) };
+  } else if (endDate) {
+    whereClause[fieldToFilter] = { [Op.lte]: new Date(endDate) };
+  }
+
+  // Execute the query with pagination.
   const { count, rows } = await Checkout.findAndCountAll({
-    where,
+    where: whereClause,
     offset,
     limit: parseInt(limit, 10),
     order: [['checkoutDate', 'DESC']]

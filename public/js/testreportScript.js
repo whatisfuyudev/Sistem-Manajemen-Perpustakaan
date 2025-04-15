@@ -391,25 +391,51 @@ async function fetchCheckoutsModule() {
 
 function renderCheckoutsModule(checkouts, total, page) {
   const list = document.getElementById('checkoutsList');
-  if (!checkouts || checkouts.length === 0) {
+  if (!checkouts || !Array.isArray(checkouts) || checkouts.length === 0) {
     list.innerHTML = '<p>No checkouts found.</p>';
     return;
   }
-  list.innerHTML = '<table><thead><tr><th>ID</th><th>Status</th><th>Due Date</th><th>Actions</th></tr></thead><tbody>' +
-  checkouts.map(co => `
-    <tr>
-      <td>${co.id}</td>
-      <td>${co.status}</td>
-      <td>${new Date(co.dueDate).toLocaleDateString()}</td>
-      <td>
-        <button onclick="processReturn(${co.id})">Process Return</button>
-        <button onclick="requestRenewal(${co.id})">Request Renewal</button>
-      </td>
-    </tr>
-  `).join('') +
-  '</tbody></table>';
+  
+  let html = `
+    <table class="checkouts-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>User ID</th>
+          <th>Book ISBN</th>
+          <th>Checkout Date</th>
+          <th>Due Date</th>
+          <th>Status</th>
+          <th>Reservation Id</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+  
+  html += checkouts.map(co => {
+    return `
+      <tr>
+        <td>${co.id}</td>
+        <td>${co.userId}</td>
+        <td>${co.bookIsbn}</td>
+        <td>${new Date(co.checkoutDate).toLocaleDateString()}</td>
+        <td>${new Date(co.dueDate).toLocaleDateString()}</td>
+        <td>${co.status}</td>
+        <td>${co.reservationId ? co.reservationId : '-'}</td>
+      </tr>
+    `;
+  }).join('');
+  
+  html += `
+      </tbody>
+    </table>
+  `;
+  
+  list.innerHTML = html;
   renderPaginationControls(total, page, fetchCheckoutsModule, 'checkoutsPagination');
 }
+
+
 
 async function processReturn(checkoutId) {
   // Use prompt modal to ask for return date and condition (for simplicity, only condition here)

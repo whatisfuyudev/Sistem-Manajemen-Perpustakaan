@@ -29,13 +29,16 @@
   - make the admin/librarian side
     - construct admin panel so you can test the my checkout page 
       - fix checkouts section
-        - individual checkout page
         - searching checkouts based on multiple criteria
+          - test every criteria then integrate it
+            - done testing: status, reservationId
+
+        - individual checkout page
+          - new way to visualize each checkout data
+            like maybe show books and user too
         - add a new checkout page
         - renew a checkout with modal confirmation
         - process a return checkout page
-        - new way to visualize each checkout data
-          like maybe show books and user too
         (tip: recycle the test pages)
 
       - fix reservations section
