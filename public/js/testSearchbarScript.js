@@ -31,8 +31,6 @@ document.getElementById('searchForm').addEventListener('submit', async (e) => {
   Object.keys(filters).forEach(key => {
     if (!filters[key]) delete filters[key];
   });
-
-  console.log('filters is: ', filters);
   
   try {
     const queryString = new URLSearchParams(filters).toString();

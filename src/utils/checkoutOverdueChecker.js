@@ -1,32 +1,15 @@
-// check a checkout if it is overdue 
-
+// overdueCheckScheduler.js
 const cron = require('node-cron');
+const fs = require('fs');
+const path = require('path');
 const { Op } = require('sequelize');
 const Checkout = require('../models/checkout.model');
 
-/**
- * Retrieves all overdue checkouts.
- * An overdue checkout is one where:
- *  - The checkout status is 'active'
- *  - The due date is less than the current date/time.
- */
-async function getOverdueCheckouts() {
-  const now = new Date();
-  const overdueCheckouts = await Checkout.findAll({
-    where: {
-      status: 'active',
-      dueDate: { [Op.lt]: now }
-    }
-  });
-  return overdueCheckouts;
-}
+const LAST_RUN_FILE = path.join(__dirname, 'lastOverdueRun.txt');
 
 /**
- * Updates the status of overdue checkouts.
- * For each active checkout with a due date in the past,
- * the status is updated to 'overdue'.
- *
- * Returns the number of records updated.
+ * Update overdue checkouts:
+ * - Any checkout with status 'active' and a dueDate in the past is marked 'overdue'.
  */
 async function updateOverdueCheckouts() {
   const now = new Date();
@@ -42,21 +25,81 @@ async function updateOverdueCheckouts() {
   return affectedRows;
 }
 
-// checks every single day at 12:00 AM midnight
-cron.schedule('0 0 * * *', async () => {
-  try {
-    // Update overdue checkouts
-    const updatedCount = await updateOverdueCheckouts();
-    console.log(`${updatedCount} checkout(s) updated to overdue.`);
-    
-    // Optionally, retrieve the overdue records
-    const overdueRecords = await getOverdueCheckouts();
-    console.log('Overdue checkouts:', overdueRecords);
-    
-    // Here you can add further processing such as notifications or fine calculation.
-  } catch (error) {
-    console.error('Error processing overdue checkouts:', error);
-  }
-});
+/**
+ * Retrieve overdue checkouts (for logging purposes)
+ */
+async function getOverdueCheckouts() {
+  const now = new Date();
+  const overdueCheckouts = await Checkout.findAll({
+    where: {
+      status: 'active',
+      dueDate: { [Op.lt]: now }
+    }
+  });
+  return overdueCheckouts;
+}
 
-console.log('Cron job scheduled: Overdue checkouts will be processed every day at midnight.');
+/**
+ * Read the timestamp of the last overdue check from a file.
+ */
+async function getLastRunTime() {
+  try {
+    const timestamp = await fs.promises.readFile(LAST_RUN_FILE, 'utf8');
+    return new Date(timestamp);
+  } catch (err) {
+    // If file doesn't exist, return null
+    return null;
+  }
+}
+
+/**
+ * Save the current timestamp as the last run time.
+ */
+async function setLastRunTime(date) {
+  await fs.promises.writeFile(LAST_RUN_FILE, date.toISOString(), 'utf8');
+}
+
+/**
+ * On startup, run an overdue check if it hasn't been run yet today.
+ */
+async function runOverdueCheckIfNeeded() {
+  const lastRun = await getLastRunTime();
+  const now = new Date();
+  const todayDate = now.toDateString();
+  const lastRunDate = lastRun ? lastRun.toDateString() : null;
+  
+  if (lastRunDate !== todayDate) {
+    const updatedCount = await updateOverdueCheckouts();
+    console.log(`(Startup) ${updatedCount} checkout(s) updated to overdue.`);
+    await setLastRunTime(now);
+  } else {
+    console.log('Overdue check already performed today on startup.');
+  }
+}
+
+// Immediately run the startup check and schedule the daily cron job.
+(async () => {
+  try {
+    // Run overdue check on startup if needed
+    await runOverdueCheckIfNeeded();
+    
+    // Schedule the cron job to run every day at midnight (server time)
+    cron.schedule('0 0 * * *', async () => {
+      try {
+        const updatedCount = await updateOverdueCheckouts();
+        console.log(`${updatedCount} checkout(s) updated to overdue.`);
+        
+        const overdueRecords = await getOverdueCheckouts();
+        console.log('Overdue checkouts:', overdueRecords);
+        
+        await setLastRunTime(new Date());
+      } catch (error) {
+        console.error('Error processing overdue checkouts:', error);
+      }
+    });
+    
+    console.log('Cron job scheduled: Overdue checkouts will be processed every day at midnight.');
+  } catch (error) {
+    console.error('Error during overdue check initialization:', error);
+  }
+})();

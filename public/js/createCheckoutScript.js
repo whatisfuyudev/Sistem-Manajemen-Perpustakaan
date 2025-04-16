@@ -31,7 +31,7 @@ document.getElementById('checkoutForm').addEventListener('submit', async functio
     role,
     checkoutDuration,
     // If custom is chosen, send the user-entered days; otherwise, send the default 14
-    customDays: checkoutDuration === 'custom' ? customDays : '14'
+    customDays: checkoutDuration === 'custom' ? customDays : ''
   };
 
   try {

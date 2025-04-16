@@ -3,8 +3,8 @@ const checkoutsService = require('./checkouts.service');
 
 exports.initiateCheckout = async (req, res, next) => {
   try {
-    // Expects { userId, bookIsbn, role } in req.body
-    const checkout = await checkoutsService.initiateCheckout(req.body);
+    // Merge req.body with role from req.user
+    const checkout = await checkoutsService.initiateCheckout({ ...req.body, role: req.user.role });
     res.status(201).json(checkout);
   } catch (error) {
     next(error);
@@ -45,9 +45,6 @@ exports.renewCheckout = async (req, res, next) => {
 exports.getCheckoutHistory = async (req, res, next) => {
   try {
     // Pass query parameters and the authenticated user's data to the service
-    console.log('Received reservationId:', req.query.reservationId);
-
-
     const history = await checkoutsService.getCheckoutHistory(req.query, req.user);
     res.status(200).json(history);
   } catch (error) {

@@ -18,6 +18,32 @@ function addDays(date, days) {
 // Maximum renewals allowed
 const MAX_RENEWALS = 2;
 
+exports.getCheckoutDetail = async (checkoutId) => {
+  // Fetch the checkout record
+  const checkout = await Checkout.findOne({ where: { id: checkoutId } });
+  if (!checkout) {
+    throw new CustomError('Checkout record not found.', 404);
+  }
+  
+  // Fetch associated book data using the book ISBN from checkout
+  const book = await Book.findOne({ where: { isbn: checkout.bookIsbn } });
+  // Fetch user data using the userId from checkout
+  const user = await User.findOne({ where: { id: checkout.userId } });
+  // Fetch reservation if this checkout is tied to one
+  let reservation = null;
+  if (checkout.reservationId) {
+    reservation = await Reservation.findOne({ where: { id: checkout.reservationId } });
+  }
+  
+  // Return the aggregated detail object
+  return {
+    checkout,
+    book,
+    user,
+    reservation
+  };
+};
+
 exports.initiateCheckout = async (data) => {
   const { userId, bookIsbn, role, customDays } = data;
   if (!userId || !bookIsbn) {
@@ -266,8 +292,9 @@ exports.getCheckoutHistory = async (query, authUser) => {
 
   // Filter by Book ISBN if provided.
   if (bookIsbn) {
-    whereClause.bookIsbn = bookIsbn;
+    whereClause.bookIsbn = { [Op.iLike]: `%${bookIsbn}%` };
   }
+  
 
   // Filter by Reservation Id if provided.
   if (reservationId !== undefined && reservationId !== '') {

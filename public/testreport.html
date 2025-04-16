@@ -216,27 +216,34 @@
     /* Container for the search component */
     .search-container {
       max-width: 600px;
-      margin: 0 auto 20px;
-      margin-top: 20px;
+      margin: 20px auto;
       background: #fff;
       padding: 20px;
       border-radius: 8px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
+
+    /* Form layout inside the search container */
     .search-container form {
       display: flex;
       flex-direction: column;
       gap: 15px;
     }
+
+    /* Consistent styling for all input types and select elements */
     .search-container input[type="text"],
     .search-container input[type="number"],
+    .search-container input[type="date"],
     .search-container select {
       width: 100%;
       padding: 10px;
       border: 1px solid #ccc;
       border-radius: 4px;
       font-size: 1rem;
+      background: #fff;
     }
+
+    /* Styling for the submit and toggle buttons */
     .search-container button {
       padding: 12px;
       background: #007bff;
@@ -250,7 +257,8 @@
     .search-container button:hover {
       background: #0056b3;
     }
-    /* Advanced search toggle */
+
+    /* Advanced search toggle button specific styling */
     .advanced-toggle {
       background: none;
       border: none;
@@ -261,27 +269,8 @@
       font-size: 0.9rem;
       margin-top: -10px;
     }
-    .advanced-search {
-      display: none;
-      flex-direction: column;
-      gap: 10px;
-      border-top: 1px solid #ccc;
-      padding-top: 15px;
-    }
-    /* Mobile Responsiveness */
-    @media (max-width: 480px) {
-      .search-container {
-        padding: 15px;
-      }
-      .search-container button,
-      .search-container input,
-      .search-container select {
-        font-size: 0.9rem;
-        padding: 8px;
-      }
-    }
 
-    /* Advanced Search Area */
+    /* Advanced search section styling */
     .advanced-search {
       display: none;
       flex-direction: column;
@@ -290,7 +279,7 @@
       padding-top: 15px;
     }
 
-    /* Mobile Responsive Adjustments for Advanced Search */
+    /* Mobile Responsive Adjustments */
     @media (max-width: 480px) {
       .search-container {
         padding: 15px;

@@ -331,61 +331,132 @@ async function deleteBook(isbnOrArray) {
 
 
 /* ------------------------ CHECKOUTS MODULE ------------------------ */
+// old version
+// async function loadCheckoutsModule() {
+//   contentArea.innerHTML = `
+//     <h2>Checkouts Management</h2>
+//     <div class="filter-form">
+//       <button id="newCheckoutBtn">New Checkout</button>
+//       <input type="text" id="checkoutFilter" placeholder="Filter by status or ISBN..." />
+//       <button id="checkoutFilterBtn">Search</button>
+//     </div>
+//     <div id="checkoutsList"></div>
+//     <div id="checkoutsPagination" class="pagination"></div>
+//   `;
+//   document.getElementById('newCheckoutBtn').addEventListener('click', async () => {
+//     // Prompt for checkout details (simplified for example)
+//     const userId = await showPromptModal({ message: 'Enter user ID:' });
+//     if (!userId) return;
+//     const bookIsbn = await showPromptModal({ message: 'Enter Book ISBN:' });
+//     if (!bookIsbn) return;
+//     const payload = { userId, bookIsbn };
+//     try {
+//       const res = await fetch(API.checkouts.checkout, {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify(payload)
+//       });
+//       if (res.ok) {
+//         await showModal({ message: 'Checkout created successfully.' });
+//         fetchCheckoutsModule();
+//       } else {
+//         const err = await res.json();
+//         await showModal({ message: 'Error: ' + err.message });
+//       }
+//     } catch (error) {
+//       console.error(error);
+//       await showModal({ message: 'An error occurred while creating checkout.' });
+//     }
+//   });
+//   document.getElementById('checkoutFilterBtn').addEventListener('click', () => {
+//     currentPage = 1;
+//     fetchCheckoutsModule();
+//   });
+//   fetchCheckoutsModule();
+// }
+
 async function loadCheckoutsModule() {
   contentArea.innerHTML = `
     <h2>Checkouts Management</h2>
-    <div class="filter-form">
-      <button id="newCheckoutBtn">New Checkout</button>
-      <input type="text" id="checkoutFilter" placeholder="Filter by status or ISBN..." />
-      <button id="checkoutFilterBtn">Search</button>
+
+    <div class="search-container">
+      <form id="searchForm">
+        <input type="text" id="userId" placeholder="User ID" />
+        <button type="button" class="advanced-toggle" id="toggleAdvanced">Show Advanced Search Options</button>
+        <div class="advanced-search" id="advancedSearch">
+          <input type="text" id="bookIsbn" placeholder="Book ISBN" />
+          <input type="text" id="reservationId" placeholder="Reservation ID" />
+          <select id="status">
+            <option value="">-- Status --</option>
+            <option value="active">Active</option>
+            <option value="returned">Returned</option>
+            <option value="overdue">Overdue</option>
+            <option value="lost">Lost</option>
+            <option value="damaged">Damaged</option>
+            <option value="others">Others</option>
+          </select>
+          <input type="date" id="startDate" placeholder="Start Date" />
+          <input type="date" id="endDate" placeholder="End Date" />
+          <select id="dateField">
+            <option value="checkoutDate">Checkout Date</option>
+            <option value="dueDate">Due Date</option>
+            <option value="returnDate">Return Date</option>
+          </select>
+        </div>
+        <button type="submit">Search</button>
+      </form>
     </div>
-    <div id="checkoutsList"></div>
-    <div id="checkoutsPagination" class="pagination"></div>
+
+    <div id="resultsContainer">
+      <div id="checkoutsList"></div>
+      <div id="checkoutsPagination" class="pagination"></div>
+    </div>
   `;
-  document.getElementById('newCheckoutBtn').addEventListener('click', async () => {
-    // Prompt for checkout details (simplified for example)
-    const userId = await showPromptModal({ message: 'Enter user ID:' });
-    if (!userId) return;
-    const bookIsbn = await showPromptModal({ message: 'Enter Book ISBN:' });
-    if (!bookIsbn) return;
-    const payload = { userId, bookIsbn };
-    try {
-      const res = await fetch(API.checkouts.checkout, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (res.ok) {
-        await showModal({ message: 'Checkout created successfully.' });
-        fetchCheckoutsModule();
-      } else {
-        const err = await res.json();
-        await showModal({ message: 'Error: ' + err.message });
-      }
-    } catch (error) {
-      console.error(error);
-      await showModal({ message: 'An error occurred while creating checkout.' });
-    }
+
+  // Toggle advanced search section
+  document.getElementById('toggleAdvanced').addEventListener('click', () => {
+    const adv = document.getElementById('advancedSearch');
+    adv.style.display = adv.style.display === 'none' || !adv.style.display ? 'flex' : 'none';
+    document.getElementById('toggleAdvanced').textContent =
+      adv.style.display === 'flex' ? 'Hide Advanced Search Options' : 'Show Advanced Search Options';
   });
-  document.getElementById('checkoutFilterBtn').addEventListener('click', () => {
-    currentPage = 1;
-    fetchCheckoutsModule();
-  });
+
+  // Handle the search form submission
+  document.getElementById('searchForm').addEventListener('submit', fetchCheckoutsModule);
+
+  // Initial load
   fetchCheckoutsModule();
 }
 
-async function fetchCheckoutsModule() {
-  const filter = document.getElementById('checkoutFilter').value;
-  const params = new URLSearchParams({ page: currentPage, limit: 10 });
-  if (filter) params.append('status', filter);
+async function fetchCheckoutsModule(e) {
+  if(e)
+    e.preventDefault();
+  
+  const filters = {
+    userId: document.getElementById('userId').value.trim(),
+    bookIsbn: document.getElementById('bookIsbn').value.trim(),
+    reservationId: document.getElementById('reservationId').value.trim(),
+    status: document.getElementById('status').value,
+    startDate: document.getElementById('startDate').value,
+    endDate: document.getElementById('endDate').value,
+    dateField: document.getElementById('dateField').value,
+    page: currentPage,
+    limit: 10
+  };
+
+  Object.keys(filters).forEach(key => {
+    if (!filters[key]) delete filters[key];
+  });
+
   try {
-    const res = await fetch(API.checkouts.list + '?' + params.toString());
-    if (!res.ok) throw new Error('Failed to fetch checkouts.');
-    const data = await res.json();
-    renderCheckoutsModule(data.checkouts, data.total, currentPage);
+    const queryString = new URLSearchParams(filters).toString();
+    const response = await fetch(`/api/checkouts/history?${queryString}`);
+    if (!response.ok) throw new Error('Search request failed.');
+    const result = await response.json();
+    renderCheckoutsModule(result.checkouts, result.total, currentPage);
   } catch (error) {
     console.error(error);
-    contentArea.innerHTML += '<p>Error loading checkouts.</p>';
+    document.getElementById('resultsContainer').innerHTML = '<p>Error occurred during search.</p>';
   }
 }
 
@@ -405,6 +476,7 @@ function renderCheckoutsModule(checkouts, total, page) {
           <th>Book ISBN</th>
           <th>Checkout Date</th>
           <th>Due Date</th>
+          <th>Return Date</th>
           <th>Status</th>
           <th>Reservation Id</th>
         </tr>
@@ -420,6 +492,7 @@ function renderCheckoutsModule(checkouts, total, page) {
         <td>${co.bookIsbn}</td>
         <td>${new Date(co.checkoutDate).toLocaleDateString()}</td>
         <td>${new Date(co.dueDate).toLocaleDateString()}</td>
+        <td>${co.returnDate ? new Date(co.returnDate).toLocaleDateString() : '-'}</td>
         <td>${co.status}</td>
         <td>${co.reservationId ? co.reservationId : '-'}</td>
       </tr>
@@ -434,7 +507,6 @@ function renderCheckoutsModule(checkouts, total, page) {
   list.innerHTML = html;
   renderPaginationControls(total, page, fetchCheckoutsModule, 'checkoutsPagination');
 }
-
 
 
 async function processReturn(checkoutId) {

@@ -5,10 +5,10 @@ const checkoutsController = require('./checkouts.controller');
 const authMiddleware = require('../../middleware/auth.middleware');
 
 // Initiate a new checkout
-router.post('/checkout', checkoutsController.initiateCheckout);
+router.post('/checkout', authMiddleware.verifyToken, authMiddleware.isLibrarianOrAdmin, checkoutsController.initiateCheckout);
 
 // Process a return
-router.post('/return', checkoutsController.processReturn);
+router.post('/return', authMiddleware.verifyToken, authMiddleware.isLibrarianOrAdmin, checkoutsController.processReturn);
 
 // New endpoint for requesting a renewal
 router.post('/request-renewal/:id', authMiddleware.verifyToken, checkoutsController.requestRenewal);
