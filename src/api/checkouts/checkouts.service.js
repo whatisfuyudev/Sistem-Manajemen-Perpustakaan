@@ -45,7 +45,7 @@ exports.getCheckoutDetail = async (checkoutId) => {
 };
 
 exports.initiateCheckout = async (data) => {
-  const { userId, bookIsbn, role, customDays } = data;
+  const { userId, bookIsbn, customDays } = data;
   if (!userId || !bookIsbn) {
     throw new CustomError('Missing required fields: userId and bookIsbn.', 400);
   }
@@ -69,6 +69,7 @@ exports.initiateCheckout = async (data) => {
   // Calculate due date based on role or customDays:
   // If customDays is provided and is a valid number greater than 0, use it.
   // Otherwise, use 30 days for Admin/Librarian, and 14 days for Patrons.
+  const role = user.role;
   let loanPeriod = 14;
   if (customDays && Number(customDays) > 0) {
     loanPeriod = Number(customDays);

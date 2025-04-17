@@ -1,68 +1,51 @@
-// Handle form submission and include the new checkout duration fields
+// Handle form submission
 document.getElementById('checkoutForm').addEventListener('submit', async function(e) {
-  e.preventDefault(); // Prevent default form submission
+  e.preventDefault();
+  const msg = document.getElementById('message');
+  msg.innerHTML = '';
 
-  // Clear any previous messages
-  const messageDiv = document.getElementById('message');
-  messageDiv.innerHTML = '';
-
-  // Gather and validate form data
-  const userId = document.getElementById('userId').value.trim();
+  const userId   = document.getElementById('userId').value.trim();
   const bookIsbn = document.getElementById('bookIsbn').value.trim();
-  const role = document.getElementById('role').value;
-  const checkoutDuration = document.getElementById('checkoutDuration').value;
-  const customDays = document.getElementById('customDays').value.trim();
+  const duration = document.getElementById('checkoutDuration').value;
+  const custom   = document.getElementById('customDays').value.trim();
 
   if (!userId || !bookIsbn) {
-    messageDiv.innerHTML = `<div class="alert alert-danger">User ID and Book ISBN are required.</div>`;
+    msg.innerHTML = `<div class="alert alert-danger">User ID and Book ISBN are required.</div>`;
+    return;
+  }
+  if (duration === 'custom' && !custom) {
+    msg.innerHTML = `<div class="alert alert-danger">Please enter custom days.</div>`;
     return;
   }
 
-  // If custom duration is selected, ensure customDays is provided
-  if (checkoutDuration === 'custom' && !customDays) {
-    messageDiv.innerHTML = `<div class="alert alert-danger">Please enter the number of days for the custom checkout duration.</div>`;
-    return;
-  }
-
-  // Build payload for the checkout process
   const payload = {
     userId,
     bookIsbn,
-    role,
-    checkoutDuration,
-    // If custom is chosen, send the user-entered days; otherwise, send the default 14
-    customDays: checkoutDuration === 'custom' ? customDays : ''
+    customDays: duration === 'custom' ? custom : ''
   };
 
   try {
-    const response = await fetch('/api/checkouts/checkout', {
+    const res = await fetch('/api/checkouts/checkout', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
-    
-    if (response.ok) {
-      const checkout = await response.json();
-      const dueDate = new Date(checkout.dueDate).toLocaleDateString();
-      messageDiv.innerHTML = `<div class="alert alert-success">Checkout successful! Book due on ${dueDate}.</div>`;
+    if (res.ok) {
+      const data = await res.json();
+      const due  = new Date(data.dueDate).toLocaleDateString();
+      msg.innerHTML = `<div class="alert alert-success">Checkout successful! Due on ${due}.</div>`;
     } else {
-      const errorText = await response.text();
-      messageDiv.innerHTML = `<div class="alert alert-danger">Checkout failed: ${errorText}</div>`;
+      const err = await res.text();
+      msg.innerHTML = `<div class="alert alert-danger">Failed: ${err}</div>`;
     }
-  } catch (error) {
-    console.error('Error during checkout:', error);
-    messageDiv.innerHTML = `<div class="alert alert-danger">Error processing checkout.</div>`;
+  } catch (err) {
+    console.error(err);
+    msg.innerHTML = `<div class="alert alert-danger">Error processing checkout.</div>`;
   }
 });
 
-// Toggle the custom days input based on checkout duration selection
+// Toggle custom days input
 document.getElementById('checkoutDuration').addEventListener('change', function() {
-  const customContainer = document.getElementById('customDaysContainer');
-  if (this.value === 'custom') {
-    customContainer.style.display = 'block';
-  } else {
-    customContainer.style.display = 'none';
-  }
+  document.getElementById('customDaysContainer')
+    .style.display = this.value === 'custom' ? 'block' : 'none';
 });

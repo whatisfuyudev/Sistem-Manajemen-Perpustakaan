@@ -382,7 +382,9 @@ async function loadCheckoutsModule() {
     <div class="search-container">
       <form id="searchForm">
         <input type="text" id="userId" placeholder="User ID" />
-        <button type="button" class="advanced-toggle" id="toggleAdvanced">Show Advanced Search Options</button>
+        <button type="button" class="advanced-toggle" id="toggleAdvanced">
+          Show Advanced Search Options
+        </button>
         <div class="advanced-search" id="advancedSearch">
           <input type="text" id="bookIsbn" placeholder="Book ISBN" />
           <input type="text" id="reservationId" placeholder="Reservation ID" />
@@ -407,26 +409,40 @@ async function loadCheckoutsModule() {
       </form>
     </div>
 
+    <!-- Add New Checkout Button, move inline styling into head -->
+    <div style="margin: 10px 0; display: flex; gap: 10px;">
+      <button id="addCheckoutBtn" style="background: #007bff; color: #fff; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer;">Add new checkout</button>
+    </div>
+
     <div id="resultsContainer">
       <div id="checkoutsList"></div>
       <div id="checkoutsPagination" class="pagination"></div>
     </div>
   `;
 
-  // Toggle advanced search section
+  // Toggle advanced search
   document.getElementById('toggleAdvanced').addEventListener('click', () => {
     const adv = document.getElementById('advancedSearch');
-    adv.style.display = adv.style.display === 'none' || !adv.style.display ? 'flex' : 'none';
-    document.getElementById('toggleAdvanced').textContent =
-      adv.style.display === 'flex' ? 'Hide Advanced Search Options' : 'Show Advanced Search Options';
+    const btn  = document.getElementById('toggleAdvanced');
+    const isVisible = adv.style.display === 'flex';
+    adv.style.display = isVisible ? 'none' : 'flex';
+    btn.textContent     = isVisible
+      ? 'Show Advanced Search Options'
+      : 'Hide Advanced Search Options';
   });
 
-  // Handle the search form submission
+  // Wire up Search
   document.getElementById('searchForm').addEventListener('submit', fetchCheckoutsModule);
+
+  // Wire up “Add New Checkout” to navigate to your add page
+  document.getElementById('addCheckoutBtn').addEventListener('click', () => {
+    window.location.href = '/admin/checkout/add';
+  });
 
   // Initial load
   fetchCheckoutsModule();
 }
+
 
 async function fetchCheckoutsModule(e) {
   if(e)
@@ -486,15 +502,15 @@ function renderCheckoutsModule(checkouts, total, page) {
   
   html += checkouts.map(co => {
     return `
-      <tr>
-        <td>${co.id}</td>
-        <td>${co.userId}</td>
-        <td>${co.bookIsbn}</td>
-        <td>${new Date(co.checkoutDate).toLocaleDateString()}</td>
-        <td>${new Date(co.dueDate).toLocaleDateString()}</td>
-        <td>${co.returnDate ? new Date(co.returnDate).toLocaleDateString() : '-'}</td>
-        <td>${co.status}</td>
-        <td>${co.reservationId ? co.reservationId : '-'}</td>
+      <tr class="clickable" data-id="${co.id}">
+        <td><div class="truncated-text">${co.id}</div></td>
+        <td><div class="truncated-text">${co.userId}</div></td>
+        <td><div class="truncated-text">${co.bookIsbn}</div></td>
+        <td><div class="truncated-text">${new Date(co.checkoutDate).toLocaleDateString()}</div></td>
+        <td><div class="truncated-text">${new Date(co.dueDate).toLocaleDateString()}</div></td>
+        <td><div class="truncated-text">${co.returnDate ? new Date(co.returnDate).toLocaleDateString() : '-'}</div></td>
+        <td><div class="truncated-text">${co.status}</div></td>
+        <td><div class="truncated-text">${co.reservationId || '-'}</div></td>
       </tr>
     `;
   }).join('');
@@ -506,8 +522,16 @@ function renderCheckoutsModule(checkouts, total, page) {
   
   list.innerHTML = html;
   renderPaginationControls(total, page, fetchCheckoutsModule, 'checkoutsPagination');
+  
+  // Attach click handlers
+  document.querySelectorAll('.checkouts-table tbody tr.clickable')
+    .forEach(row => {
+      row.addEventListener('click', () => {
+        const id = row.getAttribute('data-id');
+        window.location.href = `/admin/checkout/detail/${id}`;
+      });
+    });
 }
-
 
 async function processReturn(checkoutId) {
   // Use prompt modal to ask for return date and condition (for simplicity, only condition here)

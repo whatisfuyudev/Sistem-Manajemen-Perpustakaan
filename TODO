@@ -30,11 +30,8 @@
     - construct admin panel so you can test the my checkout page 
       - fix checkouts section
 
-        - individual checkout page [now]
-          - back end page checkout controller tweaking 
-
-
-        - add a new checkout page
+        - back button on admin checkout detail page and add new checkout page 
+        
         - renew a checkout with modal confirmation
           - back end renew service change checkout status from overdue to something else
         - process a return checkout page

@@ -4,7 +4,7 @@ const checkoutsService = require('./checkouts.service');
 exports.initiateCheckout = async (req, res, next) => {
   try {
     // Merge req.body with role from req.user
-    const checkout = await checkoutsService.initiateCheckout({ ...req.body, role: req.user.role });
+    const checkout = await checkoutsService.initiateCheckout({ ...req.body });
     res.status(201).json(checkout);
   } catch (error) {
     next(error);
