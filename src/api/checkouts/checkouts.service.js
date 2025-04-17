@@ -243,37 +243,51 @@ exports.requestRenewal = async (checkoutId, data) => {
 
 
 exports.renewCheckout = async (checkoutId, data) => {
+  // 1. Find the checkout record
   const checkout = await Checkout.findOne({ where: { id: checkoutId } });
   if (!checkout) {
     throw new CustomError('Checkout record not found.', 404);
   }
-  
+
+  // 2. Only active checkouts can be renewed
   if (checkout.status !== 'active') {
     throw new CustomError('Only active checkouts can be renewed.', 400);
   }
-  
+
+  // 3. Ensure the patron has actually requested a renewal
+  if (!checkout.renewalRequested) {
+    throw new CustomError('No renewal request pending for this checkout.', 400);
+  }
+
+  // 4. Enforce renewal limits
   if (checkout.renewalCount >= MAX_RENEWALS) {
     throw new CustomError('Renewal limit exceeded.', 400);
   }
-  
-  // Determine renewal period
-  // Default is 14 days unless custom is provided.
-  let renewalDays = 14;
-  if (data.renewalOption === 'custom' && data.customDays && Number(data.customDays) > 0) {
+
+  // 5. Determine the number of days to renew:
+  //    - Use the days the patron requested (if any)
+  //    - Otherwise, fall back to any admin-provided override or a default
+  let renewalDays;
+  if (checkout.requestedRenewalDays && checkout.requestedRenewalDays > 0) {
+    renewalDays = checkout.requestedRenewalDays;
+  } else if (data.renewalOption === 'custom' && data.customDays && Number(data.customDays) > 0) {
     renewalDays = Number(data.customDays);
+  } else {
+    renewalDays = 14; // default standard period
   }
-  
-  // Extend due date by the determined period
+
+  // 6. Extend the due date
   const newDueDate = addDays(checkout.dueDate, renewalDays);
-  
-  const updatedCheckout = await checkout.update({
+
+  // 7. Apply the updates: increment renewalCount, set new dueDate, clear request flags
+  const updated = await checkout.update({
     renewalCount: checkout.renewalCount + 1,
     dueDate: newDueDate,
-    renewalRequested: false,      // Reset renewal request flag
-    requestedRenewalDays: null      // Clear the requested renewal days
+    renewalRequested: false,
+    requestedRenewalDays: null
   });
-  
-  return updatedCheckout;
+
+  return updated;
 };
 
 exports.getCheckoutHistory = async (query, authUser) => {

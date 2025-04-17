@@ -135,6 +135,12 @@
         <div class="info-label">Renewal Count:</div>
         <div class="info-value"><%= checkout.renewalCount %></div>
 
+        <div class="info-label">Renewal Requested:</div>
+        <div class="info-value"><%= checkout.renewalRequested ? 'Yes' : 'No' %></div>
+
+        <div class="info-label">Requested Renewal Days:</div>
+        <div class="info-value"><%= checkout.requestedRenewalDays || '–' %></div>
+
         <div class="info-label">Fine:</div>
         <div class="info-value">$<%= checkout.fine %></div>
 
@@ -143,11 +149,12 @@
           <% if (checkout.reservationId) { %>
             <%= checkout.reservationId %>
           <% } else { %>
-            –
+            – 
           <% } %>
         </div>
       </div>
     </div>
+
 
     <!-- User Information -->
     <div class="section">
@@ -160,6 +167,21 @@
         </div>
       </div>
     </div>
+
+    <!-- Action Buttons -->
+    <div class="button-container" style="display: flex; justify-content: center; gap: 12px; margin-top: 30px;">
+      <button id="renew-button" class="back-button" style="background-color: var(--primary-color);">
+        Renew Checkout
+      </button>
+      <button id="process-button" class="back-button" style="background-color: #28a745;">
+        Process Checkout
+      </button>
+      <button id="edit-button" class="back-button" style="background-color: #ffc107;">
+        Edit
+      </button>
+    </div>
+
+
   </div>
 
   <script src="/public/js/admin-checkout-detailScript.js">

@@ -31,11 +31,15 @@
       - fix checkouts section
 
         - renew a checkout with modal confirmation
-          - back end renew service change checkout status from overdue to something else
+          - use custom modal instead of alert
 
         - process a return checkout page
+
+        - modify/update checkout
         
         - move the admin panel into proper endpoint
+
+        - cleanup on checkouts module admin panel script
         
         (tip: recycle the test pages)
 
@@ -44,7 +48,7 @@
         - searching reservations based on multiple criteria
         - add new reservation page
         - cancel any active reservation with modal confirmation
-        - modify any reservation notes?
+        - modify any reservation?
         - promote a reservation with modal confirmation
         - new way to visualize each reservation data
           like maybe show books and user too
@@ -62,6 +66,7 @@
         - able to manually send a notification (new page)
         - able to schedule send a notification (new page)
         - able to query notification data based on multiple criteria
+        - edit notification
 
       - rework the reports section based on docs
     
