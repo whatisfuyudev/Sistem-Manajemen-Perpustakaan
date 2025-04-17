@@ -51,10 +51,35 @@
     .alert { padding: 10px; margin-bottom: 15px; border-radius: 4px; }
     .alert-success { background-color: #d4edda; color: #155724; }
     .alert-danger  { background-color: #f8d7da; color: #721c24; }
+
+    /* Button styles */
+    .back-button-container {
+      margin-bottom: 20px;
+      max-width: fit-content;
+    }
+
+    .back-button {
+      background: #6c757d;
+      padding: 10px 20px;
+      border-radius: 4px;
+      border: none;
+      color: #fff;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .back-button:hover {
+      background-color: #5a6268;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
   <div class="container">
+    <div class="back-button-container">
+      <button id="back-button" class="back-button">Back</button>
+    </div>
+
     <h1>Checkout a Book</h1>
     <div id="message"></div>
     <form id="checkoutForm">
@@ -81,6 +106,6 @@
     </form>
   </div>
 
-  <script src="/public/js/createCheckoutScript.js"></script>
+  <script src="/public/js/admin-checkout-addScript.js"></script>
 </body>
 </html>

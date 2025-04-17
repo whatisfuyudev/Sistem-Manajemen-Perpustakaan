@@ -66,23 +66,34 @@
       object-fit: cover;
       background: #eee;
     }
-    @media (max-width: 600px) {
-      .book-info, .user-info {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      .info-grid {
-        grid-template-columns: 1fr;
-      }
-      .book-cover, .user-avatar {
-        width: 100%;
-        height: auto;
-      }
+
+    /* Button styles */
+    .back-button-container {
+    margin-bottom: 20px;
+    }
+
+    .back-button {
+      background: #6c757d;
+      padding: 10px 20px;
+      border-radius: 4px;
+      border: none;
+      color: #fff;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .back-button:hover {
+      background-color: #5a6268;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
   <div class="container">
+    <div class="back-button-container">
+      <button id="back-button" class="back-button">Back</button>
+    </div>
+
     <!-- Book Details -->
     <div class="section">
       <div class="section-title">Book Information</div>
@@ -150,5 +161,9 @@
       </div>
     </div>
   </div>
+
+  <script src="/public/js/admin-checkout-detailScript.js">
+
+  </script>
 </body>
 </html>

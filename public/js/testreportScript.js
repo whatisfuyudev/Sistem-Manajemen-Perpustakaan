@@ -51,13 +51,39 @@ const API = {
 const tabs = document.querySelectorAll('.nav-tabs button');
 const contentArea = document.getElementById('contentArea');
 
+// Helper to activate a given module/tab
+async function activateTab(module) {
+  // Remove active class from all, add to the one we want
+  tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === module));
+  // Reset pagination, load content
+  currentPage = 1;
+  await loadModule(module);
+}
+
+// On initial load, pick tab from URL (?tab=...), default to 'books'
+document.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  const initial = params.get('tab') || 'books';
+  activateTab(initial);
+});
+
+// When you click a tab button
 tabs.forEach(tab => {
   tab.addEventListener('click', () => {
-    tabs.forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    currentPage = 1; // reset pagination
-    loadModule(tab.getAttribute('data-tab'));
+    const module = tab.dataset.tab;
+    // Push new URL state
+    const newUrl = `${window.location.pathname}?tab=${module}`;
+    history.pushState({ tab: module }, '', newUrl);  // :contentReference[oaicite:0]{index=0}
+    activateTab(module);
   });
+});
+
+// Handle Back/Forward navigation
+window.addEventListener('popstate', (e) => {
+  const module = (e.state && e.state.tab) 
+    || new URLSearchParams(window.location.search).get('tab') 
+    || 'books';
+  activateTab(module);
 });
 
 // Load module content based on selected tab

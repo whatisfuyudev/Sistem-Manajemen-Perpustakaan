@@ -30,11 +30,13 @@
     - construct admin panel so you can test the my checkout page 
       - fix checkouts section
 
-        - back button on admin checkout detail page and add new checkout page 
-        
         - renew a checkout with modal confirmation
           - back end renew service change checkout status from overdue to something else
+
         - process a return checkout page
+        
+        - move the admin panel into proper endpoint
+        
         (tip: recycle the test pages)
 
       - fix reservations section

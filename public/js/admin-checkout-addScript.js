@@ -49,3 +49,7 @@ document.getElementById('checkoutDuration').addEventListener('change', function(
   document.getElementById('customDaysContainer')
     .style.display = this.value === 'custom' ? 'block' : 'none';
 });
+
+document.getElementById('back-button').addEventListener('click', () => {
+  history.back();
+});
