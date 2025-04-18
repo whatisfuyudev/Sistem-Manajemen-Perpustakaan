@@ -10,13 +10,22 @@ router.post('/checkout', authMiddleware.verifyToken, authMiddleware.isLibrarianO
 // Process a return
 router.post('/return', authMiddleware.verifyToken, authMiddleware.isLibrarianOrAdmin, checkoutsController.processReturn);
 
+// Retrieve checkout history (optionally filtered by query parameters)
+router.get('/history', authMiddleware.verifyToken, checkoutsController.getCheckoutHistory);
+
+// Handle “Edit Checkout” form submission
+router.put(
+  '/admin/checkout/edit/:id',
+  authMiddleware.verifyToken,
+  authMiddleware.isLibrarianOrAdmin,
+  checkoutsController.updateAdminCheckout
+);
+
 // New endpoint for requesting a renewal
 router.post('/request-renewal/:id', authMiddleware.verifyToken, checkoutsController.requestRenewal);
 
 // Renew an active checkout
 router.put('/renew/:id', authMiddleware.verifyToken, authMiddleware.isLibrarianOrAdmin,  checkoutsController.renewCheckout);
 
-// Retrieve checkout history (optionally filtered by query parameters)
-router.get('/history', authMiddleware.verifyToken, checkoutsController.getCheckoutHistory);
 
 module.exports = router;

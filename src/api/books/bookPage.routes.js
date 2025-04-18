@@ -4,6 +4,22 @@ const router = express.Router();
 const bookPageController = require('./bookPage.controller');
 const authMiddleware = require('../../middleware/auth.middleware');
 
+
+
+// New endpoint for rendering the add new book page; restricted to admin/librarian
+router.get(
+  '/admin/add',
+  authMiddleware.verifyToken,
+  authMiddleware.isLibrarianOrAdmin,
+  bookPageController.getAdminAddBookPage
+);
+
+// Route for getting search result page (must come before the parameterized route)
+router.get('/search', bookPageController.getSearchResultsPage);
+
+// New endpoint for rendering book details page
+router.get('/details/:isbn', bookPageController.getBookDetailsPage);
+
 // New endpoint for rendering book details page (admin/librarian only)
 router.get(
   '/admin/details/:isbn',
@@ -19,19 +35,5 @@ router.get(
   authMiddleware.isLibrarianOrAdmin,
   bookPageController.getAdminEditBookPage
 );
-
-// New endpoint for rendering the add new book page; restricted to admin/librarian
-router.get(
-  '/admin/add',
-  authMiddleware.verifyToken,
-  authMiddleware.isLibrarianOrAdmin,
-  bookPageController.getAdminAddBookPage
-);
-
-// Route for getting search result page (must come before the parameterized route)
-router.get('/search', bookPageController.getSearchResultsPage);
-
-// New endpoint for rendering book details page
-router.get('/details/:isbn', bookPageController.getBookDetailsPage);
 
 module.exports = router;

@@ -10,6 +10,23 @@ exports.renderAdminCheckoutAdd = async (req, res, next) => {
   }
 };
 
+exports.renderAdminCheckoutEdit = async (req, res, next) => {
+  try {
+    const checkoutId = parseInt(req.params.id, 10);
+
+    // Fetch existing record
+    const checkout = await checkoutService.getById(checkoutId);
+    if (!checkout) {
+      return res.status(404).send('<h1>Checkout not found</h1>');
+    }
+
+    // Render the edit form, passing the existing data
+    res.render('admin-checkout-edit', { checkout });
+  } catch (err) {
+    next(err);
+  }
+};
+
 exports.renderAdminCheckoutDetail = async (req, res, next) => {
   try {
     // Convert the checkoutId to a number, in case it is passed as a string.

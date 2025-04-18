@@ -60,13 +60,6 @@ async function activateTab(module) {
   await loadModule(module);
 }
 
-// On initial load, pick tab from URL (?tab=...), default to 'books'
-document.addEventListener('DOMContentLoaded', () => {
-  const params = new URLSearchParams(window.location.search);
-  const initial = params.get('tab') || 'books';
-  activateTab(initial);
-});
-
 // When you click a tab button
 tabs.forEach(tab => {
   tab.addEventListener('click', () => {
@@ -357,61 +350,18 @@ async function deleteBook(isbnOrArray) {
 
 
 /* ------------------------ CHECKOUTS MODULE ------------------------ */
-// old version
-// async function loadCheckoutsModule() {
-//   contentArea.innerHTML = `
-//     <h2>Checkouts Management</h2>
-//     <div class="filter-form">
-//       <button id="newCheckoutBtn">New Checkout</button>
-//       <input type="text" id="checkoutFilter" placeholder="Filter by status or ISBN..." />
-//       <button id="checkoutFilterBtn">Search</button>
-//     </div>
-//     <div id="checkoutsList"></div>
-//     <div id="checkoutsPagination" class="pagination"></div>
-//   `;
-//   document.getElementById('newCheckoutBtn').addEventListener('click', async () => {
-//     // Prompt for checkout details (simplified for example)
-//     const userId = await showPromptModal({ message: 'Enter user ID:' });
-//     if (!userId) return;
-//     const bookIsbn = await showPromptModal({ message: 'Enter Book ISBN:' });
-//     if (!bookIsbn) return;
-//     const payload = { userId, bookIsbn };
-//     try {
-//       const res = await fetch(API.checkouts.checkout, {
-//         method: 'POST',
-//         headers: { 'Content-Type': 'application/json' },
-//         body: JSON.stringify(payload)
-//       });
-//       if (res.ok) {
-//         await showModal({ message: 'Checkout created successfully.' });
-//         fetchCheckoutsModule();
-//       } else {
-//         const err = await res.json();
-//         await showModal({ message: 'Error: ' + err.message });
-//       }
-//     } catch (error) {
-//       console.error(error);
-//       await showModal({ message: 'An error occurred while creating checkout.' });
-//     }
-//   });
-//   document.getElementById('checkoutFilterBtn').addEventListener('click', () => {
-//     currentPage = 1;
-//     fetchCheckoutsModule();
-//   });
-//   fetchCheckoutsModule();
-// }
-
 async function loadCheckoutsModule() {
   contentArea.innerHTML = `
     <h2>Checkouts Management</h2>
 
     <div class="search-container">
       <form id="searchForm">
-        <input type="text" id="userId" placeholder="User ID" />
+        <input type="text" id="checkoutId" placeholder="Checkout ID" />
         <button type="button" class="advanced-toggle" id="toggleAdvanced">
           Show Advanced Search Options
         </button>
         <div class="advanced-search" id="advancedSearch">
+          <input type="text" id="userId" placeholder="User ID" />
           <input type="text" id="bookIsbn" placeholder="Book ISBN" />
           <input type="text" id="reservationId" placeholder="Reservation ID" />
           <select id="status">
@@ -475,15 +425,16 @@ async function fetchCheckoutsModule(e) {
     e.preventDefault();
   
   const filters = {
-    userId: document.getElementById('userId').value.trim(),
-    bookIsbn: document.getElementById('bookIsbn').value.trim(),
+    checkoutId: document.getElementById('checkoutId').value.trim(),
+    userId:     document.getElementById('userId')   .value.trim(),
+    bookIsbn:   document.getElementById('bookIsbn') .value.trim(),
     reservationId: document.getElementById('reservationId').value.trim(),
-    status: document.getElementById('status').value,
-    startDate: document.getElementById('startDate').value,
-    endDate: document.getElementById('endDate').value,
-    dateField: document.getElementById('dateField').value,
-    page: currentPage,
-    limit: 10
+    status:     document.getElementById('status')   .value,
+    startDate:  document.getElementById('startDate').value,
+    endDate:    document.getElementById('endDate')  .value,
+    dateField:  document.getElementById('dateField').value,
+    page:       currentPage,
+    limit:      10
   };
 
   Object.keys(filters).forEach(key => {
@@ -559,79 +510,6 @@ function renderCheckoutsModule(checkouts, total, page) {
     });
 }
 
-async function processReturn(checkoutId) {
-  // Use prompt modal to ask for return date and condition (for simplicity, only condition here)
-  const condition = await showPromptModal({ message: 'Enter return condition (returned, lost, damaged):', defaultValue: 'returned' });
-  if (!condition) return;
-  let customFine;
-  if (condition === 'lost' || condition === 'damaged') {
-    const fineInput = await showPromptModal({ message: 'Enter custom fine amount (between $1 and $1,000,000):' });
-    if (fineInput) {
-      customFine = parseFloat(fineInput);
-      if (isNaN(customFine) || customFine < 1 || customFine > 1000000) {
-        await showModal({ message: 'Invalid fine amount. Please try again.' });
-        return;
-      }
-    }
-  }
-  const payload = { checkoutId, returnStatus: condition };
-  if (customFine !== undefined) {
-    payload.customFine = customFine;
-  }
-  try {
-    const res = await fetch(API.checkouts.return, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    if (res.ok) {
-      await showModal({ message: 'Return processed successfully.' });
-      fetchCheckoutsModule();
-    } else {
-      const err = await res.json();
-      await showModal({ message: 'Error: ' + err.message });
-    }
-  } catch (error) {
-    console.error(error);
-    await showModal({ message: 'An error occurred while processing return.' });
-  }
-}
-
-async function requestRenewal(checkoutId) {
-  // Prompt admin for renewal option (custom or standard) and custom days if custom selected
-  const option = await showPromptModal({ message: 'Enter renewal option ("standard" or "custom"):', defaultValue: 'standard' });
-  if (!option) return;
-  let customDays;
-  if (option === 'custom') {
-    const days = await showPromptModal({ message: 'Enter number of renewal days:' });
-    if (!days || isNaN(Number(days)) || Number(days) <= 0) {
-      await showModal({ message: 'Invalid renewal days.' });
-      return;
-    }
-    customDays = Number(days);
-  }
-  const payload = { renewalOption: option };
-  if (customDays) {
-    payload.customDays = customDays;
-  }
-  try {
-    const res = await fetch(API.checkouts.requestRenewal(checkoutId), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    if (res.ok) {
-      await showModal({ message: 'Renewal request submitted successfully.' });
-      fetchCheckoutsModule();
-    } else {
-      const err = await res.json();
-      await showModal({ message: 'Error: ' + err.message });
-    }
-  } catch (error) {
-    console.error(error);
-    await showModal({ message: 'An error occurred while requesting renewal.' });
-  }
-}
 
 /* ------------------------ RESERVATIONS MODULE ------------------------ */
 async function loadReservationsModule() {
@@ -1255,6 +1133,7 @@ function showPromptModal({ message, defaultValue = '' }) {
 
 /* ------------------------ INITIAL LOAD ------------------------ */
 document.addEventListener('DOMContentLoaded', () => {
-  // Load the default module (Books)
-  loadModule('books');
+  const params = new URLSearchParams(window.location.search);
+  const initial = params.get('tab') || 'books';
+  activateTab(initial);
 });

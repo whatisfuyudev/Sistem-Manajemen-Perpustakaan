@@ -18,6 +18,29 @@ function addDays(date, days) {
 // Maximum renewals allowed
 const MAX_RENEWALS = 2;
 
+exports.getById = async (checkoutId) => {
+  const checkout = await Checkout.findOne({ where: { id: checkoutId } });
+  if (!checkout) {
+    throw new CustomError(`Checkout with id=${checkoutId} not found`, 404);
+  }
+  return checkout;
+};
+
+exports.updateCheckout = async (checkoutId, updates) => {
+  // 1) Load the existing record 
+  const checkout = await Checkout.findOne({ where: { id: checkoutId } });
+  if (!checkout) {
+    throw new CustomError(`Checkout with id=${checkoutId} not found`, 404);
+  }
+
+  // 2) Apply all provided updates
+  //    (only fields present in `updates` will be changed)
+  checkout.set(updates);
+
+  // 3) Save back to the database
+  return await checkout.save();
+};
+
 exports.getCheckoutDetail = async (checkoutId) => {
   // Fetch the checkout record
   const checkout = await Checkout.findOne({ where: { id: checkoutId } });
@@ -291,17 +314,33 @@ exports.renewCheckout = async (checkoutId, data) => {
 };
 
 exports.getCheckoutHistory = async (query, authUser) => {
-  const { page = 1, limit = 10, bookIsbn, status, reservationId, startDate, endDate, dateField } = query;
+  const {
+    page = 1,
+    limit = 10,
+    checkoutId,
+    bookIsbn,
+    status,
+    reservationId,
+    startDate,
+    endDate,
+    dateField,
+    userId
+  } = query;
   const offset = (page - 1) * limit;
   const whereClause = {};
+
+  // 1) Always filter by checkoutId if provided
+  if (checkoutId) {
+    whereClause.id = parseInt(checkoutId, 10);
+  }
 
   // If the user is a Patron, force filtering by their own ID.
   if (authUser.role === 'Patron') {
     whereClause.userId = authUser.id;
   } else {
     // For librarians and admin, allow optional filtering by userId.
-    if (query.userId) {
-      whereClause.userId = query.userId;
+    if (userId) {
+      whereClause.userId = userId;
     }
   }
 

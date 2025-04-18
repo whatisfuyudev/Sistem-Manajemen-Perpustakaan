@@ -26,19 +26,22 @@ router.post('/',
 // List all books (could also support query parameters for filtering) 
 router.get('/', booksController.listBooks);
 
-// Retrieve a single book by ISBN
-router.get('/:isbn', booksController.getBook);
-
 // Update a book by ISBN [admin/librarian only]
 router.put('/update/:isbn',
   authMiddleware.verifyToken,
   authMiddleware.isLibrarianOrAdmin,
   booksController.updateBook);
 
+// Retrieve a single book by ISBN
+router.get('/:isbn', booksController.getBook);
+
+
 // Delete a book by ISBN [admin/librarian only]
 router.delete('/:isbn',
   authMiddleware.verifyToken,
   authMiddleware.isLibrarianOrAdmin,
   booksController.deleteBook);
+
+
 
 module.exports = router;

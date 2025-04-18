@@ -146,7 +146,7 @@
     <form id="editBookForm" enctype="multipart/form-data">
       <!-- Cover Image Section -->
       <div class="cover-image">
-        <label for="uploadedImage">
+        <label>
           <img id="bookCoverImage" src="<%= book.coverImage ? book.coverImage : '/public/images/book-covers/default-cover.jpg' %>" alt="<%= book.title %> Cover">
         </label>
         <input type="file" id="uploadedImage" name="uploadedImage" style="display: none;">

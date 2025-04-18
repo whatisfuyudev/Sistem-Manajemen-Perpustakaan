@@ -1,5 +1,5 @@
 // Trigger file upload when cover image is clicked (you may add an image preview if desired)
-document.getElementById('coverUpload').addEventListener('change', async function() {
+document.getElementById('uploadedImage').addEventListener('change', async function() {
   const file = this.files[0];
   if (file) {
     const formData = new FormData();
@@ -35,7 +35,7 @@ document.getElementById('saveButton').addEventListener('click', async function()
       body: formData
     });
     if (response.ok) {
-      window.location.href = '/test/report';
+      window.location.href = '/admin/panel';
     } else {
       const errorMsg = await response.text();
       showModal({ message: 'Error creating book: ' + errorMsg });
@@ -48,7 +48,7 @@ document.getElementById('saveButton').addEventListener('click', async function()
 
 // Cancel button: navigate back to books list
 document.getElementById('cancelButton').addEventListener('click', function() {
-  window.location.href = '/test/report';
+  window.location.href = '/admin/panel';
 });
 
 /* ------------------------ MODAL POPUP FUNCTIONS ------------------------ */

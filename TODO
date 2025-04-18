@@ -14,34 +14,12 @@
 
 2. make user interface, reponsive html pages
   - make the user/client side first
-    - make it similiar to https://www.libib.com/
+    - make it similiar to https://www.libib.com/ (no lol)
       - there will be homepage, individual book page, profile page, my reservations page, my checkouts page, register page, login page
-        - homepage has a link to profile page, register/login page, individual book page,
-          my reservation page, my checkouts page      
-          - make my checkout page
-            - back end side request renewal 
-              and admin/librarian renewal needs to be connected to each other.
-            
-            - test request renewal from front end to back end to front end again.
-
         - rework profile page 
 
   - make the admin/librarian side
     - construct admin panel so you can test the my checkout page 
-      - fix checkouts section
-
-        - renew a checkout with modal confirmation
-          - use custom modal instead of alert
-
-        - process a return checkout page
-
-        - modify/update checkout
-        
-        - move the admin panel into proper endpoint
-
-        - cleanup on checkouts module admin panel script
-        
-        (tip: recycle the test pages)
 
       - fix reservations section
         - individual reservation page
@@ -70,18 +48,13 @@
 
       - rework the reports section based on docs
     
-    - move it into proper endpoint
-      - "/test/report" needs to be changed on
-        - admin book add script.js
-        - app.js
-        - admin book add.ejs
-        - admin book detail.ejs
 
 
 
 ### General TODO
 - schedule notification functionality or notifications functionalities in general
 - make sure the book service works properly, ensure data sanitization
+- checkout model no negative number on renewalCount or other number based column
 - prevent upload cover image abuse (upload the image at the same time as clicking update book data)
 - at user routes, create new user is only for admin access
 - make two different endpoints, one for admin/librarian, the other for client/patron/user

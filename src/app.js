@@ -140,34 +140,6 @@ app.get('/auth/login', (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'login.html'));
 });
 
-app.get('/admin/checkouts/create', 
-  authMiddleware.verifyToken, 
-  authMiddleware.isLibrarianOrAdmin, 
-  (req, res) => {
-  res.sendFile(path.join(__dirname, '../public', 'createCheckout.html'));
-});
-
-app.get('/admin/checkouts/return', 
-  authMiddleware.verifyToken, 
-  authMiddleware.isLibrarianOrAdmin, 
-  (req, res) => {
-  res.sendFile(path.join(__dirname, '../public', 'returnCheckout.html'));
-});
-
-app.get('/admin/checkouts/renew', 
-  authMiddleware.verifyToken, 
-  authMiddleware.isLibrarianOrAdmin, 
-  (req, res) => {
-  res.sendFile(path.join(__dirname, '../public', 'renewCheckout.html'));
-});
-
-app.get('/admin/checkouts/history', 
-  authMiddleware.verifyToken, 
-  authMiddleware.isLibrarianOrAdmin, 
-  (req, res) => {
-  res.sendFile(path.join(__dirname, '../public', 'checkoutHistory.html'));
-});
-
 app.get('/reservations/create', (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'createReservation.html'));
 });
@@ -178,6 +150,13 @@ app.get('/reservations/cancel', (req, res) => {
 
 app.get('/reservations/modify', (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'modifyReservation.html'));
+});
+
+app.get('/admin/notifications', 
+  authMiddleware.verifyToken, 
+  authMiddleware.isLibrarianOrAdmin, 
+  (req, res) => {
+  res.sendFile(path.join(__dirname, '../public', 'notification.html'));
 });
 
 app.get('/admin/reservations/promote', 
@@ -196,29 +175,22 @@ app.get('/admin/reservations/history',
 
 app.get('/admin/reports', 
   authMiddleware.verifyToken, 
-  authMiddleware.isAdmin, 
+  authMiddleware.isLibrarianOrAdmin, 
   (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'report.html'));
 });
 
-app.get('/admin/notifications', 
+app.get('/admin/panel', 
   authMiddleware.verifyToken, 
-  authMiddleware.isAdmin, 
+  authMiddleware.isLibrarianOrAdmin, 
   (req, res) => {
-  res.sendFile(path.join(__dirname, '../public', 'notification.html'));
-});
-
-
-// testing, move elsewhere after finishing it
-app.get('/test/report', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public', 'testreport.html'));
+  res.sendFile(path.join(__dirname, '../public', 'adminPanel.html'));
 });
 
 // testing, move elsewhere after finishing it
 app.get('/test/search', (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'testSearchbar.html'));
 });
-
 
 
 // // --------------------

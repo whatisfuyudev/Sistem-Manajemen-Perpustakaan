@@ -86,6 +86,139 @@
       background-color: #5a6268;
       cursor: pointer;
     }
+
+    /* Modal Popup */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .modal-overlay.hidden {
+      display: none;
+    }
+
+    .modal {
+      background: #fff;
+      border-radius: 4px;
+      max-width: 400px;
+      width: 100%;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    /* Message text */
+    #modal-message {
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+
+    /* Form layout */
+    #modal-return-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Form groups */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group label {
+      margin-bottom: 6px;
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+
+    .form-group input,
+    .form-group select {
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      border-color: #888;
+    }
+
+    /* Note text */
+    .note {
+      font-size: 0.75rem;
+      color: #666;
+      margin-top: 4px;
+    }
+
+    /* Hide custom-fine until needed */
+    .custom-fine-group.hidden {
+      display: none;
+    }
+
+    /* Buttons */
+    .modal-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .modal-buttons button {
+      padding: 10px 20px;
+      font-size: 14px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    #modal-ok {
+      background: #28a745;
+      color: #fff;
+    }
+
+    #modal-cancel {
+      background: #dc3545;
+      color: #fff;
+    }
+
+    /* Responsive tweaks */
+    @media (max-width: 360px) {
+      .modal {
+        padding: 16px;
+      }
+      .modal-buttons {
+        flex-direction: column;
+      }
+    }
+
+    /* error message on process checkout return pop up */
+    .error-message {
+      color: #dc3545;
+      font-size: 0.85rem;
+      margin-top: 4px;
+      display: none;
+    }
+    .error-message.visible {
+      display: block;
+    }
+
+
   </style>
 </head>
 <body>
@@ -173,15 +306,35 @@
       <button id="renew-button" class="back-button" style="background-color: var(--primary-color);">
         Renew Checkout
       </button>
-      <button id="process-button" class="back-button" style="background-color: #28a745;">
-        Process Checkout
-      </button>
+      
+      <!-- dynamically, server-side generated button -->
+      <% if (checkout.status === 'active' || checkout.status === 'overdue') { %>
+        <button
+          id="process-button"
+          class="back-button"
+          style="background-color: #28a745;"
+        >
+          Process Checkout
+        </button>
+      <% } %>
+      
       <button id="edit-button" class="back-button" style="background-color: #ffc107;">
         Edit
       </button>
     </div>
 
 
+  </div>  
+
+  <!-- Modal Popup -->
+  <div id="modal-overlay" class="modal-overlay hidden">
+    <div class="modal">
+      <p id="modal-message"></p>
+      <div class="modal-buttons">
+        <button id="modal-ok" type="button">OK</button>
+        <button id="modal-cancel" class="hidden" type="button">Cancel</button>
+      </div>
+    </div>
   </div>
 
   <script src="/public/js/admin-checkout-detailScript.js">

@@ -52,3 +52,25 @@ exports.getCheckoutHistory = async (req, res, next) => {
   }
 };
 
+exports.updateAdminCheckout = async (req, res, next) => {
+  const id = parseInt(req.params.id, 10);
+  const updates = {
+    userId:               req.body.userId,
+    bookIsbn:             req.body.bookIsbn,
+    checkoutDate:         req.body.checkoutDate,
+    dueDate:              req.body.dueDate,
+    returnDate:           req.body.returnDate || null,
+    status:               req.body.status,
+    renewalCount:         req.body.renewalCount,
+    fine:                 req.body.fine,
+    reservationId:        req.body.reservationId || null,
+    renewalRequested:     req.body.renewalRequested === 'true',
+    requestedRenewalDays: req.body.requestedRenewalDays || null
+  };
+  try {
+    await checkoutsService.updateCheckout(id, updates, req.user);
+    res.status(200).json({ message: 'Checkout updated successfully' });
+  } catch (err) {
+    next(err);
+  }
+};
