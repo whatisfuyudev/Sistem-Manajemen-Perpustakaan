@@ -1,73 +1,93 @@
-// Toggle advanced search options
-const toggleBtn = document.getElementById('toggleAdvanced');
-const advancedSearchDiv = document.getElementById('advancedSearch');
-toggleBtn.addEventListener('click', () => {
-  if (advancedSearchDiv.style.display === 'flex') {
-    advancedSearchDiv.style.display = 'none';
-    toggleBtn.textContent = 'Show Advanced Search Options';
-  } else {
-    advancedSearchDiv.style.display = 'flex';
-    toggleBtn.textContent = 'Hide Advanced Search Options';
-  }
-});
-
-// Handle the search form submission
-document.getElementById('searchForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  const filters = {
-    userId: document.getElementById('userId').value.trim(),
-    bookIsbn: document.getElementById('bookIsbn').value.trim(),
-    reservationId: document.getElementById('reservationId').value.trim(),
-    status: document.getElementById('status').value,
-    startDate: document.getElementById('startDate').value,
-    endDate: document.getElementById('endDate').value,
-    dateField: document.getElementById('dateField').value,
-    page: 1,
-    limit: 10
-  };
-
-  // Remove empty fields
-  Object.keys(filters).forEach(key => {
-    if (!filters[key]) delete filters[key];
-  });
-  
-  try {
-    const queryString = new URLSearchParams(filters).toString();
-    const response = await fetch(`/api/checkouts/history?${queryString}`);
-    if (!response.ok) throw new Error('Search request failed.');
-    const result = await response.json();
-    renderCheckoutResults(result);
-  } catch (error) {
-    console.error(error);
-    document.getElementById('resultsContainer').innerHTML = '<p>Error occurred during search.</p>';
-  }
-});
 
 
-// Function to render search results
-function renderCheckoutResults(data) {
-  console.log(data);
-  const container = document.getElementById('resultsContainer');
-  if (!data.checkouts || data.checkouts.length === 0) {
-    container.innerHTML = '<p>No checkouts found.</p>';
-    return;
-  }
 
-  let html = '<ul>';
-  data.checkouts.forEach(item => {
-    html += `<li>
-      <strong>Book ISBN:</strong> ${item.bookIsbn} |
-      <strong>User ID:</strong> ${item.userId} |
-      <strong>Status:</strong> ${item.status} |
-      <strong>Due:</strong> ${new Date(item.dueDate).toLocaleDateString()}
-    </li>`;
-  });
-  html += '</ul>';
-  container.innerHTML = html;
-}
+   // Toggle advanced search options
+   const toggleBtn = document.getElementById('toggleAdvanced');
+   const advancedSearchDiv = document.getElementById('advancedSearch');
+   toggleBtn.addEventListener('click', () => {
+     const isVisible = advancedSearchDiv.style.display === 'flex';
+     advancedSearchDiv.style.display = isVisible ? 'none' : 'flex';
+     toggleBtn.textContent = isVisible
+       ? 'Show Advanced Search Options'
+       : 'Hide Advanced Search Options';
+   });
 
+   // Handle the search form submission
+   document.getElementById('searchForm').addEventListener('submit', async e => {
+     e.preventDefault();  // Prevent full‑page reload
 
+     // Gather filters
+     const filters = {
+       userId:   document.getElementById('userId').value.trim(),
+       bookIsbn: document.getElementById('bookIsbn').value.trim(),
+       id:       document.getElementById('reservationId').value.trim(),
+       status:   document.getElementById('status').value,
+       page:     1,
+       limit:    10
+     };
+
+     // Map date filters based on selected field
+     const start = document.getElementById('startDate').value;
+     const end   = document.getElementById('endDate').value;
+     const df    = document.getElementById('dateField').value;
+     if (start && end) {
+       if (df === 'requestDate') {
+         filters.reqDateFrom = start;
+         filters.reqDateTo   = end;
+       } else if (df === 'expirationDate') {
+         filters.expDateFrom = start;
+         filters.expDateTo   = end;
+       }
+     }
+
+     // Remove empty entries
+     Object.keys(filters).forEach(key => {
+       if (!filters[key]) delete filters[key];
+     });
+
+     try {
+       // Build query string
+       const qs = new URLSearchParams(filters).toString();
+
+       // Fetch reservation history
+       const res = await fetch(`/api/reservations/history?${qs}`);
+       if (!res.ok) throw new Error(`Server responded ${res.status}`);
+
+       const data = await res.json();
+       renderReservationResults(data);
+     } catch (err) {
+       console.error(err);
+       document.getElementById('resultsContainer')
+         .innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
+     }
+   });
+
+   // Render reservation results
+   function renderReservationResults(data) {
+     const container = document.getElementById('resultsContainer');
+     const list = data.reservations || [];
+     if (list.length === 0) {
+       container.innerHTML = '<p>No reservations found.</p>';
+       return;
+     }
+     let html = '<ul>';
+     list.forEach(r => {
+       html += `<li>
+         <strong>Reservation ID:</strong> ${r.id} |
+         <strong>Book ISBN:</strong> ${r.bookIsbn} |
+         <strong>User ID:</strong> ${r.userId} |
+         <strong>Status:</strong> ${r.status} |
+         <strong>Queue Pos.:</strong> ${r.queuePosition} |
+         <strong>Requested:</strong> ${new Date(r.requestDate).toLocaleDateString()} |
+         <strong>Expires:</strong> ${r.expirationDate
+            ? new Date(r.expirationDate).toLocaleDateString()
+            : '–'} |
+         <strong>Notes:</strong> ${r.notes || '–'}
+       </li>`;
+     });
+     html += '</ul>';
+     container.innerHTML = html;
+   }
 
 // <!-- line --------------------------------------------------------------------------------- -->
 

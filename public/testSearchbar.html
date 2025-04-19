@@ -1,9 +1,11 @@
-<!DOCTYPE html>
+
+
+ <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Versatile Search Bar</title>
+  <title>Versatile Reservation Search</title>
   <style>
     /* Base Reset & Typography */
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -83,6 +85,25 @@
       padding-top: 15px;
     }
 
+    /* Results area */
+    #resultsContainer {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      min-height: 100px;
+    }
+    #resultsContainer ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    #resultsContainer li {
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+    }
+
     /* Responsive adjustments for mobile */
     @media (max-width: 480px) {
       .search-container {
@@ -99,56 +120,40 @@
         padding-top: 10px;
       }
     }
-
-
-    /* Mobile Responsive Adjustments for Advanced Search */
-    @media (max-width: 480px) {
-      .search-container {
-        padding: 15px;
-      }
-      .search-container input,
-      .search-container select,
-      .search-container button {
-        font-size: 0.9rem;
-        padding: 8px;
-      }
-      .advanced-search {
-        gap: 8px;
-        padding-top: 10px;
-      }
-    }
-
   </style>
 </head>
 <body>
-  <h1>Checkouts Search</h1>
+  <h1>Reservations Search</h1>
   <div class="search-container">
     <form id="searchForm">
-       <!-- Basic search: Single search bar for title (default) -->
-       <input type="text" id="userId" placeholder="User ID (admin only)" />
-       <!--Toggle for advanced search options -->
-      <button type="button" class="advanced-toggle" id="toggleAdvanced">Show Advanced Search Options</button>
+      <!-- Basic filter -->
+      <input type="number" id="reservationId" placeholder="Reservation ID" />
+
+      <!-- Toggle for advanced search options -->
+      <button type="button" class="advanced-toggle" id="toggleAdvanced">
+        Show Advanced Search Options
+      </button>
+
+      <!-- Advanced Filters -->
       <div class="advanced-search" id="advancedSearch">
-        <!-- Advanced Filters -->
-        <input type="text" id="bookIsbn" placeholder="Book ISBN" />
-        <input type="text" id="reservationId" placeholder="Reservation ID" />
+        <input type="text" id="bookIsbn"        placeholder="Book ISBN" />
+        <input type="number" id="userId" placeholder="User ID" />
         <select id="status">
           <option value="">-- Status --</option>
-          <option value="active">Active</option>
-          <option value="returned">Returned</option>
-          <option value="overdue">Overdue</option>
-          <option value="lost">Lost</option>
-          <option value="damaged">Damaged</option>
-          <option value="others">Others</option>
+          <option value="pending">Pending</option>
+          <option value="available">Available</option>
+          <option value="fulfilled">Fulfilled</option>
+          <option value="canceled">Canceled</option>
+          <option value="expired">Expired</option>
         </select>
         <input type="date" id="startDate" placeholder="Start Date" />
-        <input type="date" id="endDate" placeholder="End Date" />
+        <input type="date" id="endDate"   placeholder="End Date" />
         <select id="dateField">
-          <option value="checkoutDate">Checkout Date</option>
-          <option value="dueDate">Due Date</option>
-          <option value="returnDate">Return Date</option>
+          <option value="requestDate">Request Date</option>
+          <option value="expirationDate">Expiration Date</option>
         </select>
       </div>
+
       <button type="submit">Search</button>
     </form>
   </div>
@@ -159,8 +164,9 @@
   <script src="/public/js/testSearchbarScript.js">
 
   </script>
- </body>
- </html>  
+</body>
+</html>
+
 
 
 <!-- line --------------------------------------------------------------------------------- -->

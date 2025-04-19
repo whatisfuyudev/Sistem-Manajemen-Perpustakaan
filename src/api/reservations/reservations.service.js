@@ -167,42 +167,88 @@ exports.promoteNextReservation = async (bookIsbn) => {
   return reservation;
 };
 
-
 exports.getReservationHistory = async (query) => {
+  // Build dynamic WHERE clause
   const where = {};
+
+  // 1) Direct ID lookup
+  if (query.id) {
+    where.id = parseInt(query.id, 10);         // exact match on primary key :contentReference[oaicite:1]{index=1}
+  }
+
+  // 2) User ID
   if (query.userId) {
-    where.userId = query.userId;
+    where.userId = parseInt(query.userId, 10); // exact match on foreign key :contentReference[oaicite:2]{index=2}
   }
+
+  // 3) Book ISBN (partial match)
   if (query.bookIsbn) {
-    where.bookIsbn = query.bookIsbn;
+    where.bookIsbn = { [Op.iLike]: `%${query.bookIsbn}%` }; // case-insensitive contains :contentReference[oaicite:3]{index=3}
   }
+
+  // 4) Status (single or grouped 'inactive')
   if (query.status) {
     if (query.status === 'inactive') {
-      // For inactive, include fulfilled, canceled, and expired reservations
-      where.status = { [Op.in]: ['fulfilled', 'canceled', 'expired'] };
+      where.status = { [Op.in]: ['fulfilled', 'canceled', 'expired'] }; // IN operator :contentReference[oaicite:4]{index=4}
     } else {
       where.status = query.status;
     }
   }
-  
-  // Set default pagination values if not provided
-  const page = query.page ? parseInt(query.page, 10) : 1;
-  const limit = query.limit ? parseInt(query.limit, 10) : 10;
+
+  // 5) Queue position range
+  if (query.queueMin || query.queueMax) {
+    where.queuePosition = {};
+    if (query.queueMin) {
+      where.queuePosition[Op.gte] = parseInt(query.queueMin, 10); // >= minimum :contentReference[oaicite:5]{index=5}
+    }
+    if (query.queueMax) {
+      where.queuePosition[Op.lte] = parseInt(query.queueMax, 10); // <= maximum :contentReference[oaicite:6]{index=6}
+    }
+  }
+
+  // 6) Request date range
+  if (query.reqDateFrom || query.reqDateTo) {
+    where.requestDate = {};
+    if (query.reqDateFrom) {
+      where.requestDate[Op.gte] = new Date(query.reqDateFrom);    // >= start date :contentReference[oaicite:7]{index=7}
+    }
+    if (query.reqDateTo) {
+      where.requestDate[Op.lte] = new Date(query.reqDateTo);     // <= end date 
+    }
+  }
+
+  // 7) Expiration date range
+  if (query.expDateFrom || query.expDateTo) {
+    where.expirationDate = {};
+    if (query.expDateFrom) {
+      where.expirationDate[Op.gte] = new Date(query.expDateFrom);
+    }
+    if (query.expDateTo) {
+      where.expirationDate[Op.lte] = new Date(query.expDateTo);
+    }
+  }
+
+  // 8) Notes full-text search
+  if (query.notes) {
+    where.notes = { [Op.iLike]: `%${query.notes}%` };              // text contains :contentReference[oaicite:8]{index=8}
+  }
+
+  // Pagination defaults
+  const page   = query.page ? parseInt(query.page, 10) : 1;
+  const limit  = query.limit ? parseInt(query.limit, 10) : 10;
   const offset = (page - 1) * limit;
-  
-  // Use findAndCountAll to get total count and paginated rows
+
+  // Execute query with count & paginated rows
   const { count, rows } = await Reservation.findAndCountAll({
     where,
     order: [['requestDate', 'DESC']],
     offset,
     limit
   });
-  
+
   return {
-    total: count,
-    reservations: rows,
+    total:         count,
+    reservations:  rows,
     page
   };
 };
-
-

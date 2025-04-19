@@ -512,63 +512,197 @@ function renderCheckoutsModule(checkouts, total, page) {
 
 
 /* ------------------------ RESERVATIONS MODULE ------------------------ */
+// old version
+// async function loadReservationsModule() {
+//   contentArea.innerHTML = `
+//     <h2>Reservations Management</h2>
+//     <div class="filter-form">
+//       <input type="text" id="reservationFilter" placeholder="Filter by status, ISBN, or user ID..." />
+//       <button id="reservationFilterBtn">Search</button>
+//       <button id="newReservationBtn">Add New Reservation</button>
+//     </div>
+//     <div id="reservationsList"></div>
+//     <div id="reservationsPagination" class="pagination"></div>
+//   `;
+//   document.getElementById('reservationFilterBtn').addEventListener('click', () => {
+//     currentPage = 1;
+//     fetchReservationsModule();
+//   });
+//   document.getElementById('newReservationBtn').addEventListener('click', async () => {
+//     const bookIsbn = await showPromptModal({ message: 'Enter Book ISBN:' });
+//     if (!bookIsbn) return;
+//     const notes = await showPromptModal({ message: 'Enter any notes (optional):' });
+//     const payload = { bookIsbn, notes };
+//     try {
+//       const res = await fetch(API.reservations.create, {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify(payload)
+//       });
+//       if (res.ok) {
+//         await showModal({ message: 'Reservation created successfully.' });
+//         fetchReservationsModule();
+//       } else {
+//         const err = await res.json();
+//         await showModal({ message: 'Error: ' + err.message });
+//       }
+//     } catch (error) {
+//       console.error(error);
+//       await showModal({ message: 'An error occurred while creating reservation.' });
+//     }
+//   });
+//   fetchReservationsModule();
+// }
+
+// async function fetchReservationsModule() {
+//   const filter = document.getElementById('reservationFilter').value;
+//   const params = new URLSearchParams({ page: currentPage, limit: 10 });
+//   if (filter) {
+//     params.append('status', filter);
+//   }
+//   try {
+//     const res = await fetch(API.reservations.list + '?' + params.toString());
+//     if (!res.ok) throw new Error('Failed to fetch reservations.');
+//     const data = await res.json();
+//     renderReservations(data.reservations, data.total, currentPage);
+//   } catch (error) {
+//     console.error(error);
+//     contentArea.innerHTML += '<p>Error loading reservations.</p>';
+//   }
+// }
+
 async function loadReservationsModule() {
   contentArea.innerHTML = `
     <h2>Reservations Management</h2>
-    <div class="filter-form">
-      <input type="text" id="reservationFilter" placeholder="Filter by status, ISBN, or user ID..." />
-      <button id="reservationFilterBtn">Search</button>
-      <button id="newReservationBtn">Add New Reservation</button>
+
+    <div class="search-container">
+      <form id="searchForm">
+        <!-- Basic filter -->
+        <input type="number" id="reservationId" placeholder="Reservation ID" />
+
+        <!-- Toggle for advanced search options -->
+        <button type="button" class="advanced-toggle" id="toggleAdvanced">
+          Show Advanced Search Options
+        </button>
+
+        <!-- Advanced Filters -->
+        <div class="advanced-search" id="advancedSearch">
+          <input type="number" id="userId"     placeholder="User ID" />
+          <input type="text"   id="bookIsbn"   placeholder="Book ISBN" />
+          <select id="status">
+            <option value="">-- Status --</option>
+            <option value="pending">Pending</option>
+            <option value="available">Available</option>
+            <option value="fulfilled">Fulfilled</option>
+            <option value="canceled">Canceled</option>
+            <option value="expired">Expired</option>
+          </select>
+          <input type="date" id="startDate" placeholder="Start Date" />
+          <input type="date" id="endDate"   placeholder="End Date" />
+          <select id="dateField">
+            <option value="requestDate">Request Date</option>
+            <option value="expirationDate">Expiration Date</option>
+          </select>
+        </div>
+
+        <button type="submit">Search</button>
+      </form>
     </div>
+
     <div id="reservationsList"></div>
     <div id="reservationsPagination" class="pagination"></div>
   `;
-  document.getElementById('reservationFilterBtn').addEventListener('click', () => {
+
+  // wire up advanced toggle
+  const toggleBtn = document.getElementById('toggleAdvanced');
+  const advDiv    = document.getElementById('advancedSearch');
+  toggleBtn.addEventListener('click', () => {
+    const showing = advDiv.style.display === 'flex';
+    advDiv.style.display = showing ? 'none' : 'flex';
+    toggleBtn.textContent = showing
+      ? 'Show Advanced Search Options'
+      : 'Hide Advanced Search Options';
+  });
+
+  // handle search submission
+  document.getElementById('searchForm').addEventListener('submit', e => {
+    e.preventDefault();
     currentPage = 1;
     fetchReservationsModule();
   });
-  document.getElementById('newReservationBtn').addEventListener('click', async () => {
-    const bookIsbn = await showPromptModal({ message: 'Enter Book ISBN:' });
-    if (!bookIsbn) return;
-    const notes = await showPromptModal({ message: 'Enter any notes (optional):' });
-    const payload = { bookIsbn, notes };
-    try {
-      const res = await fetch(API.reservations.create, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (res.ok) {
-        await showModal({ message: 'Reservation created successfully.' });
-        fetchReservationsModule();
-      } else {
-        const err = await res.json();
-        await showModal({ message: 'Error: ' + err.message });
-      }
-    } catch (error) {
-      console.error(error);
-      await showModal({ message: 'An error occurred while creating reservation.' });
-    }
-  });
+
+  // initial load
   fetchReservationsModule();
 }
 
 async function fetchReservationsModule() {
-  const filter = document.getElementById('reservationFilter').value;
-  const params = new URLSearchParams({ page: currentPage, limit: 10 });
-  if (filter) {
-    params.append('status', filter);
+  // collect base params
+  const filters = {
+    id:       document.getElementById('reservationId').value.trim(),
+    userId:   document.getElementById('userId').value.trim(),
+    bookIsbn: document.getElementById('bookIsbn').value.trim(),
+    status:   document.getElementById('status').value,
+    page:     currentPage,
+    limit:    10
+  };
+
+  // date range mapping
+  const start = document.getElementById('startDate').value;
+  const end   = document.getElementById('endDate').value;
+  const df    = document.getElementById('dateField').value;
+  if (start && end) {
+    if (df === 'requestDate') {
+      filters.reqDateFrom = start;
+      filters.reqDateTo   = end;
+    } else {
+      filters.expDateFrom = start;
+      filters.expDateTo   = end;
+    }
   }
+
+  // prune empty
+  Object.keys(filters).forEach(k => {
+    if (!filters[k]) delete filters[k];
+  });
+
   try {
-    const res = await fetch(API.reservations.list + '?' + params.toString());
-    if (!res.ok) throw new Error('Failed to fetch reservations.');
+    const qs = new URLSearchParams(filters).toString();
+    const res = await fetch(`/api/reservations/history?${qs}`);
+    if (!res.ok) throw new Error(`Status ${res.status}`);
     const data = await res.json();
     renderReservations(data.reservations, data.total, currentPage);
-  } catch (error) {
-    console.error(error);
-    contentArea.innerHTML += '<p>Error loading reservations.</p>';
+  } catch (err) {
+    console.error(err);
+    document.getElementById('reservationsList').innerHTML =
+      `<p style="color:red;">Error loading reservations: ${err.message}</p>`;
   }
 }
+
+// old version
+// function renderReservations(reservations, total, page) {
+//   const list = document.getElementById('reservationsList');
+//   if (!reservations || reservations.length === 0) {
+//     list.innerHTML = '<p>No reservations found.</p>';
+//     return;
+//   }
+//   list.innerHTML = '<table><thead><tr><th>ID</th><th>User ID</th><th>Book ISBN</th><th>Status</th><th>Queue Position</th><th>Actions</th></tr></thead><tbody>' +
+//   reservations.map(resv => `
+//     <tr>
+//       <td>${resv.id}</td>
+//       <td>${resv.userId}</td>
+//       <td>${resv.bookIsbn}</td>
+//       <td>${resv.status}</td>
+//       <td>${resv.queuePosition}</td>
+//       <td>
+//         <button onclick="cancelReservation(${resv.id})">Cancel</button>
+//         <button onclick="modifyReservation(${resv.id})">Modify</button>
+//         <button onclick="promoteReservation('${resv.bookIsbn}')">Promote</button>
+//       </td>
+//     </tr>
+//   `).join('') +
+//   '</tbody></table>';
+//   renderPaginationControls(total, page, fetchReservationsModule, 'reservationsPagination');
+// }
 
 function renderReservations(reservations, total, page) {
   const list = document.getElementById('reservationsList');
@@ -576,24 +710,54 @@ function renderReservations(reservations, total, page) {
     list.innerHTML = '<p>No reservations found.</p>';
     return;
   }
-  list.innerHTML = '<table><thead><tr><th>ID</th><th>User ID</th><th>Book ISBN</th><th>Status</th><th>Queue Position</th><th>Actions</th></tr></thead><tbody>' +
-  reservations.map(resv => `
-    <tr>
-      <td>${resv.id}</td>
-      <td>${resv.userId}</td>
-      <td>${resv.bookIsbn}</td>
-      <td>${resv.status}</td>
-      <td>${resv.queuePosition}</td>
-      <td>
-        <button onclick="cancelReservation(${resv.id})">Cancel</button>
-        <button onclick="modifyReservation(${resv.id})">Modify</button>
-        <button onclick="promoteReservation('${resv.bookIsbn}')">Promote</button>
+
+  // Build the table header and rows
+  const header = `
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>User ID</th>
+          <th>Book ISBN</th>
+          <th>Status</th>
+          <th>Request Date</th>
+          <th>Expiration Date</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+  const rows = reservations.map(r => `
+    <tr class="clickable" data-id="${r.id}">
+      <td class="truncated-text" >${r.id}</td>
+      <td class="truncated-text" >${r.userId}</td>
+      <td class="truncated-text" >${r.bookIsbn}</td>
+      <td class="truncated-text" >${r.status}</td>
+      <td class="truncated-text" >${new Date(r.requestDate).toLocaleDateString()}</td>
+      <td class="truncated-text" >
+        ${r.expirationDate
+          ? new Date(r.expirationDate).toLocaleDateString()
+          : '—'}
       </td>
     </tr>
-  `).join('') +
-  '</tbody></table>';
-  renderPaginationControls(total, page, fetchReservationsModule, 'reservationsPagination');
+  `).join('');
+
+  const footer = `
+      </tbody>
+    </table>
+  `;
+
+  list.innerHTML = header + rows + footer;
+
+  // Re‑use your existing pagination renderer
+  renderPaginationControls(
+    total,
+    page,
+    fetchReservationsModule,
+    'reservationsPagination'
+  );
 }
+
 
 async function cancelReservation(reservationId) {
   const confirmed = await showModal({ message: 'Are you sure you want to cancel this reservation?', showCancel: true });
