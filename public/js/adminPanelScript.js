@@ -232,6 +232,8 @@ function renderBooks(books, total, page) {
   const booksList = document.getElementById('booksList');
   if (!books || !Array.isArray(books) || books.length === 0) {
     booksList.innerHTML = '<p>No books found.</p>';
+    currentPage = 1;
+    renderPaginationControls(0, currentPage,  fetchBooks, 'booksPagination');
     return;
   }
 
@@ -456,7 +458,9 @@ async function fetchCheckoutsModule(e) {
 function renderCheckoutsModule(checkouts, total, page) {
   const list = document.getElementById('checkoutsList');
   if (!checkouts || !Array.isArray(checkouts) || checkouts.length === 0) {
+    currentPage = 1;
     list.innerHTML = '<p>No checkouts found.</p>';
+    renderPaginationControls(0, currentPage, fetchCheckoutsModule, 'checkoutsPagination');
     return;
   }
   
@@ -495,10 +499,12 @@ function renderCheckoutsModule(checkouts, total, page) {
   html += `
       </tbody>
     </table>
+    <div class="table-footer">
+      <p>Total Checkouts: ${total}</p>
+    </div>
   `;
-  
+
   list.innerHTML = html;
-  renderPaginationControls(total, page, fetchCheckoutsModule, 'checkoutsPagination');
   
   // Attach click handlers
   document.querySelectorAll('.checkouts-table tbody tr.clickable')
@@ -508,6 +514,8 @@ function renderCheckoutsModule(checkouts, total, page) {
         window.location.href = `/admin/checkout/detail/${id}`;
       });
     });
+  
+  renderPaginationControls(total, page, fetchCheckoutsModule, 'checkoutsPagination');
 }
 
 
@@ -682,6 +690,12 @@ function renderReservations(reservations, total, page) {
   const list = document.getElementById('reservationsList');
   if (!reservations || reservations.length === 0) {
     list.innerHTML = '<p>No reservations found.</p>';
+    currentPage = 1;
+    renderPaginationControls(0, 
+      currentPage,  
+      fetchReservationsModule,
+      'reservationsPagination'
+    );
     return;
   }
 
@@ -719,11 +733,14 @@ function renderReservations(reservations, total, page) {
   const footer = `
       </tbody>
     </table>
+    <div class="table-footer">
+      <p>Total Reservations: ${total}</p>
+    </div>
   `;
 
   list.innerHTML = header + rows + footer;
 
-  // 1. Select all clickable rows
+  // Select all clickable rows
   document
     .querySelectorAll('#reservationsList table tbody tr.clickable')
       .forEach(row => {

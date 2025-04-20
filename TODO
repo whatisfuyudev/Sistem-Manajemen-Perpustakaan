@@ -26,9 +26,12 @@
       - fix reservations section
 
         - individual reservation page
-          - promote a reservation with modal confirmation
-          - cancel any active reservation with modal confirmation
-          - modify any reservation? more than just modifying notes
+          - promote is incorrect because the promote button only promotes the
+            first queue not the exact reservation that is displayed on the page.
+            maybe make a new page?
+
+            
+          - modify any reservation? more than just modifying notes. new page
 
         - add new reservation page
           - new endpoint? for admin only

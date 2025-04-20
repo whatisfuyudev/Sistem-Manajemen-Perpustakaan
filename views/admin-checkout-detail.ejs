@@ -303,9 +303,16 @@
 
     <!-- Action Buttons -->
     <div class="button-container" style="display: flex; justify-content: center; gap: 12px; margin-top: 30px;">
-      <button id="renew-button" class="back-button" style="background-color: var(--primary-color);">
-        Renew Checkout
-      </button>
+      <!-- only show Renew if status is exactly "active" -->
+      <% if (checkout.status === 'active') { %>
+        <button
+          id="renew-button"
+          class="back-button"
+          style="background-color: var(--primary-color);"
+        >
+          Renew Checkout
+        </button>
+      <% } %>
       
       <!-- dynamically, server-side generated button -->
       <% if (checkout.status === 'active' || checkout.status === 'overdue') { %>
