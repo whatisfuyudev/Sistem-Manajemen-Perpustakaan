@@ -159,7 +159,7 @@ app.get('/admin/notifications',
   res.sendFile(path.join(__dirname, '../public', 'notification.html'));
 });
 
-app.get('/admin/reservations/promote', 
+app.get('/admin/reservations/testing/promote', 
   authMiddleware.verifyToken, 
   authMiddleware.isLibrarianOrAdmin, 
   (req, res) => {

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reservation #<%= reservation.id %> Details</title>
+  <style>
+    /* Base Reset */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f9f9f9;  /* light neutral :contentReference[oaicite:10]{index=10} */
+      color: #333;          /* primary text :contentReference[oaicite:11]{index=11} */
+      padding: 1rem;
+      line-height: 1.4;
+    }
+    a { color: #007BFF; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Card Container */
+    .card {
+      max-width: 600px;
+      margin: 0 auto 1rem;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* subtle depth :contentReference[oaicite:12]{index=12} */
+      overflow: hidden;
+    }
+    .card + .card { margin-top: 1rem; }
+
+    /* Header */
+    .card-header {
+      padding: 1rem;
+      border-bottom: 1px solid #eee;      /* light divider :contentReference[oaicite:13]{index=13} */
+      display: flex;
+      justify-content: space-between;
+    }
+    .card-header h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      width: fit-content;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;    /* Vertically centers the text */
+      justify-content: center; /* Horizontally centers the text */
+      padding: 0.5rem 0.5rem;
+      font-size: 0.85rem;
+      background-color: #007BFF;
+      color: #fff;
+      border-radius: 4px;
+      min-height: 1.5rem; /* Ensures sufficient height for vertical centering */
+    }
+
+
+    /* Body: vertical stack */
+    .card-body {
+      display: flex;
+      flex-direction: column;             /* mobile first :contentReference[oaicite:15]{index=15} */
+      gap: 1rem;
+      padding: 1rem;
+    }
+    @media (min-width: 640px) {
+      .card-body {
+        display: grid;
+        grid-template-columns: 1fr 1fr;   /* two columns on wider :contentReference[oaicite:16]{index=16} */
+        gap: 1rem;
+      }
+      .book-panel { grid-column: span 2; } /* book spans full width */
+    }
+
+    /* Panels */
+    .panel {
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 6px;
+      padding: 1rem;
+    }
+    .panel h2 {
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Book Panel */
+    .book-panel img {
+      display: block;
+      width: 100%;
+      max-width: 150px;
+      margin: 0 auto 0.75rem;
+      border-radius: 4px;
+    }
+    .book-panel .title {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+      text-align: center;
+    }
+    .book-panel .authors {
+      font-size: 0.9rem;
+      color: #666;
+      text-align: center;
+    }
+
+    /* Reservation Panel */
+    .reservation-panel dl {
+      display: grid;
+      grid-template-columns: max-content 1fr;
+      row-gap: 0.5rem;
+      column-gap: 1rem;
+    }
+    .reservation-panel dt {
+      font-weight: 600;
+      color: #333;
+    }
+    .reservation-panel dd {
+      margin: 0;
+      color: #555;
+    }
+    .reservation-panel .notes {
+      margin-top: 0.75rem;
+      font-style: italic;
+      color: #666;
+    }
+
+    /* User Panel */
+    .user-panel {
+      text-align: center;
+    }
+    .user-panel img {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      margin-bottom: 0.5rem;
+      object-fit: cover
+    }
+    .user-panel .name {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+    .user-panel .role {
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    /* Footer */
+    .card-footer {
+      padding: 0.75rem 1rem;
+      border-top: 1px solid #eee;
+      text-align: right;
+    }
+
+    /* Button Group */
+    .button-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 1rem;
+      margin-bottom: 1rem;
+      justify-content: center;
+    }
+
+    /* Base button style */
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      display: inline-block;
+      transition: background-color 0.2s ease;
+    }
+
+    /* Individual button variants */
+    .btn-primary {
+      background-color: #007BFF;
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background-color: #0056b3;
+    }
+
+    .btn-danger {
+      background-color: #dc3545;
+      color: #fff;
+    }
+    .btn-danger:hover {
+      background-color: #b02a37;
+    }
+
+    .btn-secondary {
+      background-color: #ffc107;
+      color: #fff;
+    }
+    .btn-secondary:hover {
+      background-color: #e0a800;
+    }
+
+    /* back buttons */
+    .back-button {
+    background: #6c757d;
+    padding: 10px 20px;
+    border-radius: 4px;
+    color: #fff;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .back-button:hover {
+    background-color: #5a6268;
+  }
+
+  </style>
+</head>
+<body>
+  <!-- Header Card -->
+  <div class="card">
+    <div class="card-header">
+      <a href="/admin/panel?tab=reservations" class="back-button">Back</a>
+      <h1>Reservation #<%= reservation.id %></h1>
+      <span class="badge"><%= reservation.status %></span>
+    </div>
+  </div>
+
+  <!-- Body Cards -->
+  <div class="card">
+    <div class="card-body">
+      <!-- Book Panel -->
+      <div class="panel book-panel">
+        <h2>Book</h2>
+        <img src="<%= book.coverImage || '/images/default-book.png' %>"
+             alt="<%= book.title %> cover">
+        <div class="title"><%= book.title %></div>
+        <div class="authors"><%= book.authors.join(', ') %></div>
+      </div>
+
+      <!-- Reservation Panel -->
+      <div class="panel reservation-panel">
+        <h2>Reservation Details</h2>
+        <dl>
+          <dt>Request Date:</dt>
+          <dd><%= reservation.requestDate.toLocaleDateString() %></dd>
+          <dt>Expiration Date:</dt>
+          <dd>
+            <% if (reservation.expirationDate) { %>
+              <%= reservation.expirationDate.toLocaleDateString() %>
+            <% } else { %>—<% } %>
+          </dd>
+          <dt>Queue Position:</dt>
+          <dd><%= reservation.queuePosition %></dd>
+        </dl>
+        <% if (reservation.notes) { %>
+          <div class="notes">“<%= reservation.notes %>”</div>
+        <% } %>
+      </div>
+
+      <!-- User Panel -->
+      <div class="panel user-panel">
+        <h2>User</h2>
+        <img src="<%= user.profilePicture || '/images/default-avatar.png' %>"
+             alt="<%= user.name %> avatar">
+        <div class="name"><%= user.name %></div>
+        <div class="role"><%= user.role %></div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="button-group">
+      <button id="promoteBtn" class="btn btn-primary">Promote</button>
+      <button id="cancelBtn"  class="btn btn-danger">Cancel</button>
+      <button id="modifyBtn"  class="btn btn-secondary">Modify</button>
+    </div>
+  </div>
+</body>
+</html>

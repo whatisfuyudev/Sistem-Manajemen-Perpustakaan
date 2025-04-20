@@ -93,14 +93,11 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
   
-  editBtn.addEventListener('click', () => {
-    
+  editBtn.addEventListener('click', () => {    
     window.location.href = `/admin/checkout/edit/${checkoutId}`;
   });
 
-  document.getElementById('back-button').addEventListener('click', () => {
-    window.location.href = '/admin/panel?tab=checkouts';
-  });
+
 });
 
 

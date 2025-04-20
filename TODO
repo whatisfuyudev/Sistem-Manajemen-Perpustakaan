@@ -18,15 +18,14 @@
       - there will be homepage, individual book page, profile page, my reservations page, my checkouts page, register page, login page
         - rework profile page 
 
+        - replace alert in my reservation page with custom popup/modal
+
   - make the admin/librarian side
     - construct admin panel
 
       - fix reservations section
 
         - individual reservation page
-          - new way to visualize each reservation data
-            like maybe show books and user too
-          
           - promote a reservation with modal confirmation
           - cancel any active reservation with modal confirmation
           - modify any reservation? more than just modifying notes

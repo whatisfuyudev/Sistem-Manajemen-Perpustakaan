@@ -678,32 +678,6 @@ async function fetchReservationsModule() {
   }
 }
 
-// old version
-// function renderReservations(reservations, total, page) {
-//   const list = document.getElementById('reservationsList');
-//   if (!reservations || reservations.length === 0) {
-//     list.innerHTML = '<p>No reservations found.</p>';
-//     return;
-//   }
-//   list.innerHTML = '<table><thead><tr><th>ID</th><th>User ID</th><th>Book ISBN</th><th>Status</th><th>Queue Position</th><th>Actions</th></tr></thead><tbody>' +
-//   reservations.map(resv => `
-//     <tr>
-//       <td>${resv.id}</td>
-//       <td>${resv.userId}</td>
-//       <td>${resv.bookIsbn}</td>
-//       <td>${resv.status}</td>
-//       <td>${resv.queuePosition}</td>
-//       <td>
-//         <button onclick="cancelReservation(${resv.id})">Cancel</button>
-//         <button onclick="modifyReservation(${resv.id})">Modify</button>
-//         <button onclick="promoteReservation('${resv.bookIsbn}')">Promote</button>
-//       </td>
-//     </tr>
-//   `).join('') +
-//   '</tbody></table>';
-//   renderPaginationControls(total, page, fetchReservationsModule, 'reservationsPagination');
-// }
-
 function renderReservations(reservations, total, page) {
   const list = document.getElementById('reservationsList');
   if (!reservations || reservations.length === 0) {
@@ -741,13 +715,26 @@ function renderReservations(reservations, total, page) {
       </td>
     </tr>
   `).join('');
-
+  
   const footer = `
       </tbody>
     </table>
   `;
 
   list.innerHTML = header + rows + footer;
+
+  // 1. Select all clickable rows
+  document
+    .querySelectorAll('#reservationsList table tbody tr.clickable')
+      .forEach(row => {
+        // on click, navigate to detail page
+        row.addEventListener('click', () => {
+        const id = row.getAttribute('data-id');
+        // redirect
+        window.location.href = `/admin/reservations/${id}`;
+        });
+      });
+
 
   // Re‑use your existing pagination renderer
   renderPaginationControls(

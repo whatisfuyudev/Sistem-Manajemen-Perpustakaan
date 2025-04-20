@@ -2,8 +2,21 @@
 const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../../middleware/auth.middleware');
-const reservationController = require('./reservationPage.controller');
+const reservationPageController = require('./reservationPage.controller');
 
-router.get('/user/reservations', authMiddleware.verifyToken, reservationController.renderMyReservationsPage);
+// Existing “My Reservations” page
+router.get(
+  '/user/reservations',
+  authMiddleware.verifyToken,
+  reservationPageController.renderMyReservationsPage
+);
+
+// New “Reservation Detail” page
+router.get(
+  '/admin/reservations/:id',
+  authMiddleware.verifyToken,
+  authMiddleware.isLibrarianOrAdmin,
+  reservationPageController.renderReservationDetail
+);
 
 module.exports = router;

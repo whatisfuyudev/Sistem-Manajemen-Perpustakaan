@@ -8,9 +8,9 @@ exports.getAdminBookDetailsPage = async (req, res, next) => {
     if (!book) {
       return res.status(404).send('<h1>Book not found</h1>');
     }
-    // Render the EJS template "admin-book-details" with the book data.
+    // Render the EJS template "admin-book-detail" with the book data.
     // (You can use the same template as the public version if preferred.)
-    res.render('admin-book-details', { book });
+    res.render('admin-book-detail', { book });
   } catch (error) {
     next(error);
   }
