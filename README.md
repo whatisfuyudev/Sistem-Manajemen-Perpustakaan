@@ -9,3 +9,11 @@ Langkah menjalankan nya:
 3. buka projek (bisa melalui vs code), jalankan "npm install" di terminal, pastikan terdapat nodejs 
 
 4. jalankan projek dengan perintah "node src/server.js" di terminal
+
+
+# Terdapat 2 user yaitu:
+hanif@gmail.com
+hanif
+
+hanifadmin@gmail.com
+hanifadmin
