@@ -19,6 +19,14 @@ router.get(
   reservationPageController.renderAdminReservationPromote
 );
 
+// Render the “Reserve a Book” form (Admin/Librarian only)
+router.get(
+  '/admin/reservations/add',                // route path
+  authMiddleware.verifyToken,                         
+  authMiddleware.isLibrarianOrAdmin,                  // allow only staff
+  reservationPageController.renderAdminReservationAdd
+);
+
 // New “Reservation Detail” page
 router.get(
   '/admin/reservations/:id',

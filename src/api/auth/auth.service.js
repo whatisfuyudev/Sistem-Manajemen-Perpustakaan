@@ -50,7 +50,6 @@ exports.logout = async (req, res) => {
   // Clear the token cookie from the client's browser.
   // Adjust cookie options if needed (e.g., domain, path, secure, httpOnly)
   res.clearCookie('jwt_token', { path: '/' });
-  console.log('\n\n\nreq.user is ',req.user ,'\n\n\n');
-  
+
   return;
 };

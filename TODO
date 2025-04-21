@@ -18,23 +18,13 @@
       - there will be homepage, individual book page, profile page, my reservations page, my checkouts page, register page, login page
         - rework profile page 
 
-        - replace alert in my reservation page with custom popup/modal
+        - replace alert in my reservation page, book details, profile,  with custom popup/modal
 
   - make the admin/librarian side
     - construct admin panel
 
-      - fix reservations section
-
-        - promote is incorrect because the promote button only promotes the
-          first queue not the exact reservation that is displayed on the page.
-          maybe make a new page?
-            - still use alert, change to modal
-            
-        - add new reservation page
-          - use old endpoint, works for admin/librarian creating reservation
-            for anyone
-          - new reservation page route and controller
-        
+      - fix reservation section
+        - confirm() change into custom modal
 
       - fix users section (only admin can manage user)
         - individual user page

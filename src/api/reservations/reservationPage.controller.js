@@ -18,6 +18,15 @@ exports.renderMyReservationsPage = async (req, res, next) => {
   }
 };
 
+exports.renderAdminReservationAdd = async (req, res, next) => {
+  try {
+    // No pre‑fetched data needed; form fields are blank by default
+    res.render('admin-reservation-add');
+  } catch (err) {
+    next(err);
+  }
+};
+
 exports.renderReservationDetail = async (req, res, next) => {
   try {
     const id = parseInt(req.params.id, 10);

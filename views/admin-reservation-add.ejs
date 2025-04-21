@@ -94,10 +94,27 @@
         font-size: 14px;
       }
     }
+
+    .back-button {
+      background: #6c757d;
+      padding: 10px 20px;
+      border-radius: 4px;
+      border: none;
+      color: #fff;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .back-button:hover {
+      background-color: #5a6268;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
   <div class="container">
+    <a href="/admin/panel?tab=reservations" class="back-button">Back</a>
+
     <h1>Reserve a Book</h1>
     <form id="reservationForm">
       <div class="form-group">
@@ -117,7 +134,7 @@
     <div id="message"></div>
   </div>
 
-  <script src="/public/js/createReservationScript.js">
+  <script src="/public/js/admin-reservation-addScript.js">
 
   </script>
 </body>

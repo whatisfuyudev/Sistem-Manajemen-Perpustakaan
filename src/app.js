@@ -140,30 +140,11 @@ app.get('/auth/login', (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'login.html'));
 });
 
-app.get('/reservations/create', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public', 'createReservation.html'));
-});
-
-app.get('/reservations/cancel', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public', 'cancelReservation.html'));
-});
-
-app.get('/reservations/modify', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public', 'modifyReservation.html'));
-});
-
 app.get('/admin/notifications', 
   authMiddleware.verifyToken, 
   authMiddleware.isLibrarianOrAdmin, 
   (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'notification.html'));
-});
-
-app.get('/admin/reservations/testing/promote', 
-  authMiddleware.verifyToken, 
-  authMiddleware.isLibrarianOrAdmin, 
-  (req, res) => {
-  res.sendFile(path.join(__dirname, '../public', 'promoteReservation.html'));
 });
 
 app.get('/admin/reports', 
