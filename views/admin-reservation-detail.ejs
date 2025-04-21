@@ -296,8 +296,15 @@
 
     <!-- Action Buttons -->
     <div class="button-group">
-      <button id="promoteBtn" class="btn btn-primary" data-book-isbn="<%= reservation.bookIsbn%>">Promote</button>
-      <button id="cancelBtn"  class="btn btn-danger" data-reservation-id="<%= reservation.id%>">Cancel</button>
+      <% if (reservation.status === 'pending' || reservation.status === 'available') { %>
+        <button
+          id="cancelBtn"
+          class="btn btn-danger"
+          data-reservation-id="<%= reservation.id %>"
+        >
+          Cancel
+        </button>
+      <% } %>
       <button id="modifyBtn"  class="btn btn-secondary">Modify</button>
     </div>
   </div>

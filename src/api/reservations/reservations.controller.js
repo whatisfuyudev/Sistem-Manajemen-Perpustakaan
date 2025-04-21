@@ -11,6 +11,35 @@ exports.createReservation = async (req, res, next) => {
   }
 };
 
+exports.updateAdminReservation = async (req, res, next) => {
+  // 1) Parse the reservation ID from the URL
+  const id = parseInt(req.params.id, 10);    // req.params usage :contentReference[oaicite:5]{index=5}
+
+  // 2) Build an updates object from the request body
+  const updates = {
+    userId:         req.body.userId,
+    bookIsbn:       req.body.bookIsbn,
+    requestDate:    req.body.requestDate,
+    queuePosition:  req.body.queuePosition,
+    status:         req.body.status,
+    expirationDate: req.body.expirationDate || null,
+    notes:          req.body.notes || null
+  };
+
+  try {
+    // 3) Delegate to service layer
+    const updated = await reservationsService.updateReservation(id, updates);
+
+    // 4) Send back success JSON
+    res.status(200).json({
+      message:     'Reservation updated successfully',
+      reservation: updated
+    });                                         // JSON response pattern :contentReference[oaicite:6]{index=6}
+  } catch (err) {
+    next(err);                                  // pass errors to your error handler
+  }
+};
+
 exports.cancelReservation = async (req, res, next) => {
   try {
     const reservationId = req.params.id;

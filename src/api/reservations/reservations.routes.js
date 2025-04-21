@@ -22,5 +22,13 @@ router.put('/modify/:id', authMiddleware.verifyToken, reservationsController.mod
 // Promote the next pending reservation for a book when available (admin/librarian)
 router.put('/promote/:bookIsbn', authMiddleware.verifyToken, authMiddleware.isLibrarianOrAdmin, reservationsController.promoteNextReservation);
 
+// Handle “Edit Reservation” form submission
+router.put(
+  '/admin/reservations/edit/:id',           // route path with :id param :contentReference[oaicite:4]{index=4}
+  authMiddleware.verifyToken,                          // JWT verification middleware
+  authMiddleware.isLibrarianOrAdmin,                   // role‑based guard
+  reservationsController.updateAdminReservation          // controller action
+);
+
 
 module.exports = router;

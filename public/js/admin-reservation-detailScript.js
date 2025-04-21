@@ -1,60 +1,8 @@
 
-const promoteBtn = document.getElementById('promoteBtn');
 const cancelBtn = document.getElementById('cancelBtn');
 
 
-promoteBtn.addEventListener('click', async () => {
-  // Ask for confirmation
-  const confirmed = await showModal({
-    message: 'Are you sure you want to promote this reservation?',
-    showCancel: true
-  });
 
-  // If the user cancels, exit early
-  if (!confirmed) return;
-
-  try {
-    // Read ISBN from data attribute
-    const bookIsbn = promoteBtn.dataset.bookIsbn;
-    if (!bookIsbn) {
-      throw new Error('Book ISBN not specified');
-    }
-
-    // Call the promote endpoint
-    const response = await fetch(
-      `/api/reservations/promote/${encodeURIComponent(bookIsbn)}`,
-      {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' }
-      }
-    );
-
-    // Handle non‑OK responses
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(errorText || `Error ${response.status}`);
-    }
-
-    // Parse the updated reservation
-    const updatedReservation = await response.json();
-
-    // Inform the admin
-    await showModal({
-      message: `Reservation #${updatedReservation.id} is now available until ${new Date(
-        updatedReservation.expirationDate
-      ).toLocaleString()}`,
-      showCancel: false
-    });
-
-    window.location.reload();
-  } catch (err) {
-    console.error('Promote failed:', err);
-    await showModal({
-      message: `Failed to promote reservation: ${err.message}`,
-      showCancel: false
-    });
-  }
-});
 
 
 cancelBtn.addEventListener('click', async (e) => {
