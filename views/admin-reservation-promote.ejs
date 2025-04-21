@@ -87,10 +87,46 @@
     }
     .message.success { background: #d4edda; color: #155724; }
     .message.error   { background: #f8d7da; color: #721c24; }
+
+    /* back buttons */
+    .back-button {
+    background: #6c757d;
+    padding: 10px 20px;
+    border-radius: 4px;
+    color: #fff;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .back-button:hover {
+    background-color: #5a6268;
+  }
+
+  .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .pagination button {
+      padding: 0.4rem 0.8rem;
+      border: none;
+      background: #007bff;
+      color: #fff;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .pagination button:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+    }
   </style>
 </head>
 <body>
   <div class="container">
+    <a href="/admin/panel?tab=reservations" class="back-button">Back</a>
+
     <h1>Promote Next Reservation</h1>
 
     <!-- ISBN search form -->
@@ -106,6 +142,9 @@
     <div id="resultsContainer">
       <!-- Populated by JS -->
     </div>
+
+    <!-- Pagination controls -->
+    <div id="paginationControls" class="pagination"></div>
 
     <!-- Promote action -->
     <div class="action-bar">

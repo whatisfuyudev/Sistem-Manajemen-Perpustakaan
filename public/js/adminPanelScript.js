@@ -389,7 +389,7 @@ async function loadCheckoutsModule() {
 
     <!-- Add New Checkout Button, move inline styling into head -->
     <div style="margin: 10px 0; display: flex; gap: 10px;">
-      <button id="addCheckoutBtn" style="background: #007bff; color: #fff; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer;">Add new checkout</button>
+      <button id="addCheckoutBtn" style="background: #007bff; color: #fff; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer;">Add New Checkout</button>
     </div>
 
     <div id="resultsContainer">
@@ -520,65 +520,6 @@ function renderCheckoutsModule(checkouts, total, page) {
 
 
 /* ------------------------ RESERVATIONS MODULE ------------------------ */
-// old version
-// async function loadReservationsModule() {
-//   contentArea.innerHTML = `
-//     <h2>Reservations Management</h2>
-//     <div class="filter-form">
-//       <input type="text" id="reservationFilter" placeholder="Filter by status, ISBN, or user ID..." />
-//       <button id="reservationFilterBtn">Search</button>
-//       <button id="newReservationBtn">Add New Reservation</button>
-//     </div>
-//     <div id="reservationsList"></div>
-//     <div id="reservationsPagination" class="pagination"></div>
-//   `;
-//   document.getElementById('reservationFilterBtn').addEventListener('click', () => {
-//     currentPage = 1;
-//     fetchReservationsModule();
-//   });
-//   document.getElementById('newReservationBtn').addEventListener('click', async () => {
-//     const bookIsbn = await showPromptModal({ message: 'Enter Book ISBN:' });
-//     if (!bookIsbn) return;
-//     const notes = await showPromptModal({ message: 'Enter any notes (optional):' });
-//     const payload = { bookIsbn, notes };
-//     try {
-//       const res = await fetch(API.reservations.create, {
-//         method: 'POST',
-//         headers: { 'Content-Type': 'application/json' },
-//         body: JSON.stringify(payload)
-//       });
-//       if (res.ok) {
-//         await showModal({ message: 'Reservation created successfully.' });
-//         fetchReservationsModule();
-//       } else {
-//         const err = await res.json();
-//         await showModal({ message: 'Error: ' + err.message });
-//       }
-//     } catch (error) {
-//       console.error(error);
-//       await showModal({ message: 'An error occurred while creating reservation.' });
-//     }
-//   });
-//   fetchReservationsModule();
-// }
-
-// async function fetchReservationsModule() {
-//   const filter = document.getElementById('reservationFilter').value;
-//   const params = new URLSearchParams({ page: currentPage, limit: 10 });
-//   if (filter) {
-//     params.append('status', filter);
-//   }
-//   try {
-//     const res = await fetch(API.reservations.list + '?' + params.toString());
-//     if (!res.ok) throw new Error('Failed to fetch reservations.');
-//     const data = await res.json();
-//     renderReservations(data.reservations, data.total, currentPage);
-//   } catch (error) {
-//     console.error(error);
-//     contentArea.innerHTML += '<p>Error loading reservations.</p>';
-//   }
-// }
-
 async function loadReservationsModule() {
   contentArea.innerHTML = `
     <h2>Reservations Management</h2>
@@ -594,7 +535,7 @@ async function loadReservationsModule() {
         </button>
 
         <!-- Advanced Filters -->
-        <div class="advanced-search" id="advancedSearch">
+        <div class="advanced-search" id="advancedSearch" style="display: none;">
           <input type="number" id="userId"     placeholder="User ID" />
           <input type="text"   id="bookIsbn"   placeholder="Book ISBN" />
           <select id="status">
@@ -617,6 +558,22 @@ async function loadReservationsModule() {
       </form>
     </div>
 
+    <!-- New action buttons -->
+    <div style="margin: 10px 0; display: flex; gap: 10px;">
+      <button
+        id="addReservationBtn"
+        style="background: #007bff; color: #fff; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer;"
+      >
+        Add New Reservation
+      </button>
+      <button
+        id="promoteReservationsBtn"
+        style="background: #007bff; color: #fff; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer;"
+      >
+        Promote Reservations
+      </button>
+    </div>
+
     <div id="reservationsList"></div>
     <div id="reservationsPagination" class="pagination"></div>
   `;
@@ -632,6 +589,18 @@ async function loadReservationsModule() {
       : 'Hide Advanced Search Options';
   });
 
+  // wire up "Add New Reservation" button
+  const addBtn = document.getElementById('addReservationBtn');
+  addBtn.addEventListener('click', () => {
+    window.location.href = '/admin/reservations/add';
+  });
+
+  // wire up "Promote Reservations" button
+  const promoteBtn = document.getElementById('promoteReservationsBtn');
+  promoteBtn.addEventListener('click', async () => {
+    window.location.href = '/admin/reservations/promote';
+  });
+
   // handle search submission
   document.getElementById('searchForm').addEventListener('submit', e => {
     e.preventDefault();
@@ -642,6 +611,7 @@ async function loadReservationsModule() {
   // initial load
   fetchReservationsModule();
 }
+
 
 async function fetchReservationsModule() {
   // collect base params

@@ -46,13 +46,11 @@ exports.sendEmail = async ({ to, subject, html }) => {
     return response;
   } catch (error) {
     console.error("Error sending email:", error);
-    throw new Error("Notification sending failed: " + error.message);
   }
 };
 
 // New function to send a reservation availability email
 exports.sendReservationAvailableEmail = async (reservation) => {
-
   // Retrieve user data based on reservation.userId
   const user = await User.findOne({ where: { id: reservation.userId } });
   if (!user) {

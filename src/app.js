@@ -166,13 +166,6 @@ app.get('/admin/reservations/testing/promote',
   res.sendFile(path.join(__dirname, '../public', 'promoteReservation.html'));
 });
 
-app.get('/admin/reservations/history', 
-  authMiddleware.verifyToken, 
-  authMiddleware.isLibrarianOrAdmin, 
-  (req, res) => {
-  res.sendFile(path.join(__dirname, '../public', 'reservationHistory.html'));
-});
-
 app.get('/admin/reports', 
   authMiddleware.verifyToken, 
   authMiddleware.isLibrarianOrAdmin, 
@@ -184,7 +177,8 @@ app.get('/admin/panel',
   authMiddleware.verifyToken, 
   authMiddleware.isLibrarianOrAdmin, 
   (req, res) => {
-  res.sendFile(path.join(__dirname, '../public', 'adminPanel.html'));
+    // Render the edit form, passing the existing data
+    res.render('admin-panel');
 });
 
 // testing, move elsewhere after finishing it

@@ -11,8 +11,7 @@ const MAX_ACTIVE_RESERVATIONS = 5;
 const RESERVATION_EXPIRATION_HOURS = 48; // Hours until an available reservation expires
 
 exports.createReservation = async (body, userData) => {
-  const { bookIsbn, notes } = body;
-  const userId = userData.id;
+  const { bookIsbn, notes, userId } = body;
 
   if (!userId || !bookIsbn) {
     throw new CustomError('Missing required fields: userId and bookIsbn.', 400);
@@ -49,6 +48,7 @@ exports.createReservation = async (body, userData) => {
       status: { [Op.in]: ['pending', 'available'] }
     }
   });
+  
   if (activeReservationsCount >= MAX_ACTIVE_RESERVATIONS) {
     throw new CustomError('Reservation limit exceeded.', 400);
   }

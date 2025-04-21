@@ -1,7 +1,6 @@
 document.getElementById('reserveButton').addEventListener('click', async function() {
   // Retrieve the ISBN from the DOM
   const bookIsbn = document.getElementById('isbnValue').textContent.trim();
-  
 
   const payload = {
       bookIsbn,

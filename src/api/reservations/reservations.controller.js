@@ -1,15 +1,32 @@
 // src/api/reservations/reservations.controller.js
 const reservationsService = require('./reservations.service');
 
+// src/controllers/reservations.controller.js
 exports.createReservation = async (req, res, next) => {
   try {
-    // Expecting { userId, bookIsbn, ... } in req.body
-    const reservation = await reservationsService.createReservation(req.body, req.user);
+    // Determine the effective userId
+    let userId = req.user.id;  // always the logged-in user by default
+    if (
+      (req.user.role === 'Librarian' || req.user.role === 'Admin') &&
+      req.body.userId
+    ) {
+      // Admins/Librarians may specify a different userId
+      userId = parseInt(req.body.userId, 10);
+    }
+
+    // Delegate to the service layer
+    const reservation = await reservationsService.createReservation({
+      userId,
+      bookIsbn: req.body.bookIsbn,
+      notes: req.body.notes
+    });
+
     res.status(201).json(reservation);
-  } catch (error) {
-    next(error);
+  } catch (err) {
+    next(err);
   }
 };
+
 
 exports.updateAdminReservation = async (req, res, next) => {
   // 1) Parse the reservation ID from the URL
