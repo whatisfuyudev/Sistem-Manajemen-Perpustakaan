@@ -38,3 +38,33 @@ exports.renderReservationDetail = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.renderAdminReservationEdit = async (req, res, next) => {
+  try {
+    // 1) Parse the reservation ID
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) {
+      return res.status(400).send('<h1>Invalid reservation ID</h1>');
+    }
+
+    // 2) Fetch the reservation record
+    const reservation = await reservationService.getReservationById(id);
+    if (!reservation) {
+      return res.status(404).send('<h1>Reservation not found</h1>');
+    }
+
+    // 3) Render the EJS form, passing the reservation into the template
+    res.render('admin-reservation-edit', { reservation });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.renderAdminReservationPromote = async (req, res, next) => {
+  try {
+    // No initial data needed; the page fetches via client‑side JS.
+    res.render('admin-reservation-promote');
+  } catch (err) {
+    next(err);
+  }
+};

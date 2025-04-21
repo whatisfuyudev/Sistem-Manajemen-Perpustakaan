@@ -20,7 +20,6 @@ exports.updateAdminReservation = async (req, res, next) => {
     userId:         req.body.userId,
     bookIsbn:       req.body.bookIsbn,
     requestDate:    req.body.requestDate,
-    queuePosition:  req.body.queuePosition,
     status:         req.body.status,
     expirationDate: req.body.expirationDate || null,
     notes:          req.body.notes || null

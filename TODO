@@ -24,17 +24,21 @@
     - construct admin panel
 
       - fix reservations section
+        - modify any reservation? more than just modifying notes. new page
+          - edit reservation page still use alert, change to custom modal 
+          - also admin checkout edit script still use alert,
+          change to custom modal
 
         - promote is incorrect because the promote button only promotes the
           first queue not the exact reservation that is displayed on the page.
           maybe make a new page?
 
-        - modify any reservation? more than just modifying notes. new page
-
         - add new reservation page
           - new endpoint? for admin only
         
         (tip: recycle the test pages)
+
+      
 
       - fix users section (only admin can manage user)
         - individual user page

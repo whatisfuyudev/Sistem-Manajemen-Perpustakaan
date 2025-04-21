@@ -74,10 +74,7 @@ exports.createReservation = async (body, userData) => {
 
 exports.updateReservation = async (reservationId, updates) => {
   // 1) Load the existing reservation record
-  const reservation = await Reservation.findOne({
-    where: { id: reservationId }
-  });                                           // Sequelize findOne :contentReference[oaicite:7]{index=7}
-
+  const reservation = await Reservation.findOne({ where: { id: reservationId } });
   if (!reservation) {
     throw new CustomError(
       `Reservation with id=${reservationId} not found`,
@@ -85,11 +82,33 @@ exports.updateReservation = async (reservationId, updates) => {
     );
   }
 
-  // 2) Apply only the provided updates atomically
-  reservation.set(updates);                     // instance.set + save pattern :contentReference[oaicite:8]{index=8}
+  // 2) Validate userId (if provided in updates)
+  if (updates.userId != null) {
+    const user = await User.findByPk(updates.userId);
+    if (!user) {
+      throw new CustomError(
+        `User with id=${updates.userId} not found`,
+        404
+      );
+    }
+  }
 
-  // 3) Persist changes and return the updated instance
-  return await reservation.save();              // instance.save() :contentReference[oaicite:9]{index=9}
+  // 3) Validate bookIsbn (if provided in updates)
+  if (updates.bookIsbn != null) {
+    const book = await Book.findByPk(updates.bookIsbn);
+    if (!book) {
+      throw new CustomError(
+        `Book with ISBN=${updates.bookIsbn} not found`,
+        404
+      );
+    }
+  }
+
+  // 4) Apply only the provided updates atomically
+  reservation.set(updates);
+
+  // 5) Persist changes and return the updated instance
+  return await reservation.save();
 };
 
 exports.cancelReservation = async (reservationId) => {

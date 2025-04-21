@@ -296,6 +296,7 @@
 
     <!-- Action Buttons -->
     <div class="button-group">
+
       <% if (reservation.status === 'pending' || reservation.status === 'available') { %>
         <button
           id="cancelBtn"
@@ -305,7 +306,14 @@
           Cancel
         </button>
       <% } %>
-      <button id="modifyBtn"  class="btn btn-secondary">Modify</button>
+      
+      <button 
+      id="modifyBtn" 
+      class="btn btn-secondary" 
+      data-reservation-id="<%= reservation.id %>">
+        Edit
+      </button>
+
     </div>
   </div>
 

@@ -24,7 +24,7 @@ router.put('/promote/:bookIsbn', authMiddleware.verifyToken, authMiddleware.isLi
 
 // Handle “Edit Reservation” form submission
 router.put(
-  '/admin/reservations/edit/:id',           // route path with :id param :contentReference[oaicite:4]{index=4}
+  '/admin/edit/:id',           // route path with :id param :contentReference[oaicite:4]{index=4}
   authMiddleware.verifyToken,                          // JWT verification middleware
   authMiddleware.isLibrarianOrAdmin,                   // role‑based guard
   reservationsController.updateAdminReservation          // controller action

@@ -6,7 +6,7 @@ const User = require('../../models/user.model');
 const Reservation = require('../../models/reservation.model'); // Import the reservation model
 const queueHelper = require('../../utils/queueHelper');
 const CustomError = require('../../utils/customError');
-const { Op, fn, col, where } = require('sequelize');
+const { Op } = require('sequelize');
 
 // Helper to add days to a date
 function addDays(date, days) {
@@ -27,17 +27,33 @@ exports.getById = async (checkoutId) => {
 };
 
 exports.updateCheckout = async (checkoutId, updates) => {
-  // 1) Load the existing record 
+  // 1) Load the existing checkout record
   const checkout = await Checkout.findOne({ where: { id: checkoutId } });
   if (!checkout) {
     throw new CustomError(`Checkout with id=${checkoutId} not found`, 404);
   }
 
-  // 2) Apply all provided updates
+  // 2) Validate related User
+  if (updates.userId != null) {
+    const user = await User.findByPk(updates.userId);
+    if (!user) {
+      throw new CustomError(`User with id=${updates.userId} not found`, 400);
+    }
+  }
+
+  // 3) Validate related Book
+  if (updates.bookIsbn != null) {
+    const book = await Book.findOne({ where: { isbn: updates.bookIsbn } });
+    if (!book) {
+      throw new CustomError(`Book with ISBN=${updates.bookIsbn} not found`, 400);
+    }
+  }
+
+  // 4) Apply all provided updates
   //    (only fields present in `updates` will be changed)
   checkout.set(updates);
 
-  // 3) Save back to the database
+  // 5) Save back to the database
   return await checkout.save();
 };
 

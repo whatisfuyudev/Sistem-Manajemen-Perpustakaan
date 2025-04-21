@@ -5,36 +5,38 @@ document.addEventListener('DOMContentLoaded', function () {
   const editBtn    = document.getElementById('edit-button');
   const checkoutId = window.location.pathname.split('/').pop(); // assumes URL ends with checkout ID
 
-  renewBtn.addEventListener('click', async () => {
-    // 1. Ask for confirmation
-    const ok = await showModal({
-      message: 'Are you sure you want to renew this checkout?',
-      showCancel: true
-    });
-  
-    // 2. If cancelled, do nothing
-    if (!ok) return;
-  
-    // 3. Otherwise, send the PUT request
-    try {
-      const response = await fetch(`/api/checkouts/renew/${checkoutId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({})
+  if (renewBtn) {
+    renewBtn.addEventListener('click', async () => {
+      // 1. Ask for confirmation
+      const ok = await showModal({
+        message: 'Are you sure you want to renew this checkout?',
+        showCancel: true
       });
-  
-      const result = await response.json();
-      if (!response.ok) {
-        throw new Error(result.message || 'Failed to renew');
+    
+      // 2. If cancelled, do nothing
+      if (!ok) return;
+    
+      // 3. Otherwise, send the PUT request
+      try {
+        const response = await fetch(`/api/checkouts/renew/${checkoutId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({})
+        });
+    
+        const result = await response.json();
+        if (!response.ok) {
+          throw new Error(result.message || 'Failed to renew');
+        }
+    
+        // 6. Notify success
+        await showModal({ message: 'Checkout successfully renewed!' });
+      } catch (error) {
+        // 7. Notify failure
+        await showModal({ message: `Renewal failed: ${error.message}` });
       }
-  
-      // 6. Notify success
-      await showModal({ message: 'Checkout successfully renewed!' });
-    } catch (error) {
-      // 7. Notify failure
-      await showModal({ message: `Renewal failed: ${error.message}` });
-    }
-  });
+    });
+  }
 
   if(processBtn) {
     processBtn.addEventListener('click', async () => {

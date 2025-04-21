@@ -63,7 +63,6 @@ exports.updateAdminCheckout = async (req, res, next) => {
     status:               req.body.status,
     renewalCount:         req.body.renewalCount,
     fine:                 req.body.fine,
-    reservationId:        req.body.reservationId || null,
     renewalRequested:     req.body.renewalRequested === 'true',
     requestedRenewalDays: req.body.requestedRenewalDays || null
   };

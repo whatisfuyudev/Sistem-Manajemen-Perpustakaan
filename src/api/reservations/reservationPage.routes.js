@@ -19,4 +19,20 @@ router.get(
   reservationPageController.renderReservationDetail
 );
 
+// Render the “Edit Reservation” form (Admin/Librarian only)
+router.get(
+  '/admin/reservations/edit/:id',
+  authMiddleware.verifyToken,
+  authMiddleware.isLibrarianOrAdmin,
+  reservationPageController.renderAdminReservationEdit
+);
+
+// Render the “Promote Reservations” page
+router.get(
+  '/admin/reservations/promote',
+  authMiddleware.verifyToken,
+  authMiddleware.isLibrarianOrAdmin,
+  reservationPageController.renderAdminReservationPromote
+);
+
 module.exports = router;

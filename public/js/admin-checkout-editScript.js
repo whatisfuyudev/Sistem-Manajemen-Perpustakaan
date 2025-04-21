@@ -19,9 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
       status:               form.status.value,
       renewalCount:         parseInt(form.renewalCount.value, 10),
       fine:                 parseFloat(form.fine.value) || 0,
-      reservationId:        form.reservationId.value
-                            ? parseInt(form.reservationId.value, 10)
-                            : null,
       renewalRequested:     form.renewalRequested.value === 'true',
       requestedRenewalDays: form.requestedRenewalDays.value
                             ? parseInt(form.requestedRenewalDays.value, 10)
