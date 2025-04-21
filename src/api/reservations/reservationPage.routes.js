@@ -11,6 +11,14 @@ router.get(
   reservationPageController.renderMyReservationsPage
 );
 
+// Render the “Promote Reservations” page
+router.get(
+  '/admin/reservations/promote',
+  authMiddleware.verifyToken,
+  authMiddleware.isLibrarianOrAdmin,
+  reservationPageController.renderAdminReservationPromote
+);
+
 // New “Reservation Detail” page
 router.get(
   '/admin/reservations/:id',
@@ -27,12 +35,5 @@ router.get(
   reservationPageController.renderAdminReservationEdit
 );
 
-// Render the “Promote Reservations” page
-router.get(
-  '/admin/reservations/promote',
-  authMiddleware.verifyToken,
-  authMiddleware.isLibrarianOrAdmin,
-  reservationPageController.renderAdminReservationPromote
-);
 
 module.exports = router;
