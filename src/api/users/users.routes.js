@@ -20,19 +20,39 @@ router.post('/upload/profile-picture', dataHelper.upload, userController.handleP
 /*
 ENDPOINTS FOR ADMINS?
 */
-// Create a new user (e.g., registration)
-router.post('/', dataHelper.upload, userController.createUser);
+// Create a new user (for admin)
+router.post(
+  '/',
+  authMiddleware.verifyToken,
+  authMiddleware.isAdmin, 
+  userController.createUser
+);
 
-// Get all users (for admin/librarian)
-router.get('/', userController.getAllUsers);
+// Get all users (for admin)
+router.get(
+  '/',
+  authMiddleware.verifyToken,
+  authMiddleware.isAdmin,
+  userController.getAllUsers
+);
 
-// New Endpoint to get single user by their id (admin/librarian only)
-router.get('/:id', userController.getUserByIdAdmin);
+// New Endpoint to get single user by their id (admin only)
+router.get(
+  '/:id', 
+  authMiddleware.verifyToken,
+  authMiddleware.isAdmin,
+  userController.getUserByIdAdmin);
 
 // New Endpoint to update a user by their id (admin/librarian only)
-router.put('/:id', userController.updateUserAdmin);
+router.put('/:id',
+  authMiddleware.verifyToken,
+  authMiddleware.isAdmin,
+  userController.updateUserAdmin);
 
 // Delete a user by id
-router.delete('/:id', userController.deleteUser);
+router.delete('/:id',
+  authMiddleware.verifyToken,
+  authMiddleware.isAdmin,
+  userController.deleteUser);
 
 module.exports = router;

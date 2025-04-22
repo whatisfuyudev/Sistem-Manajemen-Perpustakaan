@@ -60,7 +60,8 @@
     }
 
     .profile-picture {
-      margin-top: 1.5rem;
+      margin-top: 1rem;
+      margin-bottom: 1rem;
       text-align: center;
     }
 
@@ -100,6 +101,13 @@
     <a href="/admin/panel?tab=users" class="back-button">Back</a>
 
     <h1>User Details</h1>
+
+    <div class="profile-picture">
+      <img
+        src="<%= user.profilePicture || '/public/images/profile-pictures/default.jpg' %>"
+        alt="Profile Picture"
+      >
+    </div>
 
     <div class="grid">
       <div class="field">
@@ -143,11 +151,6 @@
       </div>
     </div>
 
-    <% if (user.profilePicture) { %>
-      <div class="profile-picture">
-        <img src="<%= user.profilePicture %>" alt="Profile Picture">
-      </div>
-    <% } %>
 
   </div>
 

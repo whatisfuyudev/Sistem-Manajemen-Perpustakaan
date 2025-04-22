@@ -25,13 +25,14 @@
 
       - fix users section (only admin can manage user)
         - individual user page
-          - user route proper guarding for admin only
+        
           - new endpoint for admin only that sends back filtered by
             certain criteria users data.
+          - search bar able to query user data based on multiple criteria.
           - hover effect on each data
           - click data point to the individual user page
-          - search bar able to query user data based on multiple criteria.
-          - able to edit a single user data (new page)
+          
+          - able to edit a single user data (new page, new page route, new page controller)
 
         - able to add new user (new page)
         
@@ -91,10 +92,6 @@ this app will have two sides, one for patron (book enjoyer) and one for libraria
   - move custom pop up into its own file so it is reuseable accross the whole app
     - change alert or prompt to custom pop up
 
-
-- try changing the return http code error on controllers
-  into customError() instead.
-
 - auth middleware redirect to login page instead?
 
 - fix margin/gap between text and things inside reservation card on myreservations page
@@ -103,5 +100,4 @@ this app will have two sides, one for patron (book enjoyer) and one for libraria
 
 - new ui on my reservations and my checkouts page, modern
 
-- overdue & expired checker mechannism where it will run if
-  it has not run that day, something to do with boolean flag
+- implement accountStatus on user data/model, look at docs
