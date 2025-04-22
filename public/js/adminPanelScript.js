@@ -188,7 +188,7 @@ async function loadBooksModule() {
   if (addBookBtn) {
     addBookBtn.addEventListener('click', () => {
       // Redirect to the add book page
-      window.location.href = '/books/admin/add';
+      window.location.href = '/admin/books/add';
     });
   }
 
@@ -304,7 +304,7 @@ function renderBooks(books, total, page) {
       // Otherwise navigate to the book details page using the data-isbn attribute
       const isbn = row.getAttribute('data-isbn');
       if (isbn) {
-        window.location.href = 'http://localhost:5000/books/admin/details/' + isbn;
+        window.location.href = 'http://localhost:5000/admin/books/details/' + isbn;
       }
     });
   });
@@ -940,23 +940,78 @@ function renderUsers(users, total, page) {
   const list = document.getElementById('usersList');
   if (!users || users.length === 0) {
     list.innerHTML = '<p>No users found.</p>';
+    renderPaginationControls(0, page, fetchUsersModule, 'usersPagination');
     return;
   }
-  list.innerHTML = '<table><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Actions</th></tr></thead><tbody>' +
-  users.map(user => `
-    <tr>
-      <td>${user.id}</td>
-      <td>${user.name}</td>
-      <td>${user.email}</td>
-      <td>
-        <button onclick="editUser(${user.id})">Edit</button>
-        <button onclick="deleteUser(${user.id})">Delete</button>
-      </td>
+
+  // Build the table with the requested columns
+  let html = `
+    <table class="users-table">
+      <thead>
+        <tr>
+          <th style="width:40px;"><input type="checkbox" id="selectAllUsers" /></th>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Address</th>
+          <th>Account Status</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+  html += users.map(user => `
+    <tr class="clickable" data-userid="${user.id}">
+      <td><input type="checkbox" /></td>
+      <td class="truncated-text">${user.id}</td>
+      <td class="truncated-text">${user.name}</td>
+      <td class="truncated-text">${user.email}</td>
+      <td class="truncated-text">${user.role}</td>
+      <td class="truncated-text">${user.address || '—'}</td>
+      <td class="truncated-text">${user.accountStatus}</td>
     </tr>
-  `).join('') +
-  '</tbody></table>';
+  `).join('');
+
+  html += `
+      </tbody>
+    </table>
+    <div class="table-footer">
+      <p>Total Users: ${total}</p>
+    </div>
+  `;
+
+  list.innerHTML = html;
   renderPaginationControls(total, page, fetchUsersModule, 'usersPagination');
+
+  // "Select All" behavior
+  const selectAll = document.getElementById('selectAllUsers');
+  if (selectAll) {
+    selectAll.addEventListener('click', () => {
+      document
+        .querySelectorAll('.users-table tbody input[type="checkbox"]')
+        .forEach(cb => cb.checked = selectAll.checked);
+    });
+  }
+
+  // Row-click navigation (ignoring clicks on the checkbox cell)
+  document
+    .querySelectorAll('.users-table tbody tr.clickable')
+    .forEach(row => {
+      row.style.cursor = 'pointer';
+      row.addEventListener('click', e => {
+        // If they clicked the first cell (checkbox), do nothing
+        const cell = e.target.closest('td');
+        if (cell && cell.cellIndex === 0) return;
+        const userId = row.getAttribute('data-userid');
+        if (userId) {
+          window.location.href = `/admin/users/${userId}`;
+        }
+      });
+    });
 }
+
+
 
 async function editUser(userId) {
   try {

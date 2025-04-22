@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Edit User: <%= user.name %></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    /* Basic Reset */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f4f4f4;
+      color: #333;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 8px;
+      padding: 30px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .profile-picture {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .profile-picture img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      cursor: pointer;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+    textarea { resize: vertical; }
+    .button-group {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+    .button-group button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    #saveButton {
+      background-color: #28a745;
+      color: #fff;
+    }
+    #saveButton:hover { background-color: #218838; }
+    #cancelButton {
+      background-color: #dc3545;
+      color: #fff;
+    }
+    #cancelButton:hover { background-color: #c82333; }
+
+    .back-button-container {
+      margin-bottom: 20px;
+    }
+    .back-button {
+      display: inline-block;
+      padding: 8px 16px;
+      background: #6c757d;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 4px;
+    }
+    .back-button:hover { background-color: #5a6268; }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed; top:0; left:0; width:100%; height:100%;
+      background: rgba(0,0,0,0.5);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1000; padding: 20px;
+    }
+    .hidden { display: none; }
+    .modal {
+      background: #fff; border-radius: 4px; max-width: 400px;
+      width:100%; padding:20px; text-align:center;
+      box-shadow:0 4px 8px rgba(0,0,0,0.2);
+    }
+    .modal-buttons { margin-top:16px; display:flex; gap:10px; justify-content:center; }
+    .modal-buttons button {
+      padding:8px 16px; font-size:0.9rem; border:none; border-radius:4px; cursor:pointer;
+      transition: background 0.2s ease;
+    }
+    #modal-ok { background:#28a745; color:#fff; }
+    #modal-cancel { background:#dc3545; color:#fff; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="back-button-container">
+      <a href="/admin/users/<%= user.id %>" class="back-button">← Back to Details</a>
+    </div>
+
+    <h1>Edit User: <%= user.name %></h1>
+
+    <form id="editUserForm" enctype="multipart/form-data">
+      <!-- Profile Picture -->
+      <div class="profile-picture">
+        <label>
+          <img id="profilePic" src="<%= user.profilePicture %>" alt="Profile Picture">
+          <input type="file" id="uploadedImage" name="uploadedImage" class="hidden">
+          <input type="hidden" id="profilePicInput" name="profilePicture" value="<%= user.profilePicture %>">
+        </label>
+      </div>
+
+      <!-- User Fields -->
+      <div class="form-group">
+        <label for="id">User ID</label>
+        <input type="text" id="id" name="id" value="<%= user.id %>" readonly>
+      </div>
+      <div class="form-group">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" value="<%= user.name %>" required>
+      </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" value="<%= user.email %>" required>
+      </div>
+      <div class="form-group">
+        <label for="password">Password <small>(leave blank to keep current)</small></label>
+        <input type="password" id="password" name="password" placeholder="New password">
+      </div>
+      <div class="form-group">
+        <label for="role">Role</label>
+        <select id="role" name="role" required>
+          <option value="Patron"    <%= user.role==='Patron'? 'selected':'' %>>Patron</option>
+          <option value="Librarian" <%= user.role==='Librarian'? 'selected':'' %>>Librarian</option>
+          <option value="Admin"     <%= user.role==='Admin'? 'selected':'' %>>Admin</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="phone">Phone</label>
+        <input type="text" id="phone" name="phone" value="<%= user.phone || '' %>">
+      </div>
+      <div class="form-group">
+        <label for="address">Address</label>
+        <textarea id="address" name="address"><%= user.address || '' %></textarea>
+      </div>
+      <div class="form-group">
+        <label for="accountStatus">Account Status</label>
+        <select id="accountStatus" name="accountStatus" required>
+          <option value="Active"    <%= user.accountStatus==='Active'? 'selected':'' %>>Active</option>
+          <option value="Suspended" <%= user.accountStatus==='Suspended'? 'selected':'' %>>Suspended</option>
+          <option value="Pending"   <%= user.accountStatus==='Pending'? 'selected':'' %>>Pending</option>
+        </select>
+      </div>
+
+      <!-- Save/Cancel -->
+      <div class="button-group">
+        <button type="button" id="cancelButton">Cancel</button>
+        <button type="button" id="saveButton">Save</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Modal -->
+  <div id="modal-overlay" class="modal-overlay hidden">
+    <div class="modal">
+      <p id="modal-message"></p>
+      <div class="modal-buttons">
+        <button id="modal-ok">OK</button>
+        <button id="modal-cancel" class="hidden">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/public/js/admin-user-editScript.js">
+
+  </script>
+</body>
+</html>

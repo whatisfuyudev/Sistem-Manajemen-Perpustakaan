@@ -41,18 +41,21 @@ router.get(
   '/:id', 
   authMiddleware.verifyToken,
   authMiddleware.isAdmin,
-  userController.getUserByIdAdmin);
+  userController.getUserByIdAdmin
+);
 
-// New Endpoint to update a user by their id (admin/librarian only)
+// New Endpoint to update a user by their id (admin only)
 router.put('/:id',
   authMiddleware.verifyToken,
   authMiddleware.isAdmin,
-  userController.updateUserAdmin);
+  userController.updateUserAdmin
+);
 
-// Delete a user by id
+// Delete a user by id (admin only)
 router.delete('/:id',
   authMiddleware.verifyToken,
   authMiddleware.isAdmin,
-  userController.deleteUser);
+  userController.deleteUser
+);
 
 module.exports = router;

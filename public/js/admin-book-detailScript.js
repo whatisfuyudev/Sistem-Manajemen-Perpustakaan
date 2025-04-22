@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function () {
     editButton.addEventListener('click', function () {
       const isbn = editButton.getAttribute('data-isbn');
       if (isbn) {
-        window.location.href = '/books/admin/edit/' + isbn;
+        window.location.href = '/admin/books/edit/' + isbn;
       }
     });
   }

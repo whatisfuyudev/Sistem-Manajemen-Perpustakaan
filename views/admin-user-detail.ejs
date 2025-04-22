@@ -93,6 +93,38 @@
     .back-button:hover {
       background-color: #5a6268;
     }
+
+    .truncated-text {
+      overflow-x: scroll;          /* 1. Hide overflowed text */ 
+      white-space: nowrap;      /* 2. Prevent wrapping */ 
+    }
+
+    /* Button Group */
+    .button-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 1rem;
+      margin-bottom: 1rem;
+      justify-content: center;
+    }
+
+    /* Base button style */
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      display: inline-block;
+      transition: background-color 0.2s ease;
+    }
+
+    .btn-secondary {
+      background-color: #ffc107;
+      color: #fff;
+    }
+    .btn-secondary:hover {
+      background-color: #e0a800;
+    }
   </style>
 </head>
 <body>
@@ -117,7 +149,7 @@
 
       <div class="field">
         <div class="label">Email</div>
-        <div class="value"><%= user.email %></div>
+        <div class="value truncated-text"><%= user.email %></div>
       </div>
 
       <div class="field">
@@ -151,8 +183,21 @@
       </div>
     </div>
 
+    <!-- Action Buttons -->
+    <div class="button-group">
+      <button 
+      id="modifyBtn" 
+      class="btn btn-secondary" 
+      data-user-id="<%= user.id %>">
+        Edit
+      </button>
+
+    </div>
 
   </div>
 
+  <script src="/public/js/admin-user-detailScript.js">
+
+  </script>
 </body>
 </html>

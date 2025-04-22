@@ -100,7 +100,7 @@ app.use('/api/notifications', notificationRoutes);
 
 // Mount the new book page route
 const bookPageRoutes = require('./api/books/bookPage.routes');
-app.use('/books', bookPageRoutes);
+app.use('/', bookPageRoutes);
 
 // Mount the new user page route
 const userPageRoutes = require('./api/users/userPage.routes');

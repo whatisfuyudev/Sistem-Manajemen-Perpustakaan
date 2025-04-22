@@ -25,17 +25,16 @@
 
       - fix users section (only admin can manage user)
         - individual user page
-        
-          - hover effect on each data
-          - click data point to the individual user page
-          
           
           - able to edit a single user data (new page, new page route, new page controller)
+            - error at uploading profile picture
+            - also double file prompt, only one file prompt
 
         - able to add new user (new page)
         
-        - add chechbox on each data row
-        - able to delete a user with modal confirmation (batch delete like books data)
+      
+        - able to delete a user with modal confirmation 
+          (batch delete like books data), utilize the check box
         
 
       - fix notifications section

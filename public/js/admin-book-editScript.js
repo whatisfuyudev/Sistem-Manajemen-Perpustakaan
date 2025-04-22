@@ -67,7 +67,7 @@ document.getElementById('saveButton').addEventListener('click', async function()
     
     if (response.ok) {
       // Optionally, redirect to the updated book details page
-      window.location.href = `/books/admin/details/${isbn}`;
+      window.location.href = `/admin/books/details/${isbn}`;
     } else {
       const errorMsg = await response.text();
       showModal({ message: 'message: Failed to update book: ' + errorMsg });
