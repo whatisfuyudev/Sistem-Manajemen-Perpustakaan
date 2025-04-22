@@ -4,8 +4,8 @@ let currentPage = 1, totalPages = 1;
 // Base API endpoints for each module (modify as necessary)
 const API = {
   books: {
-    list: '/api/books/',
-    create: '/api/books/',
+    list: '/api/books',
+    create: '/api/books',
     update: (isbn) => `/api/books/update/${isbn}`,
     delete: (isbn) => `/api/books/${isbn}`,
     search: '/api/books/search'
@@ -66,7 +66,7 @@ tabs.forEach(tab => {
     const module = tab.dataset.tab;
     // Push new URL state
     const newUrl = `${window.location.pathname}?tab=${module}`;
-    history.pushState({ tab: module }, '', newUrl);  // :contentReference[oaicite:0]{index=0}
+    history.pushState({ tab: module }, '', newUrl);  
     activateTab(module);
   });
 });
@@ -797,31 +797,83 @@ async function promoteReservation(bookIsbn) {
 async function loadUsersModule() {
   contentArea.innerHTML = `
     <h2>Users Management</h2>
-    <div class="filter-form">
-      <input type="text" id="userFilter" placeholder="Search users by name or email..." />
-      <button id="userFilterBtn">Search</button>
-      <button id="newUserBtn">Add New User</button>
+    <div class="search-container">
+      <form id="searchForm">
+        <!-- Basic filter -->
+        <input type="number" id="userId" placeholder="User ID" />
+
+        <!-- Advanced toggle -->
+        <button type="button" class="advanced-toggle" id="toggleAdvanced">
+          Show Advanced Search Options
+        </button>
+
+        <!-- Advanced filters -->
+        <div class="advanced-search" id="advancedSearch">
+          <input type="text" id="name"            placeholder="Name" />
+          <input type="email" id="email"          placeholder="Email" />
+          <select id="role">
+            <option value="">-- Role --</option>
+            <option value="Admin">Admin</option>
+            <option value="Librarian">Librarian</option>
+            <option value="Patron">Patron</option>
+          </select>
+          <input type="text"   id="address"       placeholder="Address" />
+          <select id="accountStatus">
+            <option value="">-- Account Status --</option>
+            <option value="Active">Active</option>
+            <option value="Suspended">Suspended</option>
+            <option value="Pending">Pending</option>
+          </select>
+        </div>
+
+        <button type="submit">Search</button>
+      </form>
     </div>
+
+    <div style="margin:10px 0;">
+      <button id="newUserBtn" style="background:#007bff;color:#fff;border:none;
+             padding:10px 15px;border-radius:4px;cursor:pointer;">
+        Add New User
+      </button>
+    </div>
+
     <div id="usersList"></div>
     <div id="usersPagination" class="pagination"></div>
   `;
-  document.getElementById('userFilterBtn').addEventListener('click', () => {
+
+  // Toggle advanced section
+  const toggleBtn = document.getElementById('toggleAdvanced');
+  const advDiv    = document.getElementById('advancedSearch');
+  toggleBtn.addEventListener('click', () => {                                                
+    const showing = advDiv.style.display === 'flex';
+    advDiv.style.display = showing ? 'none' : 'flex';
+    toggleBtn.textContent = showing
+      ? 'Show Advanced Search Options'
+      : 'Hide Advanced Search Options';
+  });
+
+  // Search form submit
+  const form = document.getElementById('searchForm');
+  form.addEventListener('submit', e => {                                                     
+    e.preventDefault();
     currentPage = 1;
     fetchUsersModule();
   });
+
+  // New User button
   document.getElementById('newUserBtn').addEventListener('click', async () => {
-    const name = await showPromptModal({ message: 'Enter user name:' });
+    const name     = await showPromptModal({ message: 'Enter user name:' });
     if (!name) return;
-    const email = await showPromptModal({ message: 'Enter user email:' });
+    const email    = await showPromptModal({ message: 'Enter user email:' });
     if (!email) return;
     const password = await showPromptModal({ message: 'Enter user password:' });
     if (!password) return;
-    const payload = { name, email, password };
+
     try {
-      const res = await fetch(API.users.create, {
+      const res = await fetch(API.users.create, {                                            
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({ name, email, password })
       });
       if (res.ok) {
         await showModal({ message: 'User created successfully.' });
@@ -830,30 +882,59 @@ async function loadUsersModule() {
         const err = await res.json();
         await showModal({ message: 'Error: ' + err.message });
       }
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error(err);
       await showModal({ message: 'An error occurred while creating user.' });
     }
   });
+
+  // Initial load
   fetchUsersModule();
 }
 
+
 async function fetchUsersModule() {
-  const filter = document.getElementById('userFilter').value;
-  const params = new URLSearchParams({ page: currentPage, limit: 10 });
-  if (filter) {
-    params.append('searchTerm', filter);
-  }
+  // Grab the search form element
+  const form = document.getElementById('searchForm');
+
+  // Build filter object from inputs
+  const filters = {
+    id:            form.userId.value.trim(),        
+    name:          form.name.value.trim(),
+    email:         form.email.value.trim(),
+    role:          form.role.value,
+    address:       form.address.value.trim(),
+    accountStatus: form.accountStatus.value,
+    page:          currentPage,
+    limit:         10
+  };
+
+  // Remove any empty fields
+  Object.keys(filters).forEach(key => {
+    if (!filters[key]) delete filters[key];
+  });
+
+  // Build query string
+  const qs = new URLSearchParams(filters).toString();     
+
   try {
-    const res = await fetch(API.users.list + '?' + params.toString());
-    if (!res.ok) throw new Error('Failed to fetch users.');
-    const data = await res.json();
+    // Fetch user list with filters & pagination
+    const res = await fetch(`${API.users.list}?${qs}`);   
+    if (!res.ok) throw new Error(`Server responded ${res.status}`); 
+
+    const data = await res.json();                        
+
+    // Render rows and pagination
     renderUsers(data.users, data.total, currentPage);
-  } catch (error) {
-    console.error(error);
-    contentArea.innerHTML += '<p>Error loading users.</p>';
+    renderPaginationControls(
+      data.total, currentPage, fetchUsersModule, 'usersPagination'
+    );
+  } catch (err) {
+    console.error(err);
+    contentArea.innerHTML += '<p style="color:red;">Error loading users.</p>';
   }
 }
+
 
 function renderUsers(users, total, page) {
   const list = document.getElementById('usersList');

@@ -1,11 +1,9 @@
-
-
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Versatile Reservation Search</title>
+  <title>User Management Search</title>
   <style>
     /* Base Reset & Typography */
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -15,12 +13,9 @@
       color: #333;
       padding: 20px;
     }
-    h1 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    
-    /* Container for the search component */
+    h1 { text-align: center; margin-bottom: 20px; }
+
+    /* Search container */
     .search-container {
       max-width: 600px;
       margin: 0 auto 20px;
@@ -29,28 +24,19 @@
       border-radius: 8px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
-
-    /* Form layout inside the search container */
     .search-container form {
       display: flex;
       flex-direction: column;
       gap: 15px;
     }
-
-    /* Consistent styling for all input types and select elements */
-    .search-container input[type="text"],
-    .search-container input[type="number"],
-    .search-container input[type="date"],
+    .search-container input,
     .search-container select {
       width: 100%;
       padding: 10px;
       border: 1px solid #ccc;
       border-radius: 4px;
       font-size: 1rem;
-      background: #fff;
     }
-
-    /* Styling for the submit and toggle buttons */
     .search-container button {
       padding: 12px;
       background: #007bff;
@@ -61,11 +47,9 @@
       cursor: pointer;
       transition: background 0.3s;
     }
-    .search-container button:hover {
-      background: #0056b3;
-    }
+    .search-container button:hover { background: #0056b3; }
 
-    /* Advanced search toggle button specific styling */
+    /* Advanced toggle */
     .advanced-toggle {
       background: none;
       border: none;
@@ -75,8 +59,6 @@
       padding: 0;
       font-size: 0.9rem;
     }
-
-    /* Advanced search section styling */
     .advanced-search {
       display: none;
       flex-direction: column;
@@ -85,72 +67,56 @@
       padding-top: 15px;
     }
 
-    /* Results area */
+    /* Results table */
     #resultsContainer {
-      max-width: 600px;
+      max-width: 800px;
       margin: 0 auto;
       background: #fff;
       padding: 20px;
       border-radius: 8px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      min-height: 100px;
+      overflow-x: auto;
     }
-    #resultsContainer ul {
-      list-style: none;
-      padding-left: 0;
+    table {
+      width: 100%;
+      border-collapse: collapse;
     }
-    #resultsContainer li {
-      padding: 8px 0;
-      border-bottom: 1px solid #eee;
+    th, td {
+      padding: 8px;
+      border: 1px solid #ddd;
+      text-align: left;
     }
-
-    /* Responsive adjustments for mobile */
-    @media (max-width: 480px) {
-      .search-container {
-        padding: 15px;
-      }
-      .search-container input,
-      .search-container select,
-      .search-container button {
-        font-size: 0.9rem;
-        padding: 8px;
-      }
-      .advanced-search {
-        gap: 8px;
-        padding-top: 10px;
-      }
-    }
+    th { background: #f0f0f0; }
   </style>
 </head>
 <body>
-  <h1>Reservations Search</h1>
+  <h1>User Management Search</h1>
   <div class="search-container">
     <form id="searchForm">
       <!-- Basic filter -->
-      <input type="number" id="reservationId" placeholder="Reservation ID" />
+      <input type="number" id="userId" placeholder="User ID" />
 
-      <!-- Toggle for advanced search options -->
+      <!-- Advanced toggle -->
       <button type="button" class="advanced-toggle" id="toggleAdvanced">
         Show Advanced Search Options
       </button>
 
-      <!-- Advanced Filters -->
+      <!-- Advanced filters -->
       <div class="advanced-search" id="advancedSearch">
-        <input type="text" id="bookIsbn"        placeholder="Book ISBN" />
-        <input type="number" id="userId" placeholder="User ID" />
-        <select id="status">
-          <option value="">-- Status --</option>
-          <option value="pending">Pending</option>
-          <option value="available">Available</option>
-          <option value="fulfilled">Fulfilled</option>
-          <option value="canceled">Canceled</option>
-          <option value="expired">Expired</option>
+        <input type="text" id="name"            placeholder="Name" />
+        <input type="email" id="email"          placeholder="Email" />
+        <select id="role">
+          <option value="">-- Role --</option>
+          <option value="Admin">Admin</option>
+          <option value="Librarian">Librarian</option>
+          <option value="Patron">Patron</option>
         </select>
-        <input type="date" id="startDate" placeholder="Start Date" />
-        <input type="date" id="endDate"   placeholder="End Date" />
-        <select id="dateField">
-          <option value="requestDate">Request Date</option>
-          <option value="expirationDate">Expiration Date</option>
+        <input type="text"   id="address"       placeholder="Address" />
+        <select id="accountStatus">
+          <option value="">-- Account Status --</option>
+          <option value="Active">Active</option>
+          <option value="Suspended">Suspended</option>
+          <option value="Pending">Pending</option>
         </select>
       </div>
 
@@ -158,7 +124,7 @@
     </form>
   </div>
 
-  <!-- Results Area -->
+  <!-- Results -->
   <div id="resultsContainer"></div>
 
   <script src="/public/js/testSearchbarScript.js">
@@ -166,7 +132,6 @@
   </script>
 </body>
 </html>
-
 
 
 <!-- line --------------------------------------------------------------------------------- -->

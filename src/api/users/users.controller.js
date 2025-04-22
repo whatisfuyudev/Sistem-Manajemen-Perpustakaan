@@ -16,8 +16,11 @@ exports.createUser = async (req, res, next) => {
 
 exports.getAllUsers = async (req, res, next) => {
   try {
-    const users = await userService.getAllUsers();
-    res.status(200).json(users);
+    // Pass the entire query object to the service
+    const result = await userService.getAllUsers(req.query);
+
+    // Send back paginated payload
+    res.status(200).json(result);
   } catch (error) {
     next(error);
   }

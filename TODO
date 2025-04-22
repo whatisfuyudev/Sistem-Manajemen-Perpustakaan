@@ -26,16 +26,15 @@
       - fix users section (only admin can manage user)
         - individual user page
         
-          - new endpoint for admin only that sends back filtered by
-            certain criteria users data.
-          - search bar able to query user data based on multiple criteria.
           - hover effect on each data
           - click data point to the individual user page
+          
           
           - able to edit a single user data (new page, new page route, new page controller)
 
         - able to add new user (new page)
         
+        - add chechbox on each data row
         - able to delete a user with modal confirmation (batch delete like books data)
         
 

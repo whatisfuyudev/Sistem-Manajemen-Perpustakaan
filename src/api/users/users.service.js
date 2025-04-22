@@ -2,6 +2,7 @@ const User = require('../../models/user.model');
 const bcrypt = require('bcryptjs'); // Ensure bcryptjs is installed
 const dataHelper = require('../../utils/dataHelper');
 const CustomError = require('../../utils/customError');
+const { Op } = require('sequelize');
 
 // to create user with admin role
 // modify directly in database (currently the only way)
@@ -26,10 +27,54 @@ exports.createUser = async (userData) => {
   return newUser;
 };
 
-// Get all users
-exports.getAllUsers = async () => {
-  const users = await User.findAll();
-  return users;
+// Get all users that support filtering
+exports.getAllUsers = async (query) => {
+  // 1) Build dynamic WHERE clause
+  const where = {};
+
+  if (query.id) {
+    where.id = parseInt(query.id, 10);
+  }
+
+  if (query.name) {
+    where.name = { [Op.iLike]: `%${query.name}%` };
+  }
+
+  if (query.email) {
+    where.email = { [Op.iLike]: `%${query.email}%` };
+  }
+
+  if (query.role) {
+    where.role = query.role;
+  }
+
+  if (query.address) {
+    where.address = { [Op.iLike]: `%${query.address}%` };
+  }
+
+  if (query.accountStatus) {
+    where.accountStatus = query.accountStatus;
+  }
+
+  // 2) Pagination defaults
+  const page   = query.page   ? parseInt(query.page,   10) : 1;
+  const limit  = query.limit  ? parseInt(query.limit,  10) : 10;
+  const offset = (page - 1) * limit;
+
+  // 3) Execute query with count & paginated rows
+  const { count, rows } = await User.findAndCountAll({
+    where,
+    order: [['createdAt', 'DESC']],
+    offset,
+    limit
+  });
+
+  return {
+    total: count,
+    users: rows,
+    page,
+    limit
+  };
 };
 
 // Get user by ID
