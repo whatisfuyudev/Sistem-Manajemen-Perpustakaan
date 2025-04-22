@@ -14,14 +14,14 @@ router.get('/single', authMiddleware.verifyToken, userController.getUserById);
 // Update a user by id from jwt token
 router.put('/update', authMiddleware.verifyToken, userController.updateUser);
 
+// Handle updating cover image
+router.post('/upload/profile-picture', dataHelper.upload, userController.handleProfilePictureUpload);
+
 /*
 ENDPOINTS FOR ADMINS?
 */
 // Create a new user (e.g., registration)
 router.post('/', dataHelper.upload, userController.createUser);
-
-// Handle updating cover image
-router.post('/upload/profile-picture', dataHelper.upload, userController.handleProfilePictureUpload);
 
 // Get all users (for admin/librarian)
 router.get('/', userController.getAllUsers);

@@ -21,3 +21,20 @@ exports.renderProfilePage = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.renderAdminUserDetail = async (req, res, next) => {
+  try {
+    const userId = req.params.id;
+    const user = await userService.getUserById(userId);
+
+    if (!user) {
+      // If user not found, render a friendly error page
+      return res.status(404).render('error', { message: 'User not found.' });
+    }
+
+    // Render the admin-user-detail.ejs template with full user data
+    res.render('admin-user-detail', { user });
+  } catch (error) {
+    next(error);
+  }
+};

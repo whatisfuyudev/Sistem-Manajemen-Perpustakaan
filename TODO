@@ -23,15 +23,20 @@
   - make the admin/librarian side
     - construct admin panel
 
-      - fix reservation section
-        - confirm() change into custom modal
-
       - fix users section (only admin can manage user)
         - individual user page
+          - user route proper guarding for admin only
+          - new endpoint for admin only that sends back filtered by
+            certain criteria users data.
+          - hover effect on each data
+          - click data point to the individual user page
+          - search bar able to query user data based on multiple criteria.
+          - able to edit a single user data (new page)
+
         - able to add new user (new page)
-        - able to edit a single user data (new page)
-        - able to delete a user with modal confirmation
-        - able to query user data based on multiple criteria.
+        
+        - able to delete a user with modal confirmation (batch delete like books data)
+        
 
       - fix notifications section
         - individual notification page
