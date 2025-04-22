@@ -35,6 +35,7 @@ const storage = multer.diskStorage({
     } else {
       target += 'book-covers/';
     }
+
     // if upload from user profile picture api (the front end tells)
     // modify request object, make new property that tells that
     // else default to book-covers directory

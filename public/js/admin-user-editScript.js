@@ -1,15 +1,10 @@
-// Profile picture click opens file dialog
-document.getElementById('profilePic').addEventListener('click', () => {
-  document.getElementById('uploadedImage').click();
-});
-
 // Handle file selection & upload
-document.getElementById('uploadedImage').addEventListener('change', async function() {
+document.getElementById('uploadedImage').addEventListener('change', async function(e) {
   const file = this.files[0];
   if (!file) return;
   const formData = new FormData();
-  formData.append('uploadedImage', file);
   formData.append('_comesFrom', 'profilePicture');
+  formData.append('uploadedImage', file);
 
   try {
     const res = await fetch('/api/users/upload/profile-picture', {
@@ -49,7 +44,7 @@ document.getElementById('saveButton').addEventListener('click', async () => {
   });
 
   try {
-    const res = await fetch(`/admin/users/${id}`, {
+    const res = await fetch(`/api/users/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)

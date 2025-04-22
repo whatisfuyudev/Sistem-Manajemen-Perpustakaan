@@ -27,8 +27,10 @@
         - individual user page
           
           - able to edit a single user data (new page, new page route, new page controller)
-            - error at uploading profile picture
-            - also double file prompt, only one file prompt
+            - on the back end, about uploading cover and profile picture
+              if there is two user or book with the same image,
+              the same image gets deleted.
+              prevent this
 
         - able to add new user (new page)
         

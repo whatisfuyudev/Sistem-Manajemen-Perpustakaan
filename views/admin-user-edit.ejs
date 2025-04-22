@@ -128,9 +128,9 @@
     <form id="editUserForm" enctype="multipart/form-data">
       <!-- Profile Picture -->
       <div class="profile-picture">
-        <label>
+        <input type="file" id="uploadedImage" name="uploadedImage" class="hidden">
+        <label for="uploadedImage" class="profile-picture">
           <img id="profilePic" src="<%= user.profilePicture %>" alt="Profile Picture">
-          <input type="file" id="uploadedImage" name="uploadedImage" class="hidden">
           <input type="hidden" id="profilePicInput" name="profilePicture" value="<%= user.profilePicture %>">
         </label>
       </div>
