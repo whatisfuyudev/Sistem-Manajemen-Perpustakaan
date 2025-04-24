@@ -1,43 +1,61 @@
-document.addEventListener('DOMContentLoaded', function () {
-  const loginForm = document.getElementById('loginForm');
+document.addEventListener('DOMContentLoaded', () => {
+  const form       = document.getElementById('loginForm');
   const messageDiv = document.getElementById('loginMessage');
 
-  loginForm.addEventListener('submit', async function (e) {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    messageDiv.textContent = ''; // Clear previous messages
+    messageDiv.textContent = '';
 
-    // Gather login credentials
     const data = {
-      email: document.getElementById('email').value.trim(),
-      password: document.getElementById('password').value.trim()
+      email:    form.email.value.trim(),
+      password: form.password.value.trim()
     };
 
     try {
-      const response = await fetch('/api/auth/login', {
+      const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       });
 
-      if (response.ok) {
-        const result = await response.json();
-        messageDiv.textContent = 'Login successful! Redirecting...';
-        messageDiv.className = 'message success';
-        loginForm.reset();
-
-        // Delay of 2 seconds before redirecting to home page
-        setTimeout(() => {
-          window.location.href = '/';
-        }, 2000);
-      } else {
-        const errorText = await response.text();
-        messageDiv.textContent = 'Login failed: ' + errorText;
+      if (!res.ok) {
+        const errText = await res.text();
+        messageDiv.textContent = 'Login failed: ' + errText;
         messageDiv.className = 'message error';
+        return;
       }
-    } catch (error) {
-      console.error('Error during login:', error);
-      messageDiv.textContent = 'An error occurred during login.';
+
+      const { token } = await res.json();
+
+      // Decode to inspect the role claim
+      const { role } = jwtDecode(token);                        
+
+      messageDiv.textContent = 'Login successful! Redirecting…';
+      messageDiv.className = 'message success';
+
+      // Delay just for UX; remove if you want immediate redirect
+      setTimeout(() => {
+        if (role === 'Admin' || role === 'Librarian') {
+          window.location.href = '/admin/panel/';                
+        } else {
+          window.location.href = '/';
+        }
+      }, 1000);
+
+    } catch (err) {
+      console.error('Login error:', err);
+      messageDiv.textContent = 'An error occurred.';
       messageDiv.className = 'message error';
     }
   });
 });
+
+function jwtDecode(token) {
+  const [, payload] = token.split('.');
+  const json = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+  return JSON.parse(decodeURIComponent(
+    Array.from(json).map(c =>
+      '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+    ).join('')
+  ));
+}

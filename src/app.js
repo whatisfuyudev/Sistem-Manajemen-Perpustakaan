@@ -116,9 +116,23 @@ app.use('/', checkoutPageRoutes);
 
 // Optionally, you can define a route for the homepage (if it’s static).
 // This example sends the static index.html from the public folder.
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public', 'homepage.html'));
-});
+app.get(
+  '/', 
+  (req, res, next) => {
+    // Try to verify, but don’t fail on error
+    authMiddleware.verifyToken(req, res, (err) => {
+      // ignore err, continue
+      next();
+    });
+  },
+  (req, res) => {
+    const role = req.user?.role;
+    if (role === 'Admin' || role === 'Librarian') {
+      return res.redirect('/admin/panel/');
+    }
+    res.sendFile(path.join(__dirname, '../public', 'homepage.html'));
+  }
+);
 
 app.get('/users/create', (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'createUser.html'));

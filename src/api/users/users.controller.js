@@ -4,6 +4,8 @@ exports.createUser = async (req, res, next) => {
   try {
     if(req.isImageUploadSuccesful) {
       req.body.profilePicture = `/public/images/profile-pictures/${req.file.filename}`;
+      console.log('\n\n\n', 'hooray', '\n\n\n');
+      
     }
 
     // Expect user data in req.body

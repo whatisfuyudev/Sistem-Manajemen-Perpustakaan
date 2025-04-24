@@ -11,29 +11,34 @@ const CustomError = require('../../utils/customError');
  * - Split the authors, genres, and formats into an array from string with commas
  */
 exports.createBook = async (bookData) => {
-  // Check if a book with the same ISBN already exists
-  const existingBook = await Book.findOne({ where: { isbn: bookData.isbn } });
-  if (existingBook) {
+  // 1) Duplicate-ISBN guard
+  const exists = await Book.findOne({ where: { isbn: bookData.isbn } });
+  if (exists) {
     throw new CustomError('Book with this ISBN already exists.', 409);
   }
-  
-  // If totalCopies is provided but availableCopies is not, initialize availableCopies to totalCopies.
-  if (bookData.totalCopies && (bookData.availableCopies === undefined || bookData.availableCopies === null)) {
+
+  // 2) Apply default for availableCopies if not explicitly given
+  if (bookData.totalCopies != null && bookData.availableCopies == null) {
     bookData.availableCopies = bookData.totalCopies;
   }
-  
-  // Assume bookData is the payload received from the client
-  // split them into an array
-  if (typeof bookData.authors === 'string') {
-    bookData.authors = bookData.authors.split(',').map(author => author.trim());
-  }
-  if (typeof bookData.genres === 'string') {
-    bookData.genres = bookData.genres.split(',').map(genre => genre.trim());
-  }
-  if (typeof bookData.formats === 'string') {
-    bookData.formats = bookData.formats.split(',').map(format => format.trim());
-  }
 
+  // 3) Ensure array fields are actual arrays
+  const toArray = field =>
+    Array.isArray(bookData[field])
+      ? bookData[field]
+      : typeof bookData[field] === 'string'
+        ? bookData[field]
+            .split(',')
+            .map(s => s.trim())
+            .filter(Boolean)
+        : [];
+
+  // authors is required, so we know toArray('authors') returns at least one element
+  bookData.authors = toArray('authors');
+  bookData.genres  = toArray('genres');
+  bookData.formats = toArray('formats');
+
+  // 4) Finally, create the Book record
   const newBook = await Book.create(bookData);
   return newBook;
 };

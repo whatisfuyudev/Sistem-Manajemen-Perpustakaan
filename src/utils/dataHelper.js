@@ -3,9 +3,20 @@ const multer  = require('multer');
 const path = require('path');
 const fs = require('fs');
 
+const { v4: uuidv4 } = require('uuid');
+
 exports.deleteFile = (filename, callback) => {
   // if no file to delete, don't delete anything
   if (!filename) {
+    return null;
+  }
+
+  // Don’t delete the shared default images
+  const protectedFiles = [
+    '/public/images/profile-pictures/default.jpg',
+    '/public/images/book-covers/default-cover.jpg'
+  ];
+  if (protectedFiles.includes(filename)) {
     return null;
   }
 
@@ -43,8 +54,8 @@ const storage = multer.diskStorage({
     cb(null, path.join(__dirname, target));
   },
   filename: function(req, file, cb) {
-    // Generate a name with the file original name
-    cb(null, file.originalname);
+    // Generate a name with the file original name plus uuid
+    cb(null, uuidv4() + file.originalname);
   }
 });
 

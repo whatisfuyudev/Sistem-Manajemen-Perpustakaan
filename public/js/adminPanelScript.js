@@ -862,30 +862,7 @@ async function loadUsersModule() {
 
   // New User button
   document.getElementById('newUserBtn').addEventListener('click', async () => {
-    const name     = await showPromptModal({ message: 'Enter user name:' });
-    if (!name) return;
-    const email    = await showPromptModal({ message: 'Enter user email:' });
-    if (!email) return;
-    const password = await showPromptModal({ message: 'Enter user password:' });
-    if (!password) return;
-
-    try {
-      const res = await fetch(API.users.create, {                                            
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password })
-      });
-      if (res.ok) {
-        await showModal({ message: 'User created successfully.' });
-        fetchUsersModule();
-      } else {
-        const err = await res.json();
-        await showModal({ message: 'Error: ' + err.message });
-      }
-    } catch (err) {
-      console.error(err);
-      await showModal({ message: 'An error occurred while creating user.' });
-    }
+    window.location.href = `/admin/panel/users/add`;
   });
 
   // Initial load

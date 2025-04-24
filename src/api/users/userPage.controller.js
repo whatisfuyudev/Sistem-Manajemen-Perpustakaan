@@ -41,7 +41,7 @@ exports.renderAdminUserDetail = async (req, res, next) => {
 
 exports.renderAdminUserEdit = async (req, res, next) => {
   try {
-    const id = parseInt(req.params.id, 10);                         // parse route param :contentReference[oaicite:2]{index=2}
+    const id = parseInt(req.params.id, 10);                         // parse route param 
     const user = await userService.getUserById(id);                // fetch from DB
 
     if (!user) {
@@ -50,8 +50,17 @@ exports.renderAdminUserEdit = async (req, res, next) => {
     }
 
     // Render the EJS template "admin-user-edit.ejs"
-    res.render('admin-user-edit', { user });                        // render view with user data :contentReference[oaicite:3]{index=3}
+    res.render('admin-user-edit', { user });                        // render view with user data 
   } catch (err) {
     next(err);
+  }
+};
+
+exports.renderAdminUserAdd = async (req, res, next) => {
+  try {
+    // No data needed up-front; just render the form template
+    res.render('admin-user-add');
+  } catch (error) {
+    next(error);
   }
 };

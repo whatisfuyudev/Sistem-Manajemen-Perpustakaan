@@ -4,17 +4,42 @@ const booksService = require('./books.service');
 
 exports.createBook = async (req, res, next) => {
   try {
-    if(req.isImageUploadSuccesful) {
-      
+    // 1) Required fields validation
+    const {
+      isbn,
+      title,
+      authors,
+      totalCopies
+    } = req.body;
+
+    const missing = [];
+    if (!isbn)        missing.push('isbn');
+    if (!title)       missing.push('title');
+    if (!authors)     missing.push('authors');
+    if (totalCopies == null) missing.push('totalCopies');
+
+    if (missing.length) {
+      return res
+        .status(400)
+        .json({ message: `Missing required field(s): ${missing.join(', ')}` });
+    }
+
+    // 2) Handle file upload (coverImage) if provided
+    if (req.isImageUploadSuccesful && req.file) {
+      // store the URL/path consistent with your static setup
       req.body.coverImage = `/public/images/book-covers/${req.file.filename}`;
     }
 
-    // Validate request body here if needed (e.g., check for required fields)
+    // 3) Delegate to service for deeper normalization & creation
     const newBook = await booksService.createBook(req.body);
-
     res.status(201).json(newBook);
-  } catch (error) {
-    next(error);
+
+  } catch (err) {
+    // Handle known errors with status, others bubble up as 500
+    if (err instanceof CustomError) {
+      return res.status(err.status).json({ message: err.message });
+    }
+    next(err);
   }
 };
 

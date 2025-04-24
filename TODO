@@ -23,17 +23,12 @@
   - make the admin/librarian side
     - construct admin panel
 
+      - book delete, not deleting the book cover
+
       - fix users section (only admin can manage user)
-        - individual user page
-          
-          - able to edit a single user data (new page, new page route, new page controller)
-            - on the back end, about uploading cover and profile picture
-              if there is two user or book with the same image,
-              the same image gets deleted.
-              prevent this
 
         - able to add new user (new page)
-        
+          - its tweakin, unable to create new user
       
         - able to delete a user with modal confirmation 
           (batch delete like books data), utilize the check box
@@ -65,6 +60,7 @@
 - check whether the jwt token is expired or not
 - implement refresh tokens and expiration checking for main auth jwt_token (1 hour expiration time)
   - refresh tokens last for a long time, like 1 week or 1 month
+- no return jwt token from login controller because bad practice?
 
 this app will have two sides, one for patron (book enjoyer) and one for librarians (book manager)
 - patron can only make reservation to borrow books, see their profile, and see all books, search books with ui
@@ -91,8 +87,6 @@ this app will have two sides, one for patron (book enjoyer) and one for libraria
   - delete any console.log/console.error on front end
   - move custom pop up into its own file so it is reuseable accross the whole app
     - change alert or prompt to custom pop up
-
-- auth middleware redirect to login page instead?
 
 - fix margin/gap between text and things inside reservation card on myreservations page
 

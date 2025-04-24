@@ -14,14 +14,16 @@ router.post('/upload/cover',
   authMiddleware.verifyToken,
   authMiddleware.isLibrarianOrAdmin,
   dataHelper.upload, 
-  booksController.handleCoverImageUpload);
+  booksController.handleCoverImageUpload
+);
 
 // Create a new book [admin/librarian only]
 router.post('/',
   authMiddleware.verifyToken,
   authMiddleware.isLibrarianOrAdmin,
   dataHelper.upload, 
-  booksController.createBook);
+  booksController.createBook
+);
 
 // List all books (could also support query parameters for filtering) 
 router.get('/', booksController.listBooks);
@@ -40,7 +42,9 @@ router.get('/:isbn', booksController.getBook);
 router.delete('/:isbn',
   authMiddleware.verifyToken,
   authMiddleware.isLibrarianOrAdmin,
-  booksController.deleteBook);
+  booksController.deleteBook
+
+);
 
 
 
