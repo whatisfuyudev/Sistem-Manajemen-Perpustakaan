@@ -23,6 +23,8 @@
   - make the admin/librarian side
     - construct admin panel
 
+      - export my user and book table into sql insert query, put into respective "perintah sql"
+
       - fix notifications section
         - individual notification page
         - able to manually send a notification (new page)

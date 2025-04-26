@@ -255,13 +255,26 @@
   <!-- Body Cards -->
   <div class="card">
     <div class="card-body">
+
       <!-- Book Panel -->
+      <% const bookExists = Boolean(book); %>
       <div class="panel book-panel">
         <h2>Book</h2>
-        <img src="<%= book.coverImage || '/images/default-book.png' %>"
-             alt="<%= book.title %> cover">
-        <div class="title"><%= book.title %></div>
-        <div class="authors"><%= book.authors.join(', ') %></div>
+        <img
+          src="<%= bookExists && book.coverImage
+                ? book.coverImage
+                : '/images/default-book.png' %>"
+          alt="<%= bookExists && book.title ? book.title + ' cover' : 'No cover' %>"
+          class="book-cover"
+        >
+        <div class="title">
+          <%= bookExists && book.title ? book.title : '–' %>
+        </div>
+        <div class="authors">
+          <%= bookExists && Array.isArray(book.authors) 
+                ? book.authors.join(', ') 
+                : '–' %>
+        </div>
       </div>
 
       <!-- Reservation Panel -->
@@ -285,12 +298,22 @@
       </div>
 
       <!-- User Panel -->
+      <% const userExists = Boolean(user); %>
       <div class="panel user-panel">
         <h2>User</h2>
-        <img src="<%= user.profilePicture || '/public/images/profile-pictures/default.jpg' %>"
-             alt="<%= user.name %> avatar">
-        <div class="name"><%= user.name %></div>
-        <div class="role"><%= user.role %></div>
+        <img
+          src="<%= userExists && user.profilePicture
+                ? user.profilePicture
+                : '/public/images/profile-pictures/default.jpg' %>"
+          alt="<%= userExists && user.name ? user.name + ' avatar' : 'No avatar' %>"
+          class="user-avatar"
+        >
+        <div class="name">
+          <%= userExists && user.name ? user.name : '–' %>
+        </div>
+        <div class="role">
+          <%= userExists && user.role ? user.role : '–' %>
+        </div>
       </div>
     </div>
 

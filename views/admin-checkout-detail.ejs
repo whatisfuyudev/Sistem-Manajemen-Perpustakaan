@@ -228,17 +228,31 @@
     </div>
 
     <!-- Book Details -->
-    <div class="section">
-      <div class="section-title">Book Information</div>
-      <div class="book-info">
-        <img src="<%= book.coverImage %>" alt="Book Cover" class="book-cover">
-        <div>
-          <div><strong>Title:</strong> <%= book.title %></div>
-          <div><strong>Authors:</strong> <%= book.authors.join(', ') %></div>
-          <div><strong>ISBN:</strong> <%= checkout.bookIsbn %></div>
-        </div>
+    <% const bookExists = Boolean(book); %>
+<div class="section">
+  <div class="section-title">Book Information</div>
+  <div class="book-info">
+    <img
+      src="<%= bookExists && book.coverImage
+            ? book.coverImage
+            : '/public/images/book-covers/default-cover.jpg' %>"
+      alt="Book Cover"
+      class="book-cover"
+    >
+    <div class="info-grid" style="grid-template-columns: 50px 1fr;">
+      <div class="info-label">Title:</div>
+      <div class="info-value"><%= bookExists && book.title ? book.title : '–' %></div>
+
+      <div class="info-label">Authors:</div>
+      <div class="info-value">
+        <%= bookExists && Array.isArray(book.authors) 
+              ? book.authors.join(', ') 
+              : '–' %>
       </div>
+
     </div>
+  </div>
+</div>
 
     <!-- Checkout Information -->
     <div class="section">
@@ -292,14 +306,30 @@
     <!-- User Information -->
     <div class="section">
       <div class="section-title">User Information</div>
+      <% const userExists = Boolean(user); %>
       <div class="user-info">
-        <img src="<%= user.profilePicture || '/public/images/profile-pictures/default.jpg' %>" alt="User Profile" class="user-avatar">
-        <div>
-          <div><strong>Name:</strong> <%= user.name %></div>
-          <div><strong>User ID:</strong> <%= checkout.userId %></div>
+        <img
+          src="<%= userExists && user.profilePicture
+                ? user.profilePicture
+                : '/public/images/profile-pictures/default.jpg' %>"
+          alt="User Profile"
+          class="user-avatar"
+        >
+        <div class="info-grid" style="grid-template-columns: 50px 1fr;">
+          <div class="info-label">Name:</div>
+          <div class="info-value">
+            <%= userExists ? user.name : '–' %>
+          </div>
+
+          <div class="info-label">Role:</div>
+          <div class="info-value">
+            <%= userExists && user.role ? user.role : '–' %>
+          </div>
+
         </div>
       </div>
     </div>
+    
 
     <!-- Action Buttons -->
     <div class="button-container" style="display: flex; justify-content: center; gap: 12px; margin-top: 30px;">
