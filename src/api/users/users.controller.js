@@ -2,14 +2,20 @@ const userService = require('./users.service');
 
 exports.createUser = async (req, res, next) => {
   try {
-    if(req.isImageUploadSuccesful) {
-      req.body.profilePicture = `/public/images/profile-pictures/${req.file.filename}`;
-      console.log('\n\n\n', 'hooray', '\n\n\n');
-      
-    }
+    // Remove any empty fields
+    const data = req.body;
+    Object.keys(data).forEach(key => {
+      const val = data[key];
+      const isEmptyString = typeof val === 'string' && val.trim() === '';
+      const isEmptyArray  = Array.isArray(val) && val.length === 0;
+      const isNullish     = val == null; // catches null or undefined
+      if (isNullish || isEmptyString || isEmptyArray) {
+        delete data[key];
+      }
+    });
 
     // Expect user data in req.body
-    const newUser = await userService.createUser(req.body);
+    const newUser = await userService.createUser(data);
     res.status(201).json(newUser);
   } catch (error) {
     next(error);
@@ -80,7 +86,20 @@ exports.updateUser = async (req, res, next) => {
 
 exports.updateUserAdmin = async (req, res, next) => {
   try {
-    const updatedUser = await userService.updateUser(req.params.id, req.body);
+    const data = req.body;
+
+    // Remove any empty fields
+    Object.keys(data).forEach(key => {
+      const val = data[key];
+      const isEmptyString = typeof val === 'string' && val.trim() === '';
+      const isEmptyArray  = Array.isArray(val) && val.length === 0;
+      const isNullish     = val == null; // catches null or undefined
+      if (isNullish || isEmptyString || isEmptyArray) {
+        delete data[key];
+      }
+    });
+
+    const updatedUser = await userService.updateUser(req.params.id, data);
     if (!updatedUser) {
       return res.status(404).json({ message: 'User not found or update failed' });
     }

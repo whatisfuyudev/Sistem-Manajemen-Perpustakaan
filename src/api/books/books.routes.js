@@ -21,7 +21,6 @@ router.post('/upload/cover',
 router.post('/',
   authMiddleware.verifyToken,
   authMiddleware.isLibrarianOrAdmin,
-  dataHelper.upload, 
   booksController.createBook
 );
 

@@ -27,17 +27,38 @@
     #saveBtn { background:#28a745; color:#fff; }
     #cancelBtn { background:#dc3545; color:#fff; }
     #message { margin-top:15px; text-align:center; }
+
+    .back-button-container {
+      margin-bottom: 20px;
+    }
+    .back-button {
+      background: #6c757d;
+      padding: 10px 20px;
+      border-radius: 4px;
+      color: #fff;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .back-button:hover {
+      background-color: #5a6268;
+    }
   </style>
 </head>
 <body>
   <div class="container">
+    <div class="back-button-container">
+      <!-- change to proper endpoint -->
+      <a href="/admin/panel?tab=users" class="back-button">Back</a>
+    </div>
+
     <h1>Add New User</h1>
-    <form id="addUserForm" enctype="multipart/form-data">
-      <!-- Profile picture upload -->
-      <div class="form-group">
-        <label for="profilePic">Profile Picture</label>
-        <input type="file" id="profilePic" name="uploadedImage">
-      </div>
+    <!-- Profile picture upload -->
+    <div class="form-group">
+      <label for="uploadedImage">Profile Picture</label>
+      <input type="file" id="uploadedImage" name="uploadedImage">
+    </div>
+
+    <form id="addUserForm" enctype="multipart/form-data">  
 
       <!-- Name -->
       <div class="form-group">
@@ -93,7 +114,7 @@
 
       <div class="buttons">
         <button type="button" id="cancelBtn">Cancel</button>
-        <button type="submit" id="saveBtn">Save</button>
+        <button type="button" id="saveBtn">Save</button>
       </div>
 
       <div id="message"></div>

@@ -85,23 +85,6 @@
       .cover-image img { max-width: 80%; }
     }
 
-    .back-button-container {
-      margin-bottom: 20px;
-    }
-
-    .back-button {
-      background: #6c757d;
-      padding: 10px 20px;
-      border-radius: 4px;
-      color: #fff;
-      text-decoration: none;
-      display: inline-block;
-    }
-
-    .back-button:hover {
-      background-color: #5a6268;
-    }
-
     /* Modal Popup */
     .modal-overlay {
       position: fixed;
@@ -136,9 +119,6 @@
 </head>
 <body>
   <div class="container">
-    <div class="back-button-container">
-      <a href="/admin/books/details/<%= book.isbn %>" class="back-button">Back</a>
-    </div>
 
     <h1>Edit Book: <%= book.title %></h1>
   

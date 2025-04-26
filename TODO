@@ -23,13 +23,8 @@
   - make the admin/librarian side
     - construct admin panel
 
-      - book delete, not deleting the book cover
-
       - fix users section (only admin can manage user)
 
-        - able to add new user (new page)
-          - its tweakin, unable to create new user
-      
         - able to delete a user with modal confirmation 
           (batch delete like books data), utilize the check box
         
@@ -87,6 +82,7 @@ this app will have two sides, one for patron (book enjoyer) and one for libraria
   - delete any console.log/console.error on front end
   - move custom pop up into its own file so it is reuseable accross the whole app
     - change alert or prompt to custom pop up
+  - user controller and books controller redundant code when removing empty input 
 
 - fix margin/gap between text and things inside reservation card on myreservations page
 

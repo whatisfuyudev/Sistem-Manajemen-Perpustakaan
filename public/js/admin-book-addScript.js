@@ -25,24 +25,31 @@ document.getElementById('uploadedImage').addEventListener('change', async functi
 });
 
 // Save button functionality: gather form data and send a POST request to create new book
-document.getElementById('saveButton').addEventListener('click', async function() {
+document.getElementById('saveButton').addEventListener('click', async () => {
   const form = document.getElementById('addBookForm');
+  // 1) Build FormData
   const formData = new FormData(form);
-  
+  // 2) Convert to plain object
+  const dataObj = Object.fromEntries(formData.entries());
+  // 3) Send JSON
   try {
-    const response = await fetch('/api/books/', {
+    const res = await fetch('http://localhost:5000/api/books/', {
       method: 'POST',
-      body: formData
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(dataObj)
     });
-    if (response.ok) {
+    if (res.ok) {
       window.location.href = '/admin/panel';
     } else {
-      const errorMsg = await response.text();
-      showModal({ message: 'Error creating book: ' + errorMsg });
+      const err = await res.text();
+      showModal({ message: 'Error creating book: ' + err });
     }
   } catch (error) {
     console.error('Error creating book:', error);
-    showModal({ message: 'An error occurred while creating the book. ' });
+    showModal({ message: 'An error occurred while creating the book.' });
   }
 });
 

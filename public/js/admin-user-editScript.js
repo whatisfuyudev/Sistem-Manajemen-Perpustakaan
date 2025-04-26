@@ -42,7 +42,7 @@ document.getElementById('saveButton').addEventListener('click', async () => {
   Object.keys(payload).forEach(k => {
     if (payload[k] === undefined) delete payload[k];
   });
-
+  
   try {
     const res = await fetch(`/api/users/${id}`, {
       method: 'PUT',

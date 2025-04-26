@@ -129,14 +129,14 @@
     </div>
 
     <h1>Add New Book</h1>
-  
+    
     <!-- Form for Adding New Book Data -->
-    <form id="addBookForm" enctype="multipart/form-data">
-      <!-- Cover Image Section -->
-      <div class="form-group">
-        <label for="uploadedImage">Cover Image</label>
-        <input type="file" id="uploadedImage" name="uploadedImage">
-      </div>
+     <!-- Cover Image Section -->
+     <div class="form-group">
+      <label for="uploadedImage">Cover Image</label>
+      <input type="file" id="uploadedImage" name="uploadedImage">
+    </div>
+    <form id="addBookForm">
       <!-- Book Data Fields -->
       <div class="form-group">
         <label for="isbn">ISBN</label>
@@ -184,8 +184,8 @@
       <input type="hidden" id="coverImageInput" name="coverImage">
       <!-- Buttons: Save and Cancel -->
       <div class="button-group">
-        <button type="button" id="saveButton">Save</button>
         <button type="button" id="cancelButton">Cancel</button>
+        <button type="button" id="saveButton">Save</button>
       </div>
     </form>
   </div>

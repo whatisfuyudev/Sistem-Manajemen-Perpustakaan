@@ -2,18 +2,20 @@ document.getElementById('cancelBtn').addEventListener('click', () => {
   window.location.href = '/admin/panel?tab=users';
 });
 
-document.getElementById('addUserForm').addEventListener('submit', async e => {
-  e.preventDefault();
-  const form = e.currentTarget;
-  const data = new FormData(form);
+document.getElementById('saveBtn').addEventListener('click', async () => {
+  const form = document.getElementById('addUserForm');;
+  const formData = new FormData(form);
+  const dataObj = Object.fromEntries(formData.entries());
 
   try {
     
-    console.log('\n\n\n', data, '\n\n\n');
-    
     const res = await fetch('/api/users', {
       method: 'POST',
-      body: data
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(dataObj)
     });
 
     const msgDiv = document.getElementById('message');
@@ -34,10 +36,28 @@ document.getElementById('addUserForm').addEventListener('submit', async e => {
 });
 
 // Once a file is selected, store its filename in the hidden input
-document.getElementById('profilePic').addEventListener('change', function() {
-  if (this.files[0]) {
-    // We'll set the path after upload succeeds server-side;
-    // this is just a placeholder until the server responds.
-    document.getElementById('profilePictureInput').value = this.files[0].name;
+document.getElementById('uploadedImage').addEventListener('change', async function() {
+  const file = this.files[0];
+  if (file) {
+    const formData = new FormData();
+    formData.append('_comesFrom', 'profilePicture');
+    formData.append('uploadedImage', file);
+
+    try {
+      const response = await fetch('/api/users/upload/profile-picture', {
+        method: 'POST',
+        body: formData
+      });
+      if (response.ok) {
+        const data = await response.json();
+        // Update the cover image preview and hidden input value
+        // You can add an <img> tag for preview if desired.
+        document.getElementById('profilePictureInput').value = data.profilePicture;
+      } else {
+        console.error('Error uploading cover image:', await response.text());
+      }
+    } catch (error) {
+      console.error('Error during cover image upload:', error);
+    }
   }
 });

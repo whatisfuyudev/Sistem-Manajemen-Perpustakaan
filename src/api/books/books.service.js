@@ -115,14 +115,17 @@ exports.updateBook = async (isbn, updateData) => {
  */
 exports.deleteBook = async (isbn) => {
   const book = await Book.findOne({ where: { isbn } });
-  // if yes, delete old picture
+  
+  if(book.coverImage) {
+    // if yes, delete old picture
   dataHelper.deleteFile(book.coverImage, (err) => {
     if (err) {
       console.error('Error deleting file:', err);
       return null;
-    }
-  });
-
+      }
+    });
+  }
+  
   const deletedCount = await Book.destroy({ where: { isbn } });
   return deletedCount > 0;
 };

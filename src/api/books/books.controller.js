@@ -1,47 +1,51 @@
 // src/api/books/books.controller.js
-const path = require('path');
 const booksService = require('./books.service');
 
 exports.createBook = async (req, res, next) => {
   try {
-    // 1) Required fields validation
-    const {
-      isbn,
-      title,
-      authors,
-      totalCopies
-    } = req.body;
+    // Normalize types ✨
+    const data = req.body;
 
+    // Remove any empty fields
+    Object.keys(data).forEach(key => {
+      const val = data[key];
+      const isEmptyString = typeof val === 'string' && val.trim() === '';
+      const isEmptyArray  = Array.isArray(val) && val.length === 0;
+      const isNullish     = val == null; // catches null or undefined
+      if (isNullish || isEmptyString || isEmptyArray) {
+        delete data[key];
+      }
+    });
+
+    // Parse numeric fields
+    ['totalCopies','publicationYear','pages'].forEach(field => {
+      if (data[field] != null) {
+        data[field] = Number.parseInt(data[field], 10);
+      }
+    });
+
+    // Required fields validation
+    const { isbn, title, authors, totalCopies } = data;
     const missing = [];
-    if (!isbn)        missing.push('isbn');
-    if (!title)       missing.push('title');
-    if (!authors)     missing.push('authors');
+    if (!isbn)             missing.push('isbn');
+    if (!title)            missing.push('title');
+    if (!authors?.length)  missing.push('authors');
     if (totalCopies == null) missing.push('totalCopies');
-
     if (missing.length) {
       return res
         .status(400)
         .json({ message: `Missing required field(s): ${missing.join(', ')}` });
     }
 
-    // 2) Handle file upload (coverImage) if provided
-    if (req.isImageUploadSuccesful && req.file) {
-      // store the URL/path consistent with your static setup
-      req.body.coverImage = `/public/images/book-covers/${req.file.filename}`;
-    }
-
-    // 3) Delegate to service for deeper normalization & creation
-    const newBook = await booksService.createBook(req.body);
+    // Delegate to service (which will trust your types now)
+    const newBook = await booksService.createBook(data);
     res.status(201).json(newBook);
 
   } catch (err) {
-    // Handle known errors with status, others bubble up as 500
-    if (err instanceof CustomError) {
-      return res.status(err.status).json({ message: err.message });
-    }
     next(err);
   }
 };
+
 
 exports.listBooks = async (req, res, next) => {
   try {
@@ -69,6 +73,18 @@ exports.getBook = async (req, res, next) => {
 exports.updateBook = async (req, res, next) => {
   try {
     const { isbn } = req.params;
+
+    // Remove any empty fields
+    const data = req.body;
+    Object.keys(data).forEach(key => {
+      const val = data[key];
+      const isEmptyString = typeof val === 'string' && val.trim() === '';
+      const isEmptyArray  = Array.isArray(val) && val.length === 0;
+      const isNullish     = val == null; // catches null or undefined
+      if (isNullish || isEmptyString || isEmptyArray) {
+        delete data[key];
+      }
+    });
     
     const updatedBook = await booksService.updateBook(isbn, req.body);
     if (!updatedBook) {
