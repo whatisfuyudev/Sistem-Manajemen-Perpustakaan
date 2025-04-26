@@ -29,7 +29,8 @@ const API = {
     list: '/api/users/',
     create: '/api/users/',
     update: (id) => `/api/users/${id}`,
-    single: '/api/users/single'
+    single: '/api/users/single',
+    delete: (id) => `/api/users/${id}`
   },
   notifications: {
     list: '/api/notifications/history',
@@ -830,7 +831,8 @@ async function loadUsersModule() {
       </form>
     </div>
 
-    <div style="margin:10px 0;">
+    <div style="margin: 10px 0; display: flex; gap: 10px;">
+      <button id="deleteSelectedBtn" style="background: #dc3545; color: #fff; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer;">Delete Selected</button>
       <button id="newUserBtn" style="background:#007bff;color:#fff;border:none;
              padding:10px 15px;border-radius:4px;cursor:pointer;">
         Add New User
@@ -859,6 +861,37 @@ async function loadUsersModule() {
     currentPage = 1;
     fetchUsersModule();
   });
+
+  // Attach event listener to the new Delete Selected button
+  const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+  if (deleteSelectedBtn) {
+  deleteSelectedBtn.addEventListener('click', async () => {
+    // Get all checkboxes in the table body that are checked
+    const selectedCheckboxes = document.querySelectorAll('.users-table tbody input[type="checkbox"]:checked');
+    if (selectedCheckboxes.length === 0) {
+      await showModal({ message: 'Please select at least one user to delete.' });
+      return;
+    }
+    
+    const confirmed = await showModal({ message: 'Are you sure you want to delete the selected user(s)?', showCancel: true });
+    if (!confirmed) return;
+    
+    // Collect userIds from each selected checkbox's row
+    const userIds = Array.from(selectedCheckboxes)
+      .map(checkbox => {
+        const row = checkbox.closest('tr');
+        return row.getAttribute('data-userid');
+      })
+      .filter(userid => userid); // remove null or undefined
+    
+      // Call deleteUser with the array of user ids
+      try {
+        await deleteUser(userIds);
+      } catch (error) {
+        console.error('Bulk deletion failed:', error);
+      }
+    });
+  }
 
   // New User button
   document.getElementById('newUserBtn').addEventListener('click', async () => {
@@ -988,39 +1021,44 @@ function renderUsers(users, total, page) {
     });
 }
 
-
-
-async function editUser(userId) {
-  try {
-    const res = await fetch(API.users.single);
-    if (!res.ok) throw new Error('Failed to fetch user data.');
-    const user = await res.json();
-    const newName = await showPromptModal({ message: 'Edit user name:', defaultValue: user.name });
-    if (newName === null) return;
-    const payload = { name: newName };
-    const updateRes = await fetch(API.users.update(userId), {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    if (updateRes.ok) {
-      await showModal({ message: 'User updated successfully.' });
-      fetchUsersModule();
-    } else {
-      const err = await updateRes.json();
-      await showModal({ message: 'Error: ' + err.message });
+/**
+ * Delete one or more users.
+ * @param {number|number[]} userIds  A single user ID or an array of IDs.
+ */
+async function deleteUser(userIds) {
+  // 1. Bulk‐delete branch
+  if (Array.isArray(userIds)) {                                   // Array.isArray checks if the value is an Array :contentReference[oaicite:0]{index=0}
+    // You might skip per‐item confirmation for bulk actions
+    for (const id of userIds) {                                   // for…of to iterate over arrays :contentReference[oaicite:1]{index=1}
+      try {
+        const res = await fetch(API.users.delete(id), {           // fetch() returns a Promise :contentReference[oaicite:2]{index=2}
+          method: 'DELETE'
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          console.error(`Failed to delete user ${id}: ${err.message}`);
+        }
+      } catch (error) {
+        console.error(`Error deleting user ${id}:`, error);
+      }
     }
-  } catch (error) {
-    console.error(error);
-    await showModal({ message: 'An error occurred while editing user.' });
+    // 2. Show overall success & refresh
+    await showModal({ message: 'Selected user(s) deleted successfully.' });
+    fetchUsersModule();                                           // your existing refresh call
+    return;
   }
-}
 
-async function deleteUser(userId) {
-  const confirmed = await showModal({ message: 'Are you sure you want to delete this user?', showCancel: true });
+  // 3. Single‐delete branch with user confirmation
+  const confirmed = await showModal({                             // showModal returns a Promise :contentReference[oaicite:3]{index=3}
+    message: 'Are you sure you want to delete this user?',
+    showCancel: true
+  });
   if (!confirmed) return;
+
   try {
-    const res = await fetch(API.users.delete(userId), { method: 'DELETE' });
+    const res = await fetch(API.users.delete(userIds), {          // delete single user
+      method: 'DELETE'
+    });
     if (res.ok) {
       await showModal({ message: 'User deleted successfully.' });
       fetchUsersModule();
@@ -1033,6 +1071,7 @@ async function deleteUser(userId) {
     await showModal({ message: 'An error occurred while deleting user.' });
   }
 }
+
 
 /* ------------------------ NOTIFICATIONS MODULE ------------------------ */
 async function loadNotificationsModule() {

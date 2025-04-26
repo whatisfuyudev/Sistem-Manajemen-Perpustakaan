@@ -23,12 +23,6 @@
   - make the admin/librarian side
     - construct admin panel
 
-      - fix users section (only admin can manage user)
-
-        - able to delete a user with modal confirmation 
-          (batch delete like books data), utilize the check box
-        
-
       - fix notifications section
         - individual notification page
         - able to manually send a notification (new page)

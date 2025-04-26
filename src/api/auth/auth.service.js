@@ -22,27 +22,36 @@ exports.registerUser = async (userData) => {
   return newUser;
 };
 
-// Login a user and generate a JWT
 exports.loginUser = async (credentials) => {
   const { email, password } = credentials;
 
-  // Find the user by email
+  // 1) Find the user by email
   const user = await User.findOne({ where: { email } });
   if (!user) {
-    throw new CustomError('User not found.', 404); // 404 Not Found
+    throw new CustomError('User not found.', 404);
   }
 
-  // Compare the provided password with the stored hashed password
+  // 2) Check account status
+  if (user.accountStatus !== 'Active') {
+    // 403 Forbidden is appropriate for an authenticated but disallowed user
+    throw new CustomError(
+      `Account is ${user.accountStatus}. Please contact support.`,
+      403
+    );
+  }
+
+  // 3) Compare the provided password with the stored hashed password
   const isPasswordValid = await bcrypt.compare(password, user.password);
   if (!isPasswordValid) {
-    throw new CustomError('Invalid password.', 401); // 401 Unauthorized
+    throw new CustomError('Invalid password.', 401);
   }
 
-  // Generate a JWT token with minimal payload (user id and role)
+  // 4) Generate a JWT token with minimal payload (user id and role)
   const tokenPayload = { id: user.id, role: user.role };
-  const token = jwt.sign(tokenPayload, authConfig.secret, { expiresIn: authConfig.expiresIn });
+  const token = jwt.sign(tokenPayload, authConfig.secret, {
+    expiresIn: authConfig.expiresIn
+  });
 
-  // Respond with the token in the JSON payload as well (optional)
   return token;
 };
 
