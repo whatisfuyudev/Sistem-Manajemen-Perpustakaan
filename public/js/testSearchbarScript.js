@@ -1,29 +1,32 @@
-const form             = document.getElementById('searchForm');
-const toggleBtn        = document.getElementById('toggleAdvanced');
-const advancedSearchDiv= document.getElementById('advancedSearch');
-const resultsContainer = document.getElementById('resultsContainer');
+const form              = document.getElementById('searchForm');
+const toggleBtn         = document.getElementById('toggleAdvanced');
+const advancedSearchDiv = document.getElementById('advancedSearch');
+const resultsContainer  = document.getElementById('resultsContainer');
 
 // Toggle advanced search
 toggleBtn.addEventListener('click', () => {
-  const isVisible = advancedSearchDiv.style.display === 'flex';                     
+  const isVisible = advancedSearchDiv.style.display === 'flex';
   advancedSearchDiv.style.display = isVisible ? 'none' : 'flex';
   toggleBtn.textContent = isVisible
-    ? 'Show Advanced Search Options'
-    : 'Hide Advanced Search Options';
+    ? 'Show Search Options'
+    : 'Hide Search Options';
 });
 
 // Handle search submission
 form.addEventListener('submit', async event => {
-  event.preventDefault();                                                           
+  event.preventDefault();
 
   // Gather filters
   const filters = {
-    id:            form.userId.value.trim(),
-    name:          form.name.value.trim(),
-    email:         form.email.value.trim(),
-    role:          form.role.value,
-    address:       form.address.value.trim(),
-    accountStatus: form.accountStatus.value,
+    recipient:     form.recipient.value.trim(),
+    subject:       form.subject.value.trim(),
+    message:       form.message.value.trim(),
+    channel:       form.channel.value,
+    status:        form.status.value,
+    read:          form.read.value,
+    startDate: form.startDate.value,
+    endDate:   form.endDate.value,
+    dateField: form.dateField.value,  // e.g. "createdAt", "scheduledAt", or "deliveredAt"
     page:          1,
     limit:         10
   };
@@ -34,36 +37,39 @@ form.addEventListener('submit', async event => {
   });
 
   try {
-    // Build query
-    const qs = new URLSearchParams(filters).toString();                            
-    const res= await fetch(`/api/users?${qs}`);                                    
-    if (!res.ok) throw new Error(`Server responded ${res.status}`);                
+    const qs  = new URLSearchParams(filters).toString();
+    const res = await fetch(`/api/notifications/history?${qs}`);
+    if (!res.ok) throw new Error(`Server responded ${res.status}`);
+    const data = await res.json();
 
-    const data = await res.json();                                                 
-    renderUserResults(data.users);
+    renderNotificationResults(data);
   } catch (err) {
     resultsContainer.innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
   }
 });
 
-// Render users into a table
-function renderUserResults(users) {
-  if (!users || users.length === 0) {
-    resultsContainer.innerHTML = '<p>No users found.</p>';
+// Render notifications into a table
+function renderNotificationResults(items) {
+  if (!items || items.length === 0) {
+    resultsContainer.innerHTML = '<p>No notifications found.</p>';
     return;
   }
-  let html = '<table><thead><tr>'
-    + '<th>ID</th><th>Name</th><th>Email</th>'
-    + '<th>Role</th><th>Address</th><th>Account Status</th>'
-    + '</tr></thead><tbody>';
-  users.forEach(u => {
+  let html = '<table><thead><tr>' +
+    '<th>ID</th><th>Channel</th><th>Recipient</th>' +
+    '<th>Subject</th><th>Status</th><th>Read</th>' +
+    '<th>Scheduled At</th><th>Delivered At</th><th>Created At</th>' +
+    '</tr></thead><tbody>';
+  items.forEach(n => {
     html += `<tr>
-      <td>${u.id}</td>
-      <td>${u.name}</td>
-      <td>${u.email}</td>
-      <td>${u.role}</td>
-      <td>${u.address || '—'}</td>
-      <td>${u.accountStatus}</td>
+      <td>${n.id}</td>
+      <td>${n.channel}</td>
+      <td>${n.recipient}</td>
+      <td>${n.subject || '–'}</td>
+      <td>${n.status}</td>
+      <td>${n.read ? 'Yes' : 'No'}</td>
+      <td>${n.scheduledAt ? new Date(n.scheduledAt).toLocaleDateString() : '–'}</td>
+      <td>${n.deliveredAt ? new Date(n.deliveredAt).toLocaleDateString() : '–'}</td>
+      <td>${new Date(n.createdAt).toLocaleDateString()}</td>
     </tr>`;
   });
   html += '</tbody></table>';

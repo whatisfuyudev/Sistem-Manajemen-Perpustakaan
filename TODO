@@ -26,11 +26,20 @@
       - export my user and book table into sql insert query, put into respective "perintah sql"
 
       - fix notifications section
+        - able to query notification data based on multiple criteria
+          - integrate the search bar to notification tab
+
         - individual notification page
+          - hover clickable thing redirect to notification page route
+
         - able to manually send a notification (new page)
         - able to schedule send a notification (new page)
-        - able to query notification data based on multiple criteria
-        - edit notification
+          - back end notification system
+          - handle schedule notification
+            - most likely gonna look like overdue or expired checker, maybe combine all of them into one file?
+            
+  
+        
 
       - rework the reports section based on docs
     
@@ -38,7 +47,6 @@
 
 
 ### General TODO
-- schedule notification functionality or notifications functionalities in general
 - make sure the book service works properly, ensure data sanitization
 - checkout model no negative number on renewalCount or other number based column
 - prevent upload cover image abuse (upload the image at the same time as clicking update book data)
@@ -47,6 +55,7 @@
   - New Endpoint to get single user by their id (admin/librarian only)
   - New Endpoint to update a user by their id (admin/librarian only)
 
+- send email notification if checkout is overdue and reservation is expired
 
 - check whether the jwt token is expired or not
 - implement refresh tokens and expiration checking for main auth jwt_token (1 hour expiration time)

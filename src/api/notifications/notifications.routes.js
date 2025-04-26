@@ -1,9 +1,11 @@
-// maybe do some sort of email notification
-
 // src/api/notifications/notifications.routes.js
 const express = require('express');
 const router = express.Router();
 const notificationsController = require('./notifications.controller');
+const authMiddleware = require('../../middleware/auth.middleware');
+
+// Apply to all routes in this router:
+router.use(authMiddleware.verifyToken, authMiddleware.isLibrarianOrAdmin);
 
 // Manually send a notification
 router.post('/send', notificationsController.sendNotification);

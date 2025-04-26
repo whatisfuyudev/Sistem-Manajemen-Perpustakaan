@@ -34,8 +34,37 @@ exports.markInAppNotificationRead = async (req, res, next) => {
 
 exports.getNotificationHistory = async (req, res, next) => {
   try {
-    const result = await notificationsService.getNotificationHistory(req.query);
-    res.status(200).json(result);
+    // Extract all possible filters from query
+    const {
+      recipient,
+      subject,
+      message,
+      channel,
+      status,
+      read,
+      createdFrom,
+      createdTo,
+      scheduledFrom,
+      scheduledTo,
+      deliveredFrom,
+      deliveredTo
+    } = req.query;
+
+    // Build a filter object and pass straight through
+    const filters = {
+      recipient,
+      subject,
+      message,
+      channel,
+      status,
+      read,            // string “true”/“false”
+      startDate:     req.query.startDate,
+      endDate:       req.query.endDate,
+      dateField:     req.query.dateField
+    };
+
+    const notifications = await notificationsService.getNotificationHistory(filters);
+    res.status(200).json(notifications);
   } catch (error) {
     next(error);
   }

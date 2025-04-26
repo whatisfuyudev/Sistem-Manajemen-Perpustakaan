@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>User Management Search</title>
+  <title>Notification History Search</title>
   <style>
     /* Base Reset & Typography */
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -17,7 +17,7 @@
 
     /* Search container */
     .search-container {
-      max-width: 600px;
+      max-width: 700px;
       margin: 0 auto 20px;
       background: #fff;
       padding: 20px;
@@ -69,7 +69,7 @@
 
     /* Results table */
     #resultsContainer {
-      max-width: 800px;
+      max-width: 1000px;
       margin: 0 auto;
       background: #fff;
       padding: 20px;
@@ -85,40 +85,56 @@
       padding: 8px;
       border: 1px solid #ddd;
       text-align: left;
+      white-space: nowrap;
     }
     th { background: #f0f0f0; }
   </style>
 </head>
 <body>
-  <h1>User Management Search</h1>
+  <h1>Notification History Search</h1>
   <div class="search-container">
     <form id="searchForm">
-      <!-- Basic filter -->
-      <input type="number" id="userId" placeholder="User ID" />
-
       <!-- Advanced toggle -->
       <button type="button" class="advanced-toggle" id="toggleAdvanced">
-        Show Advanced Search Options
+        Show Search Options
       </button>
 
-      <!-- Advanced filters -->
       <div class="advanced-search" id="advancedSearch">
-        <input type="text" id="name"            placeholder="Name" />
-        <input type="email" id="email"          placeholder="Email" />
-        <select id="role">
-          <option value="">-- Role --</option>
-          <option value="Admin">Admin</option>
-          <option value="Librarian">Librarian</option>
-          <option value="Patron">Patron</option>
+        <!-- Text filters -->
+        <input type="text" id="recipient" placeholder="Recipient (email or phone)" />
+        <input type="text" id="subject"   placeholder="Subject" />
+        <input type="text" id="message"   placeholder="Message" />
+
+        <!-- Exact-match filters -->
+        <select id="channel">
+          <option value="">-- Channel --</option>
+          <option value="email">Email</option>
+          <option value="sms">SMS</option>
+          <option value="inapp">In-App</option>
         </select>
-        <input type="text"   id="address"       placeholder="Address" />
-        <select id="accountStatus">
-          <option value="">-- Account Status --</option>
-          <option value="Active">Active</option>
-          <option value="Suspended">Suspended</option>
-          <option value="Pending">Pending</option>
+        <select id="status">
+          <option value="">-- Status --</option>
+          <option value="pending">Pending</option>
+          <option value="sent">Sent</option>
+          <option value="failed">Failed</option>
         </select>
-      </div>
+        <select id="read">
+          <option value="">-- Read? --</option>
+          <option value="true">Read</option>
+          <option value="false">Unread</option>
+        </select>
+
+        <!-- Date-range filters with field selector -->
+        <label>Date Range:</label>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <input type="date" id="startDate" placeholder="Start Date" />
+          <input type="date" id="endDate"   placeholder="End Date" />
+          <select id="dateField">
+            <option value="createdAt">Created At</option>
+            <option value="scheduledAt">Scheduled At</option>
+            <option value="deliveredAt">Delivered At</option>
+          </select>
+        </div>
 
       <button type="submit">Search</button>
     </form>
@@ -132,6 +148,7 @@
   </script>
 </body>
 </html>
+
 
 
 <!-- line --------------------------------------------------------------------------------- -->

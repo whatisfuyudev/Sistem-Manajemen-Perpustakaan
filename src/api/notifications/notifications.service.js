@@ -3,6 +3,7 @@ const Notification = require('../../models/notification.model');
 const emailHelper = require('../../utils/emailHelper');
 const smsHelper = require('../../utils/smsHelper');
 const CustomError = require('../../utils/customError');
+const { Op } = require('sequelize');
 
 /**
  * Sends a notification via the specified channel.
@@ -90,18 +91,47 @@ exports.markInAppNotificationRead = async (notificationId, read) => {
  */
 exports.getNotificationHistory = async (query) => {
   const where = {};
-  if (query.recipient) {
-    where.recipient = query.recipient;
+
+  // Exact-match enums & boolean
+  if (query.channel)  where.channel = query.channel;
+  if (query.status)   where.status  = query.status;
+  if (query.read != null) {
+    // convert string "true"/"false" to boolean
+    where.read = query.read === 'true';
   }
-  if (query.channel) {
-    where.channel = query.channel;
+
+  // Partial/text search (case-insensitive)
+  if (query.recipient) where.recipient = { [Op.iLike]: `%${query.recipient}%` };
+  if (query.subject)   where.subject   = { [Op.iLike]: `%${query.subject}%`   };
+  if (query.message)   where.message   = { [Op.iLike]: `%${query.message}%`   };
+
+  // Dynamic date-range filtering
+  // Default to createdAt if no dateField provided
+  const field = ['createdAt','scheduledAt','deliveredAt']
+    .includes(query.dateField)
+      ? query.dateField
+      : 'createdAt';
+
+  const { startDate, endDate } = query;
+  if (startDate || endDate) {
+    where[field] = {};
+    if (startDate) {
+      const sd = new Date(startDate);
+      if (!isNaN(sd)) where[field][Op.gte] = sd;
+    }
+    if (endDate) {{
+
+    }
+      const ed = new Date(endDate);
+      if (!isNaN(ed)) where[field][Op.lte] = ed;
+    }
   }
-  if (query.status) {
-    where.status = query.status;
-  }
+
+  // Fetch & return
   const notifications = await Notification.findAll({
     where,
     order: [['createdAt', 'DESC']]
   });
+
   return notifications;
 };
