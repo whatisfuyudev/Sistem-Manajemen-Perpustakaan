@@ -114,6 +114,10 @@ app.use('/', reservationPageRoutes);
 const checkoutPageRoutes = require('./api/checkouts/checkoutPage.routes');
 app.use('/', checkoutPageRoutes);
 
+// Mount the new checkout page route
+const notificationPageRoutes = require('./api/notifications/notificationPage.routes');
+app.use('/', notificationPageRoutes);
+
 // Optionally, you can define a route for the homepage (if it’s static).
 // This example sends the static index.html from the public folder.
 app.get(

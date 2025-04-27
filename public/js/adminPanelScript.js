@@ -67,15 +67,15 @@ tabs.forEach(tab => {
     const module = tab.dataset.tab;
     // Push new URL state
     const newUrl = `${window.location.pathname}?tab=${module}`;
-    history.pushState({ tab: module }, '', newUrl);  
+    history.pushState({ tab: module }, '', newUrl);
     activateTab(module);
   });
 });
 
 // Handle Back/Forward navigation
 window.addEventListener('popstate', (e) => {
-  const module = (e.state && e.state.tab) 
-    || new URLSearchParams(window.location.search).get('tab') 
+  const module = (e.state && e.state.tab)
+    || new URLSearchParams(window.location.search).get('tab')
     || 'books';
   activateTab(module);
 });
@@ -83,7 +83,7 @@ window.addEventListener('popstate', (e) => {
 // Load module content based on selected tab
 async function loadModule(module) {
   contentArea.innerHTML = '';
-  switch(module) {
+  switch (module) {
     case 'books':
       await loadBooksModule();
       break;
@@ -156,25 +156,25 @@ async function loadBooksModule() {
   // Attach event listener to the new Delete Selected button
   const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
   if (deleteSelectedBtn) {
-  deleteSelectedBtn.addEventListener('click', async () => {
-    // Get all checkboxes in the table body that are checked
-    const selectedCheckboxes = document.querySelectorAll('.books-table tbody input[type="checkbox"]:checked');
-    if (selectedCheckboxes.length === 0) {
-      await showModal({ message: 'Please select at least one book to delete.' });
-      return;
-    }
-    
-    const confirmed = await showModal({ message: 'Are you sure you want to delete the selected book(s)?', showCancel: true });
-    if (!confirmed) return;
-    
-    // Collect ISBNs from each selected checkbox's row
-    const isbns = Array.from(selectedCheckboxes)
-      .map(checkbox => {
-        const row = checkbox.closest('tr');
-        return row.getAttribute('data-isbn');
-      })
-      .filter(isbn => isbn); // remove null or undefined
-    
+    deleteSelectedBtn.addEventListener('click', async () => {
+      // Get all checkboxes in the table body that are checked
+      const selectedCheckboxes = document.querySelectorAll('.books-table tbody input[type="checkbox"]:checked');
+      if (selectedCheckboxes.length === 0) {
+        await showModal({ message: 'Please select at least one book to delete.' });
+        return;
+      }
+
+      const confirmed = await showModal({ message: 'Are you sure you want to delete the selected book(s)?', showCancel: true });
+      if (!confirmed) return;
+
+      // Collect ISBNs from each selected checkbox's row
+      const isbns = Array.from(selectedCheckboxes)
+        .map(checkbox => {
+          const row = checkbox.closest('tr');
+          return row.getAttribute('data-isbn');
+        })
+        .filter(isbn => isbn); // remove null or undefined
+
       // Call deleteBook with the array of ISBNs
       try {
         await deleteBook(isbns);
@@ -198,25 +198,25 @@ async function loadBooksModule() {
 }
 
 async function fetchBooks(e) {
-  if(e)
+  if (e)
     e.preventDefault();
   // Get basic search term (assumed to search title)
   const basicSearch = document.getElementById('basicSearch').value.trim();
   const isbn = document.getElementById('searchIsbn').value.trim();
   const authors = document.getElementById('searchAuthors').value.trim();
   const genres = document.getElementById('searchGenres').value.trim();
-  
+
   // Build search filters object. If basicSearch is provided, use it as title search.
   const filters = {};
   if (basicSearch) filters.searchTerm = basicSearch;
   if (isbn) filters.isbn = isbn;
   if (authors) filters.author = authors;  // your API expects a query parameter "author"
   if (genres) filters.genres = genres;     // your API expects a query parameter "genres"
-  
+
   // Optionally, add pagination params here if needed:
   filters.page = currentPage;
   filters.limit = 10;
-  
+
   try {
     const queryString = new URLSearchParams(filters).toString();
     const response = await fetch('/api/books/search?' + queryString);
@@ -234,7 +234,7 @@ function renderBooks(books, total, page) {
   if (!books || !Array.isArray(books) || books.length === 0) {
     booksList.innerHTML = '<p>No books found.</p>';
     currentPage = 1;
-    renderPaginationControls(0, currentPage,  fetchBooks, 'booksPagination');
+    renderPaginationControls(0, currentPage, fetchBooks, 'booksPagination');
     return;
   }
 
@@ -331,11 +331,11 @@ async function deleteBook(isbnOrArray) {
     fetchBooks();
     return;
   }
-  
+
   // Single ISBN deletion flow: Ask for confirmation before deletion.
   const confirmed = await showModal({ message: 'Are you sure you want to delete this book?', showCancel: true });
   if (!confirmed) return;
-  
+
   try {
     const res = await fetch(API.books.delete(isbnOrArray), { method: 'DELETE' });
     if (res.ok) {
@@ -402,10 +402,10 @@ async function loadCheckoutsModule() {
   // Toggle advanced search
   document.getElementById('toggleAdvanced').addEventListener('click', () => {
     const adv = document.getElementById('advancedSearch');
-    const btn  = document.getElementById('toggleAdvanced');
+    const btn = document.getElementById('toggleAdvanced');
     const isVisible = adv.style.display === 'flex';
     adv.style.display = isVisible ? 'none' : 'flex';
-    btn.textContent     = isVisible
+    btn.textContent = isVisible
       ? 'Show Advanced Search Options'
       : 'Hide Advanced Search Options';
   });
@@ -424,20 +424,20 @@ async function loadCheckoutsModule() {
 
 
 async function fetchCheckoutsModule(e) {
-  if(e)
+  if (e)
     e.preventDefault();
-  
+
   const filters = {
     checkoutId: document.getElementById('checkoutId').value.trim(),
-    userId:     document.getElementById('userId')   .value.trim(),
-    bookIsbn:   document.getElementById('bookIsbn') .value.trim(),
+    userId: document.getElementById('userId').value.trim(),
+    bookIsbn: document.getElementById('bookIsbn').value.trim(),
     reservationId: document.getElementById('reservationId').value.trim(),
-    status:     document.getElementById('status')   .value,
-    startDate:  document.getElementById('startDate').value,
-    endDate:    document.getElementById('endDate')  .value,
-    dateField:  document.getElementById('dateField').value,
-    page:       currentPage,
-    limit:      10
+    status: document.getElementById('status').value,
+    startDate: document.getElementById('startDate').value,
+    endDate: document.getElementById('endDate').value,
+    dateField: document.getElementById('dateField').value,
+    page: currentPage,
+    limit: 10
   };
 
   Object.keys(filters).forEach(key => {
@@ -464,7 +464,7 @@ function renderCheckoutsModule(checkouts, total, page) {
     renderPaginationControls(0, currentPage, fetchCheckoutsModule, 'checkoutsPagination');
     return;
   }
-  
+
   let html = `
     <table class="checkouts-table">
       <thead>
@@ -481,7 +481,7 @@ function renderCheckoutsModule(checkouts, total, page) {
       </thead>
       <tbody>
   `;
-  
+
   html += checkouts.map(co => {
     return `
       <tr class="clickable" data-id="${co.id}">
@@ -496,7 +496,7 @@ function renderCheckoutsModule(checkouts, total, page) {
       </tr>
     `;
   }).join('');
-  
+
   html += `
       </tbody>
     </table>
@@ -506,7 +506,7 @@ function renderCheckoutsModule(checkouts, total, page) {
   `;
 
   list.innerHTML = html;
-  
+
   // Attach click handlers
   document.querySelectorAll('.checkouts-table tbody tr.clickable')
     .forEach(row => {
@@ -515,7 +515,7 @@ function renderCheckoutsModule(checkouts, total, page) {
         window.location.href = `/admin/checkout/detail/${id}`;
       });
     });
-  
+
   renderPaginationControls(total, page, fetchCheckoutsModule, 'checkoutsPagination');
 }
 
@@ -581,7 +581,7 @@ async function loadReservationsModule() {
 
   // wire up advanced toggle
   const toggleBtn = document.getElementById('toggleAdvanced');
-  const advDiv    = document.getElementById('advancedSearch');
+  const advDiv = document.getElementById('advancedSearch');
   toggleBtn.addEventListener('click', () => {
     const showing = advDiv.style.display === 'flex';
     advDiv.style.display = showing ? 'none' : 'flex';
@@ -617,25 +617,25 @@ async function loadReservationsModule() {
 async function fetchReservationsModule() {
   // collect base params
   const filters = {
-    id:       document.getElementById('reservationId').value.trim(),
-    userId:   document.getElementById('userId').value.trim(),
+    id: document.getElementById('reservationId').value.trim(),
+    userId: document.getElementById('userId').value.trim(),
     bookIsbn: document.getElementById('bookIsbn').value.trim(),
-    status:   document.getElementById('status').value,
-    page:     currentPage,
-    limit:    10
+    status: document.getElementById('status').value,
+    page: currentPage,
+    limit: 10
   };
 
   // date range mapping
   const start = document.getElementById('startDate').value;
-  const end   = document.getElementById('endDate').value;
-  const df    = document.getElementById('dateField').value;
+  const end = document.getElementById('endDate').value;
+  const df = document.getElementById('dateField').value;
   if (start && end) {
     if (df === 'requestDate') {
       filters.reqDateFrom = start;
-      filters.reqDateTo   = end;
+      filters.reqDateTo = end;
     } else {
       filters.expDateFrom = start;
-      filters.expDateTo   = end;
+      filters.expDateTo = end;
     }
   }
 
@@ -662,8 +662,8 @@ function renderReservations(reservations, total, page) {
   if (!reservations || reservations.length === 0) {
     list.innerHTML = '<p>No reservations found.</p>';
     currentPage = 1;
-    renderPaginationControls(0, 
-      currentPage,  
+    renderPaginationControls(0,
+      currentPage,
       fetchReservationsModule,
       'reservationsPagination'
     );
@@ -695,12 +695,12 @@ function renderReservations(reservations, total, page) {
       <td class="truncated-text" >${new Date(r.requestDate).toLocaleDateString()}</td>
       <td class="truncated-text" >
         ${r.expirationDate
-          ? new Date(r.expirationDate).toLocaleDateString()
-          : '—'}
+      ? new Date(r.expirationDate).toLocaleDateString()
+      : '—'}
       </td>
     </tr>
   `).join('');
-  
+
   const footer = `
       </tbody>
     </table>
@@ -714,14 +714,14 @@ function renderReservations(reservations, total, page) {
   // Select all clickable rows
   document
     .querySelectorAll('#reservationsList table tbody tr.clickable')
-      .forEach(row => {
-        // on click, navigate to detail page
-        row.addEventListener('click', () => {
+    .forEach(row => {
+      // on click, navigate to detail page
+      row.addEventListener('click', () => {
         const id = row.getAttribute('data-id');
         // redirect
         window.location.href = `/admin/reservations/${id}`;
-        });
       });
+    });
 
 
   // Re‑use your existing pagination renderer
@@ -845,8 +845,8 @@ async function loadUsersModule() {
 
   // Toggle advanced section
   const toggleBtn = document.getElementById('toggleAdvanced');
-  const advDiv    = document.getElementById('advancedSearch');
-  toggleBtn.addEventListener('click', () => {                                                
+  const advDiv = document.getElementById('advancedSearch');
+  toggleBtn.addEventListener('click', () => {
     const showing = advDiv.style.display === 'flex';
     advDiv.style.display = showing ? 'none' : 'flex';
     toggleBtn.textContent = showing
@@ -856,7 +856,7 @@ async function loadUsersModule() {
 
   // Search form submit
   const form = document.getElementById('searchForm');
-  form.addEventListener('submit', e => {                                                     
+  form.addEventListener('submit', e => {
     e.preventDefault();
     currentPage = 1;
     fetchUsersModule();
@@ -865,25 +865,25 @@ async function loadUsersModule() {
   // Attach event listener to the new Delete Selected button
   const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
   if (deleteSelectedBtn) {
-  deleteSelectedBtn.addEventListener('click', async () => {
-    // Get all checkboxes in the table body that are checked
-    const selectedCheckboxes = document.querySelectorAll('.users-table tbody input[type="checkbox"]:checked');
-    if (selectedCheckboxes.length === 0) {
-      await showModal({ message: 'Please select at least one user to delete.' });
-      return;
-    }
-    
-    const confirmed = await showModal({ message: 'Are you sure you want to delete the selected user(s)?', showCancel: true });
-    if (!confirmed) return;
-    
-    // Collect userIds from each selected checkbox's row
-    const userIds = Array.from(selectedCheckboxes)
-      .map(checkbox => {
-        const row = checkbox.closest('tr');
-        return row.getAttribute('data-userid');
-      })
-      .filter(userid => userid); // remove null or undefined
-    
+    deleteSelectedBtn.addEventListener('click', async () => {
+      // Get all checkboxes in the table body that are checked
+      const selectedCheckboxes = document.querySelectorAll('.users-table tbody input[type="checkbox"]:checked');
+      if (selectedCheckboxes.length === 0) {
+        await showModal({ message: 'Please select at least one user to delete.' });
+        return;
+      }
+
+      const confirmed = await showModal({ message: 'Are you sure you want to delete the selected user(s)?', showCancel: true });
+      if (!confirmed) return;
+
+      // Collect userIds from each selected checkbox's row
+      const userIds = Array.from(selectedCheckboxes)
+        .map(checkbox => {
+          const row = checkbox.closest('tr');
+          return row.getAttribute('data-userid');
+        })
+        .filter(userid => userid); // remove null or undefined
+
       // Call deleteUser with the array of user ids
       try {
         await deleteUser(userIds);
@@ -909,14 +909,14 @@ async function fetchUsersModule() {
 
   // Build filter object from inputs
   const filters = {
-    id:            form.userId.value.trim(),        
-    name:          form.name.value.trim(),
-    email:         form.email.value.trim(),
-    role:          form.role.value,
-    address:       form.address.value.trim(),
+    id: form.userId.value.trim(),
+    name: form.name.value.trim(),
+    email: form.email.value.trim(),
+    role: form.role.value,
+    address: form.address.value.trim(),
     accountStatus: form.accountStatus.value,
-    page:          currentPage,
-    limit:         10
+    page: currentPage,
+    limit: 10
   };
 
   // Remove any empty fields
@@ -925,14 +925,14 @@ async function fetchUsersModule() {
   });
 
   // Build query string
-  const qs = new URLSearchParams(filters).toString();     
+  const qs = new URLSearchParams(filters).toString();
 
   try {
     // Fetch user list with filters & pagination
-    const res = await fetch(`${API.users.list}?${qs}`);   
-    if (!res.ok) throw new Error(`Server responded ${res.status}`); 
+    const res = await fetch(`${API.users.list}?${qs}`);
+    if (!res.ok) throw new Error(`Server responded ${res.status}`);
 
-    const data = await res.json();                        
+    const data = await res.json();
 
     // Render rows and pagination
     renderUsers(data.users, data.total, currentPage);
@@ -1027,11 +1027,11 @@ function renderUsers(users, total, page) {
  */
 async function deleteUser(userIds) {
   // 1. Bulk‐delete branch
-  if (Array.isArray(userIds)) {                                   // Array.isArray checks if the value is an Array :contentReference[oaicite:0]{index=0}
+  if (Array.isArray(userIds)) {                                   // Array.isArray checks if the value is an Array 
     // You might skip per‐item confirmation for bulk actions
-    for (const id of userIds) {                                   // for…of to iterate over arrays :contentReference[oaicite:1]{index=1}
+    for (const id of userIds) {                                   // for…of to iterate over arrays 
       try {
-        const res = await fetch(API.users.delete(id), {           // fetch() returns a Promise :contentReference[oaicite:2]{index=2}
+        const res = await fetch(API.users.delete(id), {           // fetch() returns a Promise 
           method: 'DELETE'
         });
         if (!res.ok) {
@@ -1049,7 +1049,7 @@ async function deleteUser(userIds) {
   }
 
   // 3. Single‐delete branch with user confirmation
-  const confirmed = await showModal({                             // showModal returns a Promise :contentReference[oaicite:3]{index=3}
+  const confirmed = await showModal({                             // showModal returns a Promise 
     message: 'Are you sure you want to delete this user?',
     showCancel: true
   });
@@ -1074,117 +1074,245 @@ async function deleteUser(userIds) {
 
 
 /* ------------------------ NOTIFICATIONS MODULE ------------------------ */
+// olld version
+// async function loadNotificationsModule() {
+//   contentArea.innerHTML = `
+//     <h2>Notifications Management</h2>
+//     <div class="filter-form">
+//       <input type="text" id="notificationFilter" placeholder="Filter by recipient or channel..." />
+//       <button id="notificationFilterBtn">Search</button>
+//       <button id="sendNotificationBtn">Send Notification</button>
+//       <button id="scheduleNotificationBtn">Schedule Notification</button>
+//     </div>
+//     <div id="notificationsList"></div>
+//     <div id="notificationsPagination" class="pagination"></div>
+//   `;
+//   document.getElementById('notificationFilterBtn').addEventListener('click', () => {
+//     currentPage = 1;
+//     fetchNotificationsModule();
+//   });
+//   document.getElementById('sendNotificationBtn').addEventListener('click', async () => {
+//     const channel = await showPromptModal({ message: 'Enter channel (email, sms, inapp):', defaultValue: 'email' });
+//     if (!channel) return;
+//     const recipient = await showPromptModal({ message: 'Enter recipient:' });
+//     if (!recipient) return;
+//     const subject = await showPromptModal({ message: 'Enter subject:' });
+//     const messageText = await showPromptModal({ message: 'Enter message:' });
+//     const payload = { channel, recipient, subject, message: messageText };
+//     try {
+//       const res = await fetch(API.notifications.send, {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify(payload)
+//       });
+//       if (res.ok) {
+//         await showModal({ message: 'Notification sent successfully.' });
+//         fetchNotificationsModule();
+//       } else {
+//         const err = await res.json();
+//         await showModal({ message: 'Error: ' + err.message });
+//       }
+//     } catch (error) {
+//       console.error(error);
+//       await showModal({ message: 'An error occurred while sending notification.' });
+//     }
+//   });
+//   document.getElementById('scheduleNotificationBtn').addEventListener('click', async () => {
+//     const channel = await showPromptModal({ message: 'Enter channel (email, sms, inapp):', defaultValue: 'email' });
+//     if (!channel) return;
+//     const recipient = await showPromptModal({ message: 'Enter recipient:' });
+//     if (!recipient) return;
+//     const subject = await showPromptModal({ message: 'Enter subject:' });
+//     const messageText = await showPromptModal({ message: 'Enter message:' });
+//     const scheduledAt = await showPromptModal({ message: 'Enter scheduled time (YYYY-MM-DD HH:MM):' });
+//     const payload = { channel, recipient, subject, message: messageText, scheduledAt };
+//     try {
+//       const res = await fetch(API.notifications.schedule, {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify(payload)
+//       });
+//       if (res.ok) {
+//         await showModal({ message: 'Notification scheduled successfully.' });
+//         fetchNotificationsModule();
+//       } else {
+//         const err = await res.json();
+//         await showModal({ message: 'Error: ' + err.message });
+//       }
+//     } catch (error) {
+//       console.error(error);
+//       await showModal({ message: 'An error occurred while scheduling notification.' });
+//     }
+//   });
+//   fetchNotificationsModule();
+// }
+
 async function loadNotificationsModule() {
   contentArea.innerHTML = `
     <h2>Notifications Management</h2>
-    <div class="filter-form">
-      <input type="text" id="notificationFilter" placeholder="Filter by recipient or channel..." />
-      <button id="notificationFilterBtn">Search</button>
-      <button id="sendNotificationBtn">Send Notification</button>
-      <button id="scheduleNotificationBtn">Schedule Notification</button>
+    <div class="search-container">
+      <form id="searchForm">
+        <!-- Basic search: recipient -->
+        <input
+          type="text"
+          id="basicSearch"
+          name="recipient"
+          placeholder="Search by recipient (email or phone)"
+        />
+        <!-- Toggle for advanced options -->
+        <button type="button" class="advanced-toggle" id="toggleAdvanced">
+          Show Advanced Search Options
+        </button>
+        <!-- Advanced filters -->
+        <div class="advanced-search" id="advancedSearch" style="display:none; flex-direction:column; gap:10px;">
+          <input type="text" id="searchSubject" name="subject" placeholder="Subject" />
+          <input type="text" id="searchMessage" name="message" placeholder="Message" />
+
+          <select id="searchChannel" name="channel">
+            <option value="">-- Channel --</option>
+            <option value="email">Email</option>
+            <option value="sms">SMS</option>
+            <option value="inapp">In-App</option>
+          </select>
+          <select id="searchStatus" name="status">
+            <option value="">-- Status --</option>
+            <option value="pending">Pending</option>
+            <option value="sent">Sent</option>
+            <option value="failed">Failed</option>
+          </select>
+          <select id="searchRead" name="read">
+            <option value="">-- Read? --</option>
+            <option value="true">Read</option>
+            <option value="false">Unread</option>
+          </select>
+
+          <div style="display:flex; gap:8px; align-items:center;">
+            <input type="date" id="startDate" name="startDate" />
+            <input type="date" id="endDate"   name="endDate" />
+            <select id="dateField" name="dateField">
+              <option value="createdAt">Created At</option>
+              <option value="scheduledAt">Scheduled At</option>
+              <option value="deliveredAt">Delivered At</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit">Search</button>
+      </form>
     </div>
     <div id="notificationsList"></div>
     <div id="notificationsPagination" class="pagination"></div>
-  `;
-  document.getElementById('notificationFilterBtn').addEventListener('click', () => {
-    currentPage = 1;
-    fetchNotificationsModule();
+  `;  // innerHTML assignment
+
+  // After injecting, wire up the form handlers
+  const form = document.getElementById('searchForm');
+  const toggleBtn = document.getElementById('toggleAdvanced');
+  const advDiv = document.getElementById('advancedSearch');
+
+  // Toggle advanced search options
+  toggleBtn.addEventListener('click', () => {
+    const isOpen = advDiv.style.display === 'flex';              // reading style property
+    advDiv.style.display = isOpen ? 'none' : 'flex';
+    toggleBtn.textContent = isOpen
+      ? 'Show Advanced Search Options'
+      : 'Hide Advanced Search Options';
   });
-  document.getElementById('sendNotificationBtn').addEventListener('click', async () => {
-    const channel = await showPromptModal({ message: 'Enter channel (email, sms, inapp):', defaultValue: 'email' });
-    if (!channel) return;
-    const recipient = await showPromptModal({ message: 'Enter recipient:' });
-    if (!recipient) return;
-    const subject = await showPromptModal({ message: 'Enter subject:' });
-    const messageText = await showPromptModal({ message: 'Enter message:' });
-    const payload = { channel, recipient, subject, message: messageText };
-    try {
-      const res = await fetch(API.notifications.send, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (res.ok) {
-        await showModal({ message: 'Notification sent successfully.' });
-        fetchNotificationsModule();
-      } else {
-        const err = await res.json();
-        await showModal({ message: 'Error: ' + err.message });
-      }
-    } catch (error) {
-      console.error(error);
-      await showModal({ message: 'An error occurred while sending notification.' });
-    }
+
+  // Intercept form submission
+  form.addEventListener('submit', async e => {
+    e.preventDefault();                                          // prevent default reload
+    await fetchNotificationsModule();                            // call our fetch func
   });
-  document.getElementById('scheduleNotificationBtn').addEventListener('click', async () => {
-    const channel = await showPromptModal({ message: 'Enter channel (email, sms, inapp):', defaultValue: 'email' });
-    if (!channel) return;
-    const recipient = await showPromptModal({ message: 'Enter recipient:' });
-    if (!recipient) return;
-    const subject = await showPromptModal({ message: 'Enter subject:' });
-    const messageText = await showPromptModal({ message: 'Enter message:' });
-    const scheduledAt = await showPromptModal({ message: 'Enter scheduled time (YYYY-MM-DD HH:MM):' });
-    const payload = { channel, recipient, subject, message: messageText, scheduledAt };
-    try {
-      const res = await fetch(API.notifications.schedule, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (res.ok) {
-        await showModal({ message: 'Notification scheduled successfully.' });
-        fetchNotificationsModule();
-      } else {
-        const err = await res.json();
-        await showModal({ message: 'Error: ' + err.message });
-      }
-    } catch (error) {
-      console.error(error);
-      await showModal({ message: 'An error occurred while scheduling notification.' });
-    }
-  });
-  fetchNotificationsModule();
+
+  // initial load
+  await fetchNotificationsModule();
 }
 
 async function fetchNotificationsModule() {
-  const filter = document.getElementById('notificationFilter').value;
-  const params = new URLSearchParams({ page: currentPage, limit: 10 });
-  if (filter) params.append('recipient', filter);
+  const form = document.getElementById('searchForm');
+
+  // Gather filters
+  const filters = {
+    recipient: form.recipient.value.trim(),
+    subject: form.subject.value.trim(),
+    message: form.message.value.trim(),
+    channel: form.channel.value,
+    status: form.status.value,
+    read: form.read.value,
+    startDate: form.startDate.value,
+    endDate: form.endDate.value,
+    dateField: form.dateField.value,  // e.g. "createdAt", "scheduledAt", or "deliveredAt"
+    page: currentPage,
+    limit: 10
+  };
+
+  // Remove empty
+  Object.keys(filters).forEach(key => {
+    if (!filters[key]) delete filters[key];
+  });
+
   try {
-    const res = await fetch(API.notifications.list + '?' + params.toString());
-    if (!res.ok) throw new Error('Failed to fetch notifications.');
+    const qs = new URLSearchParams(filters).toString();
+    const res = await fetch(`/api/notifications/history?${qs}`);
+    if (!res.ok) throw new Error(`Server responded ${res.status}`);
     const data = await res.json();
-    renderNotifications(data, currentPage);
-  } catch (error) {
-    console.error(error);
-    contentArea.innerHTML += '<p>Error loading notifications.</p>';
+    
+    renderNotifications(data.notifications, data.total, currentPage);
+  } catch (err) {
+    console.error(err);
+    contentArea.innerHTML += '<p style="color:red;">Error loading notifications.</p>';
   }
 }
 
-function renderNotifications(data, page) {
+function renderNotifications(data, total, page) {
   const list = document.getElementById('notificationsList');
+  // Empty or no data
   if (!data || data.length === 0) {
     list.innerHTML = '<p>No notifications found.</p>';
+    renderPaginationControls(0, page, fetchNotificationsModule, 'notificationsPagination');
     return;
   }
-  list.innerHTML = '<table><thead><tr><th>ID</th><th>Channel</th><th>Recipient</th><th>Subject</th><th>Status</th><th>Created At</th><th>Actions</th></tr></thead><tbody>' +
-  data.map(notif => `
-    <tr>
-      <td>${notif.id}</td>
-      <td>${notif.channel}</td>
-      <td>${notif.recipient}</td>
-      <td>${notif.subject || '-'}</td>
-      <td>${notif.status}</td>
-      <td>${new Date(notif.createdAt).toLocaleString()}</td>
-      <td>
-        ${notif.channel === 'inapp' ? `<button onclick="markNotificationRead(${notif.id}, true)">Mark as Read</button>
-        <button onclick="markNotificationRead(${notif.id}, false)">Mark as Unread</button>` : ''}
-      </td>
+
+  // Build table
+  let html = `
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Recipient</th>
+          <th>Subject</th>
+          <th>Status</th>
+          <th>Created At</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+  html += data.map(notif => `
+    <tr class="clickable">
+      <td class="truncated-text">${notif.id}</td>
+      <td class="truncated-text">${notif.recipient}</td>
+      <td class="truncated-text">${notif.subject || '-'}</td>
+      <td class="truncated-text">${notif.status}</td>
+      <td class="truncated-text">${new Date(notif.createdAt).toLocaleString()}</td
     </tr>
-  `).join('') +
-  '</tbody></table>';
-  // Pagination not fully implemented for notifications in this snippet.
+  `).join('') + `
+      </tbody>
+    </table>
+  `;
+
+  html += `
+    <div class="table-footer">
+      <p>Total notifications: ${total}</p>
+    </div>
+    `
+
+  list.innerHTML = html;
+
+  // Render footer and pagination controls
+  renderPaginationControls(total, page, fetchNotificationsModule, 'notificationsPagination');
 }
+
 
 async function markNotificationRead(notificationId, read) {
   try {
@@ -1298,7 +1426,7 @@ function renderPaginationControls(total, page, fetchFunc, containerId) {
   const totalPages = total > 0 ? Math.ceil(total / 10) : 1;
   const container = document.getElementById(containerId);
   container.innerHTML = '';
-  
+
   const prevBtn = document.createElement('button');
   prevBtn.textContent = 'Previous';
   prevBtn.disabled = page <= 1;
@@ -1308,7 +1436,7 @@ function renderPaginationControls(total, page, fetchFunc, containerId) {
       await fetchFunc();
     }
   });
-  
+
   const nextBtn = document.createElement('button');
   nextBtn.textContent = 'Next';
   nextBtn.disabled = page >= totalPages;
@@ -1318,10 +1446,10 @@ function renderPaginationControls(total, page, fetchFunc, containerId) {
       await fetchFunc();
     }
   });
-  
+
   const pageInfo = document.createElement('span');
   pageInfo.textContent = `Page ${page} of ${totalPages}`;
-  
+
   container.appendChild(prevBtn);
   container.appendChild(pageInfo);
   container.appendChild(nextBtn);

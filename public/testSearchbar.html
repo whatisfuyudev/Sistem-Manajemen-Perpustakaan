@@ -92,50 +92,59 @@
 </head>
 <body>
   <h1>Notification History Search</h1>
+  
   <div class="search-container">
     <form id="searchForm">
-      <!-- Advanced toggle -->
+      <!-- Basic search: Single input for recipient -->
+      <input
+        type="text"
+        id="basicSearch"
+        name="recipient"
+        placeholder="Search by recipient (email or phone)"
+      />
+  
+      <!-- Toggle for advanced search -->
       <button type="button" class="advanced-toggle" id="toggleAdvanced">
-        Show Search Options
+        Show Advanced Search Options
       </button>
-
+  
+      <!-- Advanced filters -->
       <div class="advanced-search" id="advancedSearch">
         <!-- Text filters -->
-        <input type="text" id="recipient" placeholder="Recipient (email or phone)" />
-        <input type="text" id="subject"   placeholder="Subject" />
-        <input type="text" id="message"   placeholder="Message" />
-
+        <input type="text" id="searchSubject" name="subject" placeholder="Subject" />
+        <input type="text" id="searchMessage" name="message" placeholder="Message" />
+  
         <!-- Exact-match filters -->
-        <select id="channel">
+        <select id="searchChannel" name="channel">
           <option value="">-- Channel --</option>
           <option value="email">Email</option>
           <option value="sms">SMS</option>
           <option value="inapp">In-App</option>
         </select>
-        <select id="status">
+        <select id="searchStatus" name="status">
           <option value="">-- Status --</option>
           <option value="pending">Pending</option>
           <option value="sent">Sent</option>
           <option value="failed">Failed</option>
         </select>
-        <select id="read">
+        <select id="searchRead" name="read">
           <option value="">-- Read? --</option>
           <option value="true">Read</option>
           <option value="false">Unread</option>
         </select>
-
+  
         <!-- Date-range filters with field selector -->
-        <label>Date Range:</label>
         <div style="display:flex; gap:8px; align-items:center;">
-          <input type="date" id="startDate" placeholder="Start Date" />
-          <input type="date" id="endDate"   placeholder="End Date" />
-          <select id="dateField">
+          <input type="date" id="startDate"   name="startDate"   placeholder="Start Date" />
+          <input type="date" id="endDate"     name="endDate"     placeholder="End Date" />
+          <select id="dateField"   name="dateField">
             <option value="createdAt">Created At</option>
             <option value="scheduledAt">Scheduled At</option>
             <option value="deliveredAt">Delivered At</option>
           </select>
         </div>
-
+      </div>
+  
       <button type="submit">Search</button>
     </form>
   </div>

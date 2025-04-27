@@ -42,12 +42,7 @@ exports.getNotificationHistory = async (req, res, next) => {
       channel,
       status,
       read,
-      createdFrom,
-      createdTo,
-      scheduledFrom,
-      scheduledTo,
-      deliveredFrom,
-      deliveredTo
+      page,
     } = req.query;
 
     // Build a filter object and pass straight through
@@ -60,7 +55,8 @@ exports.getNotificationHistory = async (req, res, next) => {
       read,            // string “true”/“false”
       startDate:     req.query.startDate,
       endDate:       req.query.endDate,
-      dateField:     req.query.dateField
+      dateField:     req.query.dateField,
+      page,
     };
 
     const notifications = await notificationsService.getNotificationHistory(filters);

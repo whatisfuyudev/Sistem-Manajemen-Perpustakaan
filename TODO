@@ -23,21 +23,18 @@
   - make the admin/librarian side
     - construct admin panel
 
-      - export my user and book table into sql insert query, put into respective "perintah sql"
-
       - fix notifications section
-        - able to query notification data based on multiple criteria
-          - integrate the search bar to notification tab
-
         - individual notification page
           - hover clickable thing redirect to notification page route
+            - add back button to page
 
         - able to manually send a notification (new page)
         - able to schedule send a notification (new page)
           - back end notification system
           - handle schedule notification
             - most likely gonna look like overdue or expired checker, maybe combine all of them into one file?
-            
+        
+        - look for free sms provider
   
         
 

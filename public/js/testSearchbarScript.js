@@ -1,15 +1,15 @@
-const form              = document.getElementById('searchForm');
-const toggleBtn         = document.getElementById('toggleAdvanced');
-const advancedSearchDiv = document.getElementById('advancedSearch');
-const resultsContainer  = document.getElementById('resultsContainer');
+const form       = document.getElementById('searchForm');
+const toggleBtn  = document.getElementById('toggleAdvanced');
+const advDiv     = document.getElementById('advancedSearch');
+const resultsDiv = document.getElementById('resultsContainer');
 
-// Toggle advanced search
+// Toggle advanced options
 toggleBtn.addEventListener('click', () => {
-  const isVisible = advancedSearchDiv.style.display === 'flex';
-  advancedSearchDiv.style.display = isVisible ? 'none' : 'flex';
-  toggleBtn.textContent = isVisible
-    ? 'Show Search Options'
-    : 'Hide Search Options';
+  const open = advDiv.style.display === 'flex';
+  advDiv.style.display = open ? 'none' : 'flex';
+  toggleBtn.textContent = open
+    ? 'Show Advanced Search Options'
+    : 'Hide Advanced Search Options';
 });
 
 // Handle search submission

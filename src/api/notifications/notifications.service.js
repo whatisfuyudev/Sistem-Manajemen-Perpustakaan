@@ -90,48 +90,67 @@ exports.markInAppNotificationRead = async (notificationId, read) => {
  * Retrieves notification history with optional filtering (by recipient, channel, status).
  */
 exports.getNotificationHistory = async (query) => {
+  // 1) Pull pagination + filters from query
+  const {
+    page = 1,
+    limit = 10,
+    id,
+    channel,
+    status,
+    read,
+    recipient,
+    subject,
+    message,
+    dateField,
+    startDate,
+    endDate
+  } = query;
+
+  const offset = (parseInt(page, 10) - 1) * parseInt(limit, 10);
+
+  // 2) Build WHERE clause
   const where = {};
 
-  // Exact-match enums & boolean
-  if (query.channel)  where.channel = query.channel;
-  if (query.status)   where.status  = query.status;
-  if (query.read != null) {
-    // convert string "true"/"false" to boolean
-    where.read = query.read === 'true';
-  }
+  // exact‐match fields
+  if (id) where.id = id;
+  if (channel) where.channel = channel;
+  if (status)  where.status  = status;
+  if (read != null) where.read = (read === 'true');
 
-  // Partial/text search (case-insensitive)
-  if (query.recipient) where.recipient = { [Op.iLike]: `%${query.recipient}%` };
-  if (query.subject)   where.subject   = { [Op.iLike]: `%${query.subject}%`   };
-  if (query.message)   where.message   = { [Op.iLike]: `%${query.message}%`   };
+  // partial text
+  if (recipient) where.recipient = { [Op.iLike]: `%${recipient}%` };
+  if (subject)   where.subject   = { [Op.iLike]: `%${subject}%`   };
+  if (message)   where.message   = { [Op.iLike]: `%${message}%`   };
 
-  // Dynamic date-range filtering
-  // Default to createdAt if no dateField provided
-  const field = ['createdAt','scheduledAt','deliveredAt']
-    .includes(query.dateField)
-      ? query.dateField
-      : 'createdAt';
+  // date range on chosen field
+  const df = ['createdAt','scheduledAt','deliveredAt'].includes(dateField)
+    ? dateField
+    : 'createdAt';
 
-  const { startDate, endDate } = query;
   if (startDate || endDate) {
-    where[field] = {};
+    where[df] = {};
     if (startDate) {
       const sd = new Date(startDate);
-      if (!isNaN(sd)) where[field][Op.gte] = sd;
+      if (!isNaN(sd)) where[df][Op.gte] = sd;
     }
-    if (endDate) {{
-
-    }
+    if (endDate) {
       const ed = new Date(endDate);
-      if (!isNaN(ed)) where[field][Op.lte] = ed;
+      if (!isNaN(ed)) where[df][Op.lte] = ed;
     }
   }
 
-  // Fetch & return
-  const notifications = await Notification.findAll({
+  // 3) Query with count + rows
+  const { count, rows } = await Notification.findAndCountAll({
     where,
-    order: [['createdAt', 'DESC']]
+    offset,
+    limit: parseInt(limit, 10),
+    order: [['id', 'DESC']]
   });
 
-  return notifications;
+  // 4) Return in standardized shape
+  return {
+    total: count,
+    notifications: rows,
+    page: parseInt(page, 10)
+  };
 };
