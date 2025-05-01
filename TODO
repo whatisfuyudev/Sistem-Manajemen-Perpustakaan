@@ -28,7 +28,12 @@
 
         - able to manually send a notification (new page)
         - able to schedule send a notification (new page)
-          - making both the above at the same time, check Library Web App Specs 4 on freecoh chatgpt account
+          - add back button like every add something page
+          - fix checkbox schedule for later layout or placement
+        
+        - notification detail page
+          - add an mark as read button
+
 
           - back end notification system
           - handle schedule notification

@@ -3,8 +3,12 @@ const router                = express.Router();
 const authMiddleware        = require('../../middleware/auth.middleware');
 const notificationPageController = require('./notificationPage.controllers');
 
-// Protect all notification routes
-// router.use();
+router.get(
+  '/admin/notifications/send',
+  authMiddleware.verifyToken,
+  authMiddleware.isLibrarianOrAdmin,
+  notificationPageController.renderAdminNotificationAddAndSchedule
+);
 
 // Render Edit Notification page
 router.get(
@@ -21,5 +25,7 @@ router.get(
   authMiddleware.isLibrarianOrAdmin,   
   notificationPageController.renderAdminNotificationDetail
 );
+
+
 
 module.exports = router;

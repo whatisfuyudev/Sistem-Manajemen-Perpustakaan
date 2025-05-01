@@ -30,7 +30,9 @@ exports.sendNotification = async (data) => {
         html: message
       });
     } else if (channel === 'sms') {
-      result = await smsHelper.sendSMS({ to: recipient, message });
+      // Feature not implemented yet
+      throw new CustomError('SMS notifications are coming soon.', 501);
+      // result = await smsHelper.sendSMS({ to: recipient, message });
     } else if (channel === 'inapp') {
       // For in-app notifications, only a record is saved.
       result = { message: 'In-app notification logged.' };
@@ -59,6 +61,14 @@ exports.sendNotification = async (data) => {
  */
 exports.scheduleNotification = async (data) => {
   const { channel, recipient, subject, message, scheduledAt } = data;
+
+  if (channel === 'sms') {
+    throw new CustomError('SMS scheduling is coming soon.', 501);
+  }
+  if (channel === 'inapp') {
+    throw new CustomError('In-App scheduling is coming soon.', 501);
+  }
+
   const notificationRecord = await Notification.create({
     channel,
     recipient,

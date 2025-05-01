@@ -45,3 +45,13 @@ exports.renderAdminNotificationEdit = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.renderAdminNotificationAddAndSchedule = async (req, res, next) => {
+  try {
+    // You can pass any needed context here
+    res.render('admin-notification-add-and-schedule');
+  } catch (err) {
+    next(err);
+  }
+};
+
