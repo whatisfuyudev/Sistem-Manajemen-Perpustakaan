@@ -65,3 +65,30 @@ exports.getNotificationHistory = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.updateNotification = async (req, res, next) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) {
+      throw new CustomError('Invalid notification ID', 400);
+    }
+
+    // Expect body to contain any of: channel, recipient, subject, message, status, read, scheduledAt
+    const allowed = ['channel','recipient','subject','message','status','read','scheduledAt'];
+    const payload = {};
+    allowed.forEach(field => {
+      if (req.body[field] !== undefined) {
+        payload[field] = req.body[field];
+      }
+    });
+
+    if (Object.keys(payload).length === 0) {
+      throw new CustomError('No valid fields provided for update', 400);
+    }
+
+    const updated = await notificationsService.updateNotification(id, payload);
+    res.status(200).json({ success: true, notification: updated });
+  } catch (err) {
+    next(err);
+  }
+};

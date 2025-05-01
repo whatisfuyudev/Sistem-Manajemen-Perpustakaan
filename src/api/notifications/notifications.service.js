@@ -154,3 +154,30 @@ exports.getNotificationHistory = async (query) => {
     page: parseInt(page, 10)
   };
 };
+
+exports.updateNotification = async (id, data) => {
+  // 1) Fetch existing record
+  const notification = await Notification.findByPk(id);
+  if (!notification) {
+    throw new CustomError('Notification not found', 404);
+  }
+
+  // 2) Apply changes
+  //   - If scheduledAt is present, convert to Date
+  if (data.scheduledAt !== undefined) {
+    const dt = new Date(data.scheduledAt);
+    if (isNaN(dt)) throw new CustomError('Invalid scheduledAt date', 400);
+    notification.scheduledAt = dt;
+    delete data.scheduledAt;
+  }
+  //   - other fields directly
+  Object.keys(data).forEach(key => {
+    notification[key] = data[key];
+  });
+
+  // 3) Save
+  await notification.save();  // instance.save() only writes changed fields :contentReference[oaicite:2]{index=2}
+
+  // 4) Return fresh instance
+  return notification;
+};

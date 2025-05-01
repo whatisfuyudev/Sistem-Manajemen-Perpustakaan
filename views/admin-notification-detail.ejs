@@ -38,11 +38,15 @@
       font-weight: 600;
     }
     .badge {
-      background: #007bff;
+      display: inline-flex;
+      align-items: center;    /* Vertically centers the text */
+      justify-content: center; /* Horizontally centers the text */
+      padding: 10px 20px;
+      font-size: 1rem;
+      background-color: #007BFF;
       color: #fff;
-      padding: 4px 8px;
       border-radius: 4px;
-      font-size: 0.85rem;
+      min-height: 1.5rem; /* Ensures sufficient height for vertical centering */
     }
 
     .card-body {
@@ -89,11 +93,55 @@
       }
       .card-footer { text-align: left; }
     }
+
+    /* back buttons */
+    .back-button {
+      background: #6c757d;
+      padding: 10px 20px;
+      border-radius: 4px;
+      color: #fff;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .back-button:hover {
+      background-color: #5a6268;
+    }
+
+    /* Button Group */
+    .button-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 1rem;
+      margin-bottom: 1rem;
+      justify-content: center;
+    }
+
+    /* Base button style */
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      display: inline-block;
+      transition: background-color 0.2s ease;
+    }
+
+    .btn-secondary {
+      background-color: #ffc107;
+      color: #fff;
+    }
+    .btn-secondary:hover {
+      background-color: #e0a800;
+    }
+
   </style>
 </head>
 <body>
   <div class="card">
+   
     <div class="card-header">
+      <a href="/admin/panel?tab=notifications" class="back-button">Back</a>
       <h1>Notification #<%= notification.id %></h1>
       <span class="badge"><%= notification.status %></span>
     </div>
@@ -139,9 +187,22 @@
         </div>
       </div>
     </div>
-    <div class="card-footer">
-      <a href="/admin/notifications" class="btn">← Back to List</a>
+
+    <!-- Action Buttons -->
+    <div class="button-group">
+      <button 
+      id="modifyBtn" 
+      class="btn btn-secondary" 
+      data-notification-id="<%= notification.id %>">
+        Edit
+      </button>
+
     </div>
+
   </div>
+
+  <script src="/public/js/admin-notification-detailScript.js">
+
+  </script>
 </body>
 </html>

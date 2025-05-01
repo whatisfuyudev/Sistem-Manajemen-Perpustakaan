@@ -3,11 +3,22 @@ const router                = express.Router();
 const authMiddleware        = require('../../middleware/auth.middleware');
 const notificationPageController = require('./notificationPage.controllers');
 
+// Protect all notification routes
+// router.use();
+
+// Render Edit Notification page
+router.get(
+  '/admin/notifications/edit/:id', // e.g. /admin/notifications/edit/123
+  authMiddleware.verifyToken, 
+  authMiddleware.isLibrarianOrAdmin,                      
+  notificationPageController.renderAdminNotificationEdit // handler defined below
+);
+
 // Render the Admin Notification Detail page (Admin/Librarian only)
 router.get(
   '/admin/notifications/:id',           // e.g. /admin/notifications/123
-  authMiddleware.verifyToken,           // must be logged in
-  authMiddleware.isLibrarianOrAdmin,    // only staff
+  authMiddleware.verifyToken, 
+  authMiddleware.isLibrarianOrAdmin,   
   notificationPageController.renderAdminNotificationDetail
 );
 

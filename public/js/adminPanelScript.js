@@ -1275,7 +1275,7 @@ function renderNotifications(data, total, page) {
 
   // Build table
   let html = `
-    <table>
+    <table class="notifications-table">
       <thead>
         <tr>
           <th>ID</th>
@@ -1289,7 +1289,7 @@ function renderNotifications(data, total, page) {
   `;
 
   html += data.map(notif => `
-    <tr class="clickable">
+    <tr class="clickable" data-notificationid="${notif.id}">
       <td class="truncated-text">${notif.id}</td>
       <td class="truncated-text">${notif.recipient}</td>
       <td class="truncated-text">${notif.subject || '-'}</td>
@@ -1311,6 +1311,22 @@ function renderNotifications(data, total, page) {
 
   // Render footer and pagination controls
   renderPaginationControls(total, page, fetchNotificationsModule, 'notificationsPagination');
+
+  // Row-click navigation (ignoring clicks on the checkbox cell)
+  document
+    .querySelectorAll('.notifications-table tbody tr.clickable')
+    .forEach(row => {
+      row.style.cursor = 'pointer';
+      row.addEventListener('click', e => {
+        // If they clicked the first cell (checkbox), do nothing
+        const cell = e.target.closest('td');
+        if (cell && cell.cellIndex === 0) return;
+        const notificationId = row.getAttribute('data-notificationid');
+        if (notificationId) {
+          window.location.href = `/admin/notifications/${notificationId}`;
+        }
+      });
+    });
 }
 
 

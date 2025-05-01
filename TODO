@@ -17,6 +17,7 @@
     - make it similiar to https://www.libib.com/ (no lol)
       - there will be homepage, individual book page, profile page, my reservations page, my checkouts page, register page, login page
         - rework profile page 
+        - probably add more things on the homepage example would be book based by author, genre, or even a new section about article and dedicated article page that is related to book news or book things or library news.
 
         - replace alert in my reservation page, book details, profile,  with custom popup/modal
 
@@ -24,12 +25,11 @@
     - construct admin panel
 
       - fix notifications section
-        - individual notification page
-          - hover clickable thing redirect to notification page route
-            - add back button to page
 
         - able to manually send a notification (new page)
         - able to schedule send a notification (new page)
+          - making both the above at the same time, check Library Web App Specs 4 on freecoh chatgpt account
+
           - back end notification system
           - handle schedule notification
             - most likely gonna look like overdue or expired checker, maybe combine all of them into one file?
