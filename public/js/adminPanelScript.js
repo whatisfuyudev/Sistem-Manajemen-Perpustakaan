@@ -1200,6 +1200,12 @@ async function loadNotificationsModule() {
         <button type="submit">Search</button>
       </form>
     </div>
+
+    <!-- Send New Notification Button, move inline styling into head -->
+    <div style="margin: 10px 0; display: flex; gap: 10px;">
+      <button id="sendNotificationBtn" style="background: #007bff; color: #fff; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer;">Send Notification</button>
+    </div>
+
     <div id="notificationsList"></div>
     <div id="notificationsPagination" class="pagination"></div>
   `;  // innerHTML assignment
@@ -1208,6 +1214,11 @@ async function loadNotificationsModule() {
   const form = document.getElementById('searchForm');
   const toggleBtn = document.getElementById('toggleAdvanced');
   const advDiv = document.getElementById('advancedSearch');
+
+  // wire up send new notification button
+  document.getElementById('sendNotificationBtn').addEventListener('click', () => {
+    window.location.href = '/admin/notifications/send';
+  });
 
   // Toggle advanced search options
   toggleBtn.addEventListener('click', () => {

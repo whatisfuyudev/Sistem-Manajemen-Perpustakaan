@@ -46,6 +46,15 @@
       align-items: center;
       gap: 10px;
     }
+    #scheduleToggle {
+      width: 1rem;
+    }
+    label[for="scheduleToggle"] {
+      /* your styles here */
+      font-weight: bold;
+      font-size: 1rem;
+      margin-bottom: 2px;
+    } 
     .button-group {
       display: flex;
       justify-content: space-between;
@@ -78,10 +87,30 @@
     @media (max-width: 480px) {
       .button-group { flex-direction: column; }
     }
+
+    .back-button-container {
+      margin-bottom: 20px;
+    }
+    .back-button {
+      background: #6c757d;
+      padding: 10px 20px;
+      border-radius: 4px;
+      color: #fff;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .back-button:hover {
+      background-color: #5a6268;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="container"> 
+    <div class="back-button-container">
+      <!-- change to proper endpoint -->
+      <a href="/admin/panel?tab=notifications" class="back-button">Back</a>
+    </div>
+    
     <h1>Send / Schedule Notification</h1>
     <form id="notifyForm">
       <div>
@@ -115,8 +144,8 @@
       </div>
 
       <div id="scheduleField" style="display:none;">
-        <label for="scheduledAt">Scheduled At</label>
-        <input type="datetime-local" id="scheduledAt" name="scheduledAt">
+        <label for="scheduledAt">Scheduled Date</label>
+        <input type="date" id="scheduledAt" name="scheduledAt">
       </div>
 
       <div class="button-group">

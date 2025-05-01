@@ -26,20 +26,14 @@
 
       - fix notifications section
 
-        - able to manually send a notification (new page)
-        - able to schedule send a notification (new page)
-          - add back button like every add something page
-          - fix checkbox schedule for later layout or placement
-        
         - notification detail page
-          - add an mark as read button
-
+          - add a mark as read button
 
           - back end notification system
           - handle schedule notification
             - most likely gonna look like overdue or expired checker, maybe combine all of them into one file?
         
-        - look for free sms provider
+        - look for free sms provider??
   
         
 
