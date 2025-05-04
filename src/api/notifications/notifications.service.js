@@ -44,6 +44,7 @@ exports.sendNotification = async (data) => {
     notificationRecord.status = 'sent';
     notificationRecord.deliveredAt = new Date();
     await notificationRecord.save();
+
     return { success: true, notification: notificationRecord, result };
   } catch (error) {
     notificationRecord.status = 'failed';

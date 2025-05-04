@@ -4,6 +4,7 @@ const { MailerSend, EmailParams, Sender, Recipient } = require("mailersend");
 // Import models (adjust paths as needed)
 const User = require('../models/user.model');
 const Book = require('../models/book.model');
+const CustomError = require('./customError');
 
 
 // Initialize MailerSend with your API key
@@ -46,6 +47,7 @@ exports.sendEmail = async ({ to, subject, html }) => {
     return response;
   } catch (error) {
     console.error("Error sending email:", error);
+    throw new CustomError(`Error sending email: ${error.body.message}`, 422);
   }
 };
 

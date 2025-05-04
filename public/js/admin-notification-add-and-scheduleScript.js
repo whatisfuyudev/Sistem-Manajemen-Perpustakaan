@@ -16,7 +16,7 @@
 
   // Cancel → back to admin panel
   cancelBtn.addEventListener('click', () => {
-    window.location.href = '/admin/notifications';
+    window.location.href = '/admin/panel?tab=notifications';
   });
 
   // Form submit

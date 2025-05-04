@@ -27,13 +27,12 @@
       - fix notifications section
 
         - notification detail page
-          - add a mark as read button
 
-          - back end notification system
-          - handle schedule notification
-            - most likely gonna look like overdue or expired checker, maybe combine all of them into one file?
+          - combined scheduler is a bit buggy
+            - writing to lastruns.json is not all of it at the same time
+            - email is not sending/even updating its status
         
-        - look for free sms provider??
+        
   
         
 
@@ -43,6 +42,7 @@
 
 
 ### General TODO
+- look for free sms provider??
 - make sure the book service works properly, ensure data sanitization
 - checkout model no negative number on renewalCount or other number based column
 - prevent upload cover image abuse (upload the image at the same time as clicking update book data)

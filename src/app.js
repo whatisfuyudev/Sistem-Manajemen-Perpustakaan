@@ -15,8 +15,8 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const authMiddleware = require('./middleware/auth.middleware');
 // importing it so it runs even if the variable is not used
-const overdueChecker = require('./utils/checkoutOverdueChecker'); 
-const expiredChecker = require('./utils/reservationExpiredChecker');
+const combinedScheduler = require('./utils/combinedScheduler'); 
+
 
 const loggerMiddleware = require('./middleware/logging.middleware'); // our Morgan configured with Winston
 
