@@ -1074,79 +1074,6 @@ async function deleteUser(userIds) {
 
 
 /* ------------------------ NOTIFICATIONS MODULE ------------------------ */
-// olld version
-// async function loadNotificationsModule() {
-//   contentArea.innerHTML = `
-//     <h2>Notifications Management</h2>
-//     <div class="filter-form">
-//       <input type="text" id="notificationFilter" placeholder="Filter by recipient or channel..." />
-//       <button id="notificationFilterBtn">Search</button>
-//       <button id="sendNotificationBtn">Send Notification</button>
-//       <button id="scheduleNotificationBtn">Schedule Notification</button>
-//     </div>
-//     <div id="notificationsList"></div>
-//     <div id="notificationsPagination" class="pagination"></div>
-//   `;
-//   document.getElementById('notificationFilterBtn').addEventListener('click', () => {
-//     currentPage = 1;
-//     fetchNotificationsModule();
-//   });
-//   document.getElementById('sendNotificationBtn').addEventListener('click', async () => {
-//     const channel = await showPromptModal({ message: 'Enter channel (email, sms, inapp):', defaultValue: 'email' });
-//     if (!channel) return;
-//     const recipient = await showPromptModal({ message: 'Enter recipient:' });
-//     if (!recipient) return;
-//     const subject = await showPromptModal({ message: 'Enter subject:' });
-//     const messageText = await showPromptModal({ message: 'Enter message:' });
-//     const payload = { channel, recipient, subject, message: messageText };
-//     try {
-//       const res = await fetch(API.notifications.send, {
-//         method: 'POST',
-//         headers: { 'Content-Type': 'application/json' },
-//         body: JSON.stringify(payload)
-//       });
-//       if (res.ok) {
-//         await showModal({ message: 'Notification sent successfully.' });
-//         fetchNotificationsModule();
-//       } else {
-//         const err = await res.json();
-//         await showModal({ message: 'Error: ' + err.message });
-//       }
-//     } catch (error) {
-//       console.error(error);
-//       await showModal({ message: 'An error occurred while sending notification.' });
-//     }
-//   });
-//   document.getElementById('scheduleNotificationBtn').addEventListener('click', async () => {
-//     const channel = await showPromptModal({ message: 'Enter channel (email, sms, inapp):', defaultValue: 'email' });
-//     if (!channel) return;
-//     const recipient = await showPromptModal({ message: 'Enter recipient:' });
-//     if (!recipient) return;
-//     const subject = await showPromptModal({ message: 'Enter subject:' });
-//     const messageText = await showPromptModal({ message: 'Enter message:' });
-//     const scheduledAt = await showPromptModal({ message: 'Enter scheduled time (YYYY-MM-DD HH:MM):' });
-//     const payload = { channel, recipient, subject, message: messageText, scheduledAt };
-//     try {
-//       const res = await fetch(API.notifications.schedule, {
-//         method: 'POST',
-//         headers: { 'Content-Type': 'application/json' },
-//         body: JSON.stringify(payload)
-//       });
-//       if (res.ok) {
-//         await showModal({ message: 'Notification scheduled successfully.' });
-//         fetchNotificationsModule();
-//       } else {
-//         const err = await res.json();
-//         await showModal({ message: 'Error: ' + err.message });
-//       }
-//     } catch (error) {
-//       console.error(error);
-//       await showModal({ message: 'An error occurred while scheduling notification.' });
-//     }
-//   });
-//   fetchNotificationsModule();
-// }
-
 async function loadNotificationsModule() {
   contentArea.innerHTML = `
     <h2>Notifications Management</h2>
@@ -1368,85 +1295,191 @@ async function loadReportsModule() {
     <div class="filter-form" id="reportsFilterForm">
       <select id="reportType">
         <option value="circulation" selected>Circulation</option>
-        <option value="reservations">Reservations</option>
         <option value="overdue">Overdue</option>
         <option value="inventory">Inventory</option>
         <option value="user-engagement">User Engagement</option>
         <option value="financial">Financial</option>
-        <option value="custom">Custom</option>
       </select>
       <button id="loadReportBtn">Load Report</button>
     </div>
+
+    <!-- Wrap the period selector so we can show/hide it -->
+    <div id="circulationPeriodContainer">
+      <select id="circulationPeriod">
+        <option value="daily" selected>Daily (this month)</option>
+        <option value="weekly">Weekly (this month)</option>
+        <option value="monthly">Monthly (this year)</option>
+      </select>
+    </div>
+
+    <canvas id="reportsChart" style="max-height:480px;"></canvas>
+
     <div id="reportsContainer"></div>
+
     <div id="reportsPagination" class="pagination"></div>
   `;
-  document.getElementById('loadReportBtn').addEventListener('click', () => {
-    currentPage = 1;
-    fetchReport();
-  });
+  document.getElementById('loadReportBtn')
+    .addEventListener('click', () => {
+      currentPage = 1;
+      fetchReport();
+    });
   fetchReport();
 }
 
+let circulationChartInstance = null;
+
 async function fetchReport() {
   const reportType = document.getElementById('reportType').value;
-  const params = new URLSearchParams({ page: currentPage, limit: 10 });
-  // Add additional report filters here if needed.
+  const period = document.getElementById('circulationPeriod').value;
+  const params     = new URLSearchParams({ page: currentPage, limit: 10, period });
+
   try {
     const res = await fetch(API.reports[reportType] + '?' + params.toString());
     if (!res.ok) throw new Error('Failed to fetch report data.');
     const data = await res.json();
+    console.log(data);
+    
     renderReport(reportType, data, currentPage);
   } catch (error) {
     console.error(error);
-    document.getElementById('reportsContainer').innerHTML = '<p>Error loading report.</p>';
+    document.getElementById('reportsContainer')
+      .innerHTML = '<p>Error loading report.</p>';
   }
 }
 
 function renderReport(type, data, page) {
   const container = document.getElementById('reportsContainer');
-  container.innerHTML = '';
+  const period = document.getElementById('circulationPeriod').value;
   let html = '';
+
   if (type === 'financial') {
     let overallTotal = 0;
     html += '<table><thead><tr><th>Status</th><th>Total Fines</th></tr></thead><tbody>';
     data.forEach(item => {
       const fineAmount = parseFloat(item.totalFines) || 0;
       overallTotal += fineAmount;
-      html += `<tr>
-        <td>${item.status || 'Unknown'}</td>
-        <td>$${fineAmount.toFixed(2)}</td>
-      </tr>`;
+      html += `
+        <tr>
+          <td>${item.status || 'Unknown'}</td>
+          <td>$${fineAmount.toFixed(2)}</td>
+        </tr>`;
     });
-    html += `<tr style="font-weight:bold; background:#e9ecef;">
-      <td>Total Fines</td>
-      <td>$${overallTotal.toFixed(2)}</td>
-    </tr>`;
-    html += '</tbody></table>';
-    html += `<div><h3>Understanding Financial Fines</h3>
-      <p>The Financial Report breaks down the fines collected from checkouts by their status. Fines typically arise when items are:</p>
+    html += `
+      <tr style="font-weight:bold; background:#e9ecef;">
+        <td>Total Fines</td>
+        <td>$${overallTotal.toFixed(2)}</td>
+      </tr>
+    </tbody></table>
+    <div>
+      <h3>Understanding Financial Fines</h3>
+      <p>The Financial Report breaks down the fines collected by checkout status:</p>
       <ul>
-        <li><strong>Overdue:</strong> Items returned after their due date incur a fine calculated per day.</li>
-        <li><strong>Lost:</strong> Items that are not returned are reported as lost, with a fine often equivalent to the replacement cost.</li>
-        <li><strong>Damaged:</strong> Items returned in a damaged condition may incur additional charges to cover repair or replacement.</li>
+        <li><strong>Overdue:</strong> Late returns, fined per day.</li>
+        <li><strong>Lost:</strong> Replacement cost fines.</li>
+        <li><strong>Damaged:</strong> Repair/replacement charges.</li>
       </ul>
-      <p>The table above displays the total fines grouped by status. The final row shows the overall total of fines collected.</p></div>`;
+      <p>The table above shows totals per status, with the final row as the grand total.</p>
+    </div>`;
   } else {
-    // For other report types, display as a simple table (you may expand as needed)
+    // Generic table for other reports
     html += '<table><thead><tr>';
-    // Example: for circulation report
     if (type === 'circulation') {
-      html += '<th>Date</th><th>Total Checkouts</th>';
+      renderCirculation(data.checkouts, period);
+      return;
+    } else if (type === 'overdue') {
+      html += '<th>User ID</th><th>Book ISBN</th><th>Days Overdue</th>';
+    } else if (type === 'inventory') {
+      html += '<th>ISBN</th><th>Title</th><th>Available Copies</th>';
+    } else if (type === 'user-engagement') {
+      html += '<th>User ID</th><th>Checkouts</th><th>Reservations</th>';
     }
-    // Add additional report type headers here...
     html += '</tr></thead><tbody>';
-    data.checkouts && data.checkouts.forEach(item => {
-      html += `<tr><td>${item.date}</td><td>${item.totalCheckouts}</td></tr>`;
-    });
+
+    if (Array.isArray(data.checkouts || data)) {
+      const rows = data.checkouts || data;
+      rows.forEach(item => {
+        html += '<tr>';
+        if (type === 'circulation') {
+          html += `<td>${item.date}</td><td>${item.totalCheckouts}</td>`;
+        } else if (type === 'overdue') {
+          html += `
+            <td>${item.userId}</td>
+            <td>${item.bookIsbn}</td>
+            <td>${item.daysOverdue}</td>`;
+        } else if (type === 'inventory') {
+          html += `
+            <td>${item.isbn}</td>
+            <td>${item.title}</td>
+            <td>${item.availableCopies}</td>`;
+        } else if (type === 'user-engagement') {
+          html += `
+            <td>${item.userId}</td>
+            <td>${item.checkoutsCount}</td>
+            <td>${item.reservationsCount}</td>`;
+        }
+        html += '</tr>';
+      });
+    }
+
     html += '</tbody></table>';
   }
+
   container.innerHTML = html;
-  renderPaginationControls(data.total || data.totalCount || 0, page, fetchReport, 'reportsPagination');
+  renderPaginationControls(
+    data.total || data.totalCount || 0,
+    page,
+    fetchReport,
+    'reportsPagination'
+  );
 }
+
+function renderCirculation(rows, period) {
+  // Reverse them so oldest → newest left-to-right
+  const labels = rows.map(r => r.date).reverse();
+  const values = rows.map(r => r.totalCheckouts).reverse();
+
+  // --- Render Chart.js bar chart ---
+const ctx = document.getElementById('reportsChart').getContext('2d');
+if (circulationChartInstance) {
+  circulationChartInstance.destroy();
+}
+circulationChartInstance = new Chart(ctx, {
+  type: 'bar',         // switched from 'line' to 'bar'
+  data: {
+    labels,
+    datasets: [{
+      label: `Checkouts (${period})`,
+      data: values,
+      backgroundColor: '#007bff'
+    }]
+  },
+  options: {
+    responsive: true,
+    scales: {
+      x: {
+        title: { display: true, text: 'Date' },
+        // for bar charts you might want to adjust barThickness:
+        // barThickness: 20
+      },
+      y: {
+        title: { display: true, text: 'Total Checkouts' },
+        beginAtZero: true
+      }
+    }
+  }
+});
+
+
+  // --- Render HTML table ---
+  const tableEl = document.getElementById('reportsContainer');
+  let html = '<table><thead><tr><th>Date</th><th>Total Checkouts</th></tr></thead><tbody>';
+  rows.forEach(r => {
+    html += `<tr><td>${r.date}</td><td>${r.totalCheckouts}</td></tr>`;
+  });
+  html += '</tbody></table>';
+  tableEl.innerHTML = html;
+}
+
 
 /* ------------------------ PAGINATION CONTROLS UTILITY ------------------------ */
 function renderPaginationControls(total, page, fetchFunc, containerId) {

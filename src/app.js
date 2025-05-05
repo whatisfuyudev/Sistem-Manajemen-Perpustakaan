@@ -45,6 +45,27 @@ app.set('views', path.join(__dirname, '../views'));
 // Set security-related HTTP headers
 app.use(helmet());
 
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"],
+
+      // Allow self and jsDelivr for scripts
+      scriptSrc: [
+        "'self'",
+        'https://cdn.jsdelivr.net'
+      ],
+
+      // (optional) allow other origins as needed
+      styleSrc: ["'unsafe-inline'", "'self'", 'https://fonts.googleapis.com'],
+      imgSrc:   ["'self'", 'data:'],
+      connectSrc: ["'self'"],
+      fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+      objectSrc: ["'none'"]
+    }
+  })
+);
+
 // Enable Cross-Origin Resource Sharing (CORS)
 app.use(cors());
 

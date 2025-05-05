@@ -12,14 +12,6 @@ exports.getCirculationReport = async (req, res, next) => {
   }
 };
 
-exports.getReservationReport = async (req, res, next) => {
-  try {
-    const report = await reportsService.getReservationReport(req.query);
-    res.status(200).json(report);
-  } catch (error) {
-    next(error);
-  }
-};
 
 exports.getOverdueReport = async (req, res, next) => {
   try {
@@ -57,13 +49,3 @@ exports.getFinancialReport = async (req, res, next) => {
   }
 };
 
-exports.getCustomReport = async (req, res, next) => {
-  try {
-    // Accept custom filters like date ranges, userId, bookIsbn, etc.
-    const filters = req.query;
-    const report = await reportsService.getCustomReport(filters);
-    res.status(200).json(report);
-  } catch (error) {
-    next(error);
-  }
-};

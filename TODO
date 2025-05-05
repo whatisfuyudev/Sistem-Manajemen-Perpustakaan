@@ -24,8 +24,17 @@
   - make the admin/librarian side
     - construct admin panel 
       - rework the reports section based on docs
-        - remove custom
-        - remove reservation
+        - circulation
+          - top section is chart bottom is table
+            - be able to filter by daily for a month, weekly for a month, monthly for a year
+              - able to choose any month for daily and weekly filtering
+              - able to choose any year for monthly filtering
+          - pagination not rendering
+          - styling
+      
+      
+      - every report section has its own render function for rendering chart and table at the same time 
+
 
 
     
