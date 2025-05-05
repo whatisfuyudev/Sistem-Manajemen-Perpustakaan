@@ -22,21 +22,12 @@
         - replace alert in my reservation page, book details, profile,  with custom popup/modal
 
   - make the admin/librarian side
-    - construct admin panel
-
-      - fix notifications section
-
-        - notification detail page
-
-          - combined scheduler is a bit buggy
-            - writing to lastruns.json is not all of it at the same time
-            - email is not sending/even updating its status
-        
-        
-  
-        
-
+    - construct admin panel 
       - rework the reports section based on docs
+        - remove custom
+        - remove reservation
+
+
     
 
 

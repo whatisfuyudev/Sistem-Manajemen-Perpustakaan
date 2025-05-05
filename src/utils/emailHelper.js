@@ -77,3 +77,32 @@ exports.sendReservationAvailableEmail = async (reservation) => {
   // Send email using the sendEmail function
   return await exports.sendEmail({ to: user.email, subject, html });
 };
+
+/**
+ * Build and send an email for a Notification record.
+ * Delegates actual delivery to sendEmail().
+ *
+ * @param {Notification} notification – Sequelize instance
+ */
+exports.sendNotificationEmail = async (notification) => {
+  // 1. Only handle email-channel notifications
+  if (notification.channel !== 'email') {
+    throw new CustomError('Notification channel is not email', 400);
+  }
+
+  // 2. Prepare recipients: Notification.recipient is a comma-separated string
+  const to = notification.recipient;  
+
+  // 3. Subject comes from the model (fallback if missing)
+  const subject = notification.subject || 'Library Notification';
+
+  // 4. Build a simple HTML body using the notification’s message
+  const html = `
+    <div style="font-family:sans-serif;line-height:1.4;">
+      <p>${notification.message}</p>
+    </div>
+  `;
+
+  // 5. Delegate to existing sendEmail utility
+  return await exports.sendEmail({ to, subject, html });
+};

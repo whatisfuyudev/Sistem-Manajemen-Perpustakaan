@@ -8,76 +8,69 @@ const Checkout     = require('../models/checkout.model');
 const Reservation  = require('../models/reservation.model');
 const Book         = require('../models/book.model');
 const Notification = require('../models/notification.model');
+const emailHelper = require('./emailHelper');
 
-// Single stamp file
-const STAMP_FILE = path.join(__dirname, 'lastRuns.json');
+// Single plain-text stamp file
+const STAMP_FILE = path.join(__dirname, 'lastRun.txt');
 
-// Read the entire stamp-object (or return empty)
-async function readStamps() {
+/** Read the last‐run timestamp, or null if missing/invalid */
+async function readLastRun() {
   try {
     const txt = await fs.readFile(STAMP_FILE, 'utf8');
-    return JSON.parse(txt);
+    const iso = txt.trim();
+    return iso ? new Date(iso) : null;
   } catch {
-    return {}; // never run
+    return null;
   }
 }
 
-// Write updated stamp-object
-async function writeStamps(obj) {
-  await fs.writeFile(STAMP_FILE, JSON.stringify(obj, null, 2), 'utf8');
+/** Write now() as the last‐run timestamp */
+async function writeLastRun() {
+  await fs.writeFile(STAMP_FILE, new Date().toISOString(), 'utf8');
 }
 
-// Generic runner: on startup if needed + cron
-function scheduleDaily(key, processor, label) {
-  // startup
-  (async () => {
-    const stamps = await readStamps();
-    const lastRun = stamps[key] ? new Date(stamps[key]) : null;
-    const today   = new Date().toDateString();
+/** Run all three tasks in sequence */
+async function runAll() {
+  console.log('› Overdue checkouts:', await processOverdues());
+  console.log('› Expire reservations:', await processExpiredReservations());
+  console.log('› Scheduled notifications:', await processScheduledNotifications());
+}
 
-    if (!lastRun || lastRun.toDateString() !== today) {
-      const count = await processor();
-      console.log(`(Startup) ${label}: processed ${count}.`);
-      stamps[key] = new Date().toISOString();
-      await writeStamps(stamps);
-    } else {
-      console.log(`(Startup) ${label}: already run today.`);
-    }
-  })().catch(console.error);
+/** Initialize: startup check + cron */
+async function initScheduler() {
+  const lastRun = await readLastRun();
+  const today   = new Date().toDateString();
 
-  // cron at midnight
+  if (!lastRun || lastRun.toDateString() !== today) {
+    console.log('(Startup) running all tasks…');
+    await runAll();
+    await writeLastRun();
+  } else {
+    console.log('(Startup) already ran today, skipping.');
+  }
+
   cron.schedule('0 0 * * *', async () => {
-    try {
-      const count = await processor();
-      console.log(`(Cron) ${label}: processed ${count}.`);
-      const stamps = await readStamps();
-      stamps[key] = new Date().toISOString();
-      await writeStamps(stamps);
-    } catch (err) {
-      console.error(`Error in ${label}:`, err);
-    }
+    console.log('(Cron) running all tasks…');
+    await runAll();
+    await writeLastRun();
   });
 
-  console.log(`→ Scheduled ${label} daily at 00:00.`);
+  console.log('→ Scheduled all tasks daily at midnight.');
 }
 
-/** Task 1: Overdue Checkouts */
+/** Task definitions… */
 async function processOverdues() {
-  const now = new Date();
   const [cnt] = await Checkout.update(
     { status: 'overdue' },
-    { where: { status: 'active', dueDate: { [Op.lt]: now } } }
+    { where: { status: 'active', dueDate: { [Op.lt]: new Date() } } }
   );
   return cnt;
 }
 
-/** Task 2: Expired Reservations */
 async function processExpiredReservations() {
-  const now = new Date();
   const rows = await Reservation.findAll({
-    where: { status: 'available', expirationDate: { [Op.lt]: now } }
+    where: { status: 'available', expirationDate: { [Op.lt]: new Date() } }
   });
-
   let cnt = 0;
   for (const r of rows) {
     await r.update({ status: 'expired' });
@@ -90,31 +83,49 @@ async function processExpiredReservations() {
   return cnt;
 }
 
-/** Task 3: Scheduled Notifications */
 async function processScheduledNotifications() {
-  const now = new Date();
+  const now   = new Date();
   const start = new Date(now).setHours(0,0,0,0);
   const end   = new Date(now).setHours(23,59,59,999);
 
+  // 1) Fetch all pending email notifications for today
   const rows = await Notification.findAll({
     where: {
-      status: 'pending',
-      scheduledAt: { [Op.between]: [start, end] }
+      status:      'pending',
+      channel:     'email',
+      scheduledAt: { [Op.lte]: now }
     }
   });
+
   if (!rows.length) return 0;
 
+  let sentCount = 0;
 
-  // should be sending mail instead with util file
-  const ids = rows.map(n => n.id);
-  const [cnt] = await Notification.update(
-    { status: 'sent', deliveredAt: new Date() },
-    { where: { id: { [Op.in]: ids } } }
-  );
-  return cnt;
+  // 2) Loop and send each one
+  for (const notification of rows) {
+    try {
+      // Delegate to utility which builds and sends the email
+      await emailHelper.sendNotificationEmail(notification);
+
+      // 3) Mark as sent only upon success
+      notification.status      = 'sent';
+      notification.deliveredAt = new Date();
+      await notification.save();
+
+      sentCount++;
+    } catch (err) {
+      console.error(
+        `Error sending notification #${notification.id}:`,
+        err
+      );
+      // mark failed:
+      notification.status = 'failed';
+      await notification.save();
+    }
+  }
+
+  return sentCount;
 }
 
-// Wire them up
-scheduleDaily('overdue',    processOverdues,            'Overdue Checkouts');
-scheduleDaily('expireResv', processExpiredReservations, 'Expired Reservations');
-scheduleDaily('notify',     processScheduledNotifications, 'Scheduled Notifications');
+// Kick off!
+initScheduler().catch(err => console.error('Scheduler failed:', err));
