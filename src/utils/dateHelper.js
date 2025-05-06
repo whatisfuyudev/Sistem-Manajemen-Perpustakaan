@@ -1,5 +1,6 @@
 // dateHelper.js
 const { format, startOfWeek } = require('date-fns');
+const { Op } = require('sequelize');
 
 /**
  * Groups an array of data objects by a specified period.
@@ -47,4 +48,52 @@ exports.groupByPeriod = (data, period) => {
   });
   
   return grouped;
+};
+
+/**
+ * Build a WHERE clause to filter checkoutDate by month-year or year,
+ * using Op.gte and Op.lte for an inclusive range.
+ *
+ * @param {Object} filters
+ * @param {string} [filters.month_year] - "MM-YYYY" (e.g. "01-2020")
+ * @param {string} [filters.year]      - "YYYY"      (e.g. "2020")
+ * @returns {Object} a Sequelize WHERE fragment
+ */
+exports.buildDateFilter = ({ month_year, year }) => {
+  // If month_year provided, parse MM and YYYY
+  if (month_year) {
+    const [mm, yyyy] = month_year.split('-').map(s => parseInt(s, 10));
+    if (!isNaN(mm) && !isNaN(yyyy)) {
+      // JS months are zero‑based: monthIndex = mm - 1
+      const start = new Date(yyyy, mm - 1, 1);                         // first ms of month
+      // last day: day 0 of next month yields last day of current month
+      const end   = new Date(yyyy, mm, 0, 23, 59, 59, 999);            // last ms of month
+
+      return {
+        checkoutDate: {
+          [Op.gte]: start,
+          [Op.lte]: end
+        }
+      };
+    }
+  }
+
+  // Fallback: full‑year filter
+  if (year) {
+    const y = parseInt(year, 10);
+    if (!isNaN(y)) {
+      const start = new Date(y, 0, 1);
+      const end   = new Date(y + 1, 0, 0, 23, 59, 59, 999);            // Dec 31 end of year
+
+      return {
+        checkoutDate: {
+          [Op.gte]: start,
+          [Op.lte]: end
+        }
+      };
+    }
+  }
+
+  // No date filter
+  return {};
 };

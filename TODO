@@ -24,17 +24,20 @@
   - make the admin/librarian side
     - construct admin panel 
       - rework the reports section based on docs
+
         - circulation
-          - top section is chart bottom is table
-            - be able to filter by daily for a month, weekly for a month, monthly for a year
-              - able to choose any month for daily and weekly filtering
-              - able to choose any year for monthly filtering
-          - pagination not rendering
-          - styling
-      
+          - popular books borrowed and popular genre
+            - two new endpoint on api/reports, called "popular/books" "and popular/genres"
+              - two new function each rendering a single chart on the front end [now]
+
+
+        - ask gpt for the best way to visualize each report, what type of chart
+        - reservations with visual
+        - user fines with donut chart showing 3 different type of fines and the table show all of the checkout with fines
       
       - every report section has its own render function for rendering chart and table at the same time 
-
+      - maybe limit to only a single month data or year on the chart but for table limit to only 10
+          - pagination not working properly
 
 
     
@@ -92,3 +95,7 @@ this app will have two sides, one for patron (book enjoyer) and one for libraria
 - new ui on my reservations and my checkouts page, modern
 
 - implement accountStatus on user data/model, look at docs
+
+- stress test, 1 million data is too big, test for 100k, 10k, 1k
+
+- sequilize association between table/model

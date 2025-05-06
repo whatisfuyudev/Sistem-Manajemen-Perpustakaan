@@ -1304,12 +1304,35 @@ async function loadReportsModule() {
     </div>
 
     <!-- Wrap the period selector so we can show/hide it -->
-    <div id="circulationPeriodContainer">
-      <select id="circulationPeriod">
-        <option value="daily" selected>Daily (this month)</option>
-        <option value="weekly">Weekly (this month)</option>
-        <option value="monthly">Monthly (this year)</option>
-      </select>
+    <div id="circulationPeriodContainer" class="period-container">
+      <div id="dailyWeeklyOptions" class="period-options">
+        <label for="circulationPeriod" class="period-label">Period</label>
+        <select id="circulationPeriod" class="period-select">
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly</option>
+          <option value="monthly">Monthly</option>   <!-- ← Added -->
+        </select>
+
+        <div id="monthOptions"> 
+          <label for="monthPicker" class="period-label">Month/Year</label>
+          <input type="month" id="monthPicker" name="month"
+                class="period-input" value="">
+        </div>
+      </div>
+
+      <div id="monthlyOptions" class="period-options hidden">
+        <label for="yearPicker" class="period-label">Year</label>
+        <input
+          type="number"
+          id="yearPicker"
+          name="year"
+          class="period-input"
+          min="2000"
+          max="2100"
+          step="1"
+          placeholder="YYYY"
+        >
+      </div>
     </div>
 
     <canvas id="reportsChart" style="max-height:480px;"></canvas>
@@ -1323,6 +1346,41 @@ async function loadReportsModule() {
       currentPage = 1;
       fetchReport();
     });
+
+
+  document.getElementById('reportType').addEventListener('change', e => {
+    const type = e.target.value;
+    const dailyWeekly = document.getElementById('dailyWeeklyOptions');
+    const monthlyOpts = document.getElementById('monthlyOptions');
+  
+    if (type === 'circulation') {
+      dailyWeekly.classList.remove('hidden');
+      monthlyOpts.classList.add('hidden');
+      periodSel.value = 'daily';
+    } else {
+      dailyWeekly.classList.add('hidden');
+      monthlyOpts.classList.add('hidden');
+    }
+  });
+    
+  
+  // Additionally, when “Monthly” period is selected inside circulation:
+  document.getElementById('circulationPeriod').addEventListener('change', e => {
+    const period     = e.target.value;
+    const monthPicker= document.getElementById('monthOptions');
+    const yearGroup  = document.getElementById('monthlyOptions');
+  
+    if (period === 'daily' || period === 'weekly') {
+      // show month picker, hide year picker
+      monthPicker.classList.remove('hidden');
+      yearGroup .classList.add   ('hidden');
+    } else if (period === 'monthly') {
+      // hide the month input, show the year input
+      monthPicker.classList.add   ('hidden');
+      yearGroup .classList.remove('hidden');
+    }
+  });
+  
   fetchReport();
 }
 
@@ -1330,15 +1388,34 @@ let circulationChartInstance = null;
 
 async function fetchReport() {
   const reportType = document.getElementById('reportType').value;
-  const period = document.getElementById('circulationPeriod').value;
-  const params     = new URLSearchParams({ page: currentPage, limit: 10, period });
+  const params     = new URLSearchParams({ page: currentPage, limit: 10 });
+
+  // Only circulation has period/month/year filters
+  if (reportType === 'circulation') {
+    const period = document.getElementById('circulationPeriod').value;
+    params.append('period', period);
+
+    if (period === 'daily' || period === 'weekly') {
+      const month = document.getElementById('monthPicker').value;
+      if (month) {
+        // monthPicker.value === "YYYY-MM"
+        params.append('month', month);
+      }
+    }
+    else if (period === 'monthly') {
+      const year = document.getElementById('yearPicker').value;
+      if (year) {
+        params.append('year', year);
+      }
+    }
+  }
 
   try {
-    const res = await fetch(API.reports[reportType] + '?' + params.toString());
+    const url = API.reports[reportType] + '?' + params.toString();
+    const res = await fetch(url);
     if (!res.ok) throw new Error('Failed to fetch report data.');
     const data = await res.json();
-    console.log(data);
-    
+    console.log({ reportType, params: params.toString(), data });
     renderReport(reportType, data, currentPage);
   } catch (error) {
     console.error(error);
@@ -1385,7 +1462,6 @@ function renderReport(type, data, page) {
     html += '<table><thead><tr>';
     if (type === 'circulation') {
       renderCirculation(data.checkouts, period);
-      return;
     } else if (type === 'overdue') {
       html += '<th>User ID</th><th>Book ISBN</th><th>Days Overdue</th>';
     } else if (type === 'inventory') {
@@ -1395,36 +1471,37 @@ function renderReport(type, data, page) {
     }
     html += '</tr></thead><tbody>';
 
-    if (Array.isArray(data.checkouts || data)) {
-      const rows = data.checkouts || data;
-      rows.forEach(item => {
-        html += '<tr>';
-        if (type === 'circulation') {
-          html += `<td>${item.date}</td><td>${item.totalCheckouts}</td>`;
-        } else if (type === 'overdue') {
-          html += `
-            <td>${item.userId}</td>
-            <td>${item.bookIsbn}</td>
-            <td>${item.daysOverdue}</td>`;
-        } else if (type === 'inventory') {
-          html += `
-            <td>${item.isbn}</td>
-            <td>${item.title}</td>
-            <td>${item.availableCopies}</td>`;
-        } else if (type === 'user-engagement') {
-          html += `
-            <td>${item.userId}</td>
-            <td>${item.checkoutsCount}</td>
-            <td>${item.reservationsCount}</td>`;
-        }
-        html += '</tr>';
-      });
-    }
+    // if (Array.isArray(data.checkouts || data)) {
+    //   const rows = data.checkouts || data;
+    //   rows.forEach(item => {
+    //     html += '<tr>';
+    //     if (type === 'circulation') {
+    //       html += `<td>${item.date}</td><td>${item.totalCheckouts}</td>`;
+    //     } else if (type === 'overdue') {
+    //       html += `
+    //         <td>${item.userId}</td>
+    //         <td>${item.bookIsbn}</td>
+    //         <td>${item.daysOverdue}</td>`;
+    //     } else if (type === 'inventory') {
+    //       html += `
+    //         <td>${item.isbn}</td>
+    //         <td>${item.title}</td>
+    //         <td>${item.availableCopies}</td>`;
+    //     } else if (type === 'user-engagement') {
+    //       html += `
+    //         <td>${item.userId}</td>
+    //         <td>${item.checkoutsCount}</td>
+    //         <td>${item.reservationsCount}</td>`;
+    //     }
+    //     html += '</tr>';
+    //   });
+    // }
 
-    html += '</tbody></table>';
+    // html += '</tbody></table>';
   }
 
-  container.innerHTML = html;
+  // container.innerHTML = html;
+
   renderPaginationControls(
     data.total || data.totalCount || 0,
     page,
@@ -1450,7 +1527,8 @@ circulationChartInstance = new Chart(ctx, {
     datasets: [{
       label: `Checkouts (${period})`,
       data: values,
-      backgroundColor: '#007bff'
+      backgroundColor: '#007bff',
+      maxBarThickness: 30   // ← limit each bar’s width to 40px
     }]
   },
   options: {
@@ -1468,7 +1546,6 @@ circulationChartInstance = new Chart(ctx, {
     }
   }
 });
-
 
   // --- Render HTML table ---
   const tableEl = document.getElementById('reportsContainer');

@@ -88,6 +88,8 @@ document.addEventListener('DOMContentLoaded', function () {
           `Fine: $${(data.fine || 0).toFixed(2)}\n` +
           `Returned on: ${new Date(data.returnDate).toLocaleDateString()}`
         });
+        
+        window.location.reload();
       } catch (e) {
         console.error('Fetch error:', e);
         await showModal({ message: `An error occurred while processing the return.` }); 

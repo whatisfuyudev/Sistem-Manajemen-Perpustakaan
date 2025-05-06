@@ -59,6 +59,7 @@
       min-height: 300px;
     }
     .filter-form {
+      margin-top: 20px;
       margin-bottom: 20px;
     }
     .filter-form label {
@@ -192,7 +193,7 @@
       z-index: 1000;
       padding: 20px;
     }
-    .hidden { display: none; }
+    .hidden { display: none !important;  }
     .modal {
       background: #fff;
       border-radius: 4px;
@@ -314,6 +315,66 @@
     /* Hover effect for clickable rows */
     tbody tr.clickable:hover {
       background-color: #f0f8ff; /* light blue tint on hover */
+    }
+
+    /* Base container */
+    .period-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: flex-end;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Shared wrapper for each option set */
+    .period-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1rem;
+      align-items: center;
+    }
+
+    /* Hide helpers */
+    .hidden {
+      display: none !important;
+    }
+
+    /* Labels */
+    .period-label {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #444;
+      margin-bottom: 0.2rem;
+    }
+
+    /* Selects and inputs share styling */
+    .period-select,
+    .period-input {
+      padding: 0.5rem 0.75rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background: #fff;
+      transition: border-color 0.2s;
+    }
+
+    /* Focus state */
+    .period-select:focus,
+    .period-input:focus {
+      border-color: #007bff;
+      outline: none;
+    }
+
+    /* Responsive: stack vertically on narrow screens */
+    @media (max-width: 480px) {
+      .period-container {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .period-options {
+        flex-direction: column;
+        align-items: stretch;
+      }
     }
 
   </style>
