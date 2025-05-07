@@ -1340,6 +1340,9 @@ async function loadReportsModule() {
     <div id="reportsContainer"></div>
 
     <div id="reportsPagination" class="pagination"></div>
+
+    <canvas id="secondReportsChart" style="max-height:480px; margin-top:24px;"></canvas>
+    <canvas id="thirdReportsChart" style="max-height:480px; margin-top:24px;"></canvas>
   `;
   document.getElementById('loadReportBtn')
     .addEventListener('click', () => {
@@ -1352,13 +1355,19 @@ async function loadReportsModule() {
     const type = e.target.value;
     const dailyWeekly = document.getElementById('dailyWeeklyOptions');
     const monthlyOpts = document.getElementById('monthlyOptions');
+    const secondReportsChart = document.getElementById('secondReportsChart');
+    const thirdReportsChart = document.getElementById('thirdReportsChart');
   
     if (type === 'circulation') {
       dailyWeekly.classList.remove('hidden');
+      secondReportsChart.classList.remove('hidden');
+      thirdReportsChart.classList.remove('hidden');
       monthlyOpts.classList.add('hidden');
       periodSel.value = 'daily';
     } else {
       dailyWeekly.classList.add('hidden');
+      secondReportsChart.classList.add('hidden');
+      thirdReportsChart.classList.add('hidden');
       monthlyOpts.classList.add('hidden');
     }
   });
@@ -1384,7 +1393,67 @@ async function loadReportsModule() {
   fetchReport();
 }
 
-let circulationChartInstance = null;
+function buildCirculationQuery() {
+  const params = new URLSearchParams({ page: currentPage, limit: 10 });
+  const period = document.getElementById('circulationPeriod').value;
+  params.append('period', period);
+
+  if (period === 'daily' || period === 'weekly') {
+    const month = document.getElementById('monthPicker').value;
+    if (month) params.append('month', month);
+    else {
+      const monthYear = new Date().toISOString().substring(0, 7); // "2025-05"
+      params.append('month', monthYear);  
+    }
+  } else if (period === 'monthly') {
+    const year = document.getElementById('yearPicker').value;
+    if (year) params.append('year', year);
+    else params.append('year', new Date().getFullYear() );
+  }
+
+  return { query: params.toString(), period };
+}
+
+async function fetchCirculationReports() {
+  const { query, period } = buildCirculationQuery();
+
+  // Compose full URLs
+  const baseUrl = API.reports.circulation + '?' + query;
+  const booksUrl = API.reports.circulation.replace('circulation', 'popular/books') + '?' + query;
+  const genresUrl = API.reports.circulation.replace('circulation', 'popular/genres') + '?' + query;
+
+  try {
+    // 3 parallel fetches
+    const [mainRes, booksRes, genresRes] = await Promise.all([
+      fetch(baseUrl),
+      fetch(booksUrl),
+      fetch(genresUrl)
+    ]);
+
+    // Check all OK
+    if (!mainRes.ok || !booksRes.ok || !genresRes.ok) {
+      throw new Error('One or more report fetches failed.');
+    }
+
+    // Parse JSON in parallel
+    const [mainData, booksData, genresData] = await Promise.all([
+      mainRes.json(),
+      booksRes.json(),
+      genresRes.json()
+    ]);
+
+    // Render into the UI
+    renderReport('circulation', mainData, currentPage);
+    renderCirculationPopularBooks(booksData.popularBooks, period);
+    renderCirculationPopularGenres(genresData.popularGenres, period);
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById('reportsContainer').innerHTML =
+      '<p>Error loading reports.</p>';
+  }
+}
+
 
 async function fetchReport() {
   const reportType = document.getElementById('reportType').value;
@@ -1392,22 +1461,7 @@ async function fetchReport() {
 
   // Only circulation has period/month/year filters
   if (reportType === 'circulation') {
-    const period = document.getElementById('circulationPeriod').value;
-    params.append('period', period);
-
-    if (period === 'daily' || period === 'weekly') {
-      const month = document.getElementById('monthPicker').value;
-      if (month) {
-        // monthPicker.value === "YYYY-MM"
-        params.append('month', month);
-      }
-    }
-    else if (period === 'monthly') {
-      const year = document.getElementById('yearPicker').value;
-      if (year) {
-        params.append('year', year);
-      }
-    }
+    return fetchCirculationReports();
   }
 
   try {
@@ -1415,7 +1469,6 @@ async function fetchReport() {
     const res = await fetch(url);
     if (!res.ok) throw new Error('Failed to fetch report data.');
     const data = await res.json();
-    console.log({ reportType, params: params.toString(), data });
     renderReport(reportType, data, currentPage);
   } catch (error) {
     console.error(error);
@@ -1425,7 +1478,7 @@ async function fetchReport() {
 }
 
 function renderReport(type, data, page) {
-  const container = document.getElementById('reportsContainer');
+  const container = document.getElementById('reportsContainer'); // maybe delete
   const period = document.getElementById('circulationPeriod').value;
   let html = '';
 
@@ -1510,42 +1563,65 @@ function renderReport(type, data, page) {
   );
 }
 
+// keep these at top level so we can destroy existing charts
+let circulationChartInstance = null;
+let popularBooksChartInstance = null;
+let popularGenresChartInstance = null;
+
 function renderCirculation(rows, period) {
   // Reverse them so oldest → newest left-to-right
   const labels = rows.map(r => r.date).reverse();
   const values = rows.map(r => r.totalCheckouts).reverse();
 
-  // --- Render Chart.js bar chart ---
-const ctx = document.getElementById('reportsChart').getContext('2d');
-if (circulationChartInstance) {
-  circulationChartInstance.destroy();
-}
-circulationChartInstance = new Chart(ctx, {
-  type: 'bar',         // switched from 'line' to 'bar'
-  data: {
-    labels,
-    datasets: [{
-      label: `Checkouts (${period})`,
-      data: values,
-      backgroundColor: '#007bff',
-      maxBarThickness: 30   // ← limit each bar’s width to 40px
-    }]
-  },
-  options: {
-    responsive: true,
-    scales: {
-      x: {
-        title: { display: true, text: 'Date' },
-        // for bar charts you might want to adjust barThickness:
-        // barThickness: 20
+  // --- Render Chart.js line chart ---
+  const ctx = document.getElementById('reportsChart').getContext('2d');
+  if (circulationChartInstance) {
+    circulationChartInstance.destroy();
+  }
+  circulationChartInstance = new Chart(ctx, {
+    type: 'line',         
+    data: {
+      labels,
+      datasets: [{
+        label: `Checkouts (${period})`,
+        data: values,
+        fill: false,                         // no fill under the line
+        borderColor: '#007bff',              // line color
+        backgroundColor: '#007bff',          // point color
+        tension: 0.3,                        // curve tension (0 = straight lines)
+        pointRadius: 5,                      // size of points
+        pointHoverRadius: 7                  // size on hover
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        x: {
+          title: { display: true, text: 'Date' },
+          // you can still control spacing via:
+          // grid: { drawOnChartArea: false }
+        },
+        y: {
+          title: { display: true, text: 'Total Checkouts' },
+          beginAtZero: true
+        }
       },
-      y: {
-        title: { display: true, text: 'Total Checkouts' },
-        beginAtZero: true
+      elements: {
+        line: {
+          borderWidth: 2
+        },
+        point: {
+          hitRadius: 10
+        }
+      },
+      plugins: {
+        tooltip: {
+          mode: 'index',
+          intersect: false
+        }
       }
     }
-  }
-});
+  });
 
   // --- Render HTML table ---
   const tableEl = document.getElementById('reportsContainer');
@@ -1557,6 +1633,133 @@ circulationChartInstance = new Chart(ctx, {
   tableEl.innerHTML = html;
 }
 
+/**
+ * Renders the "Most Popular Books" bar chart into #secondReportsChart
+ * @param {Array<{ book: { title: string }, checkoutCount: number }>} rows
+ * @param {string} period
+ */
+function renderCirculationPopularBooks(rows, period) {
+  // Extract and reverse so oldest → newest left-to-right
+  const labels = rows.map(r => r.book.title).reverse();
+  const values = rows.map(r => r.checkoutCount).reverse();
+
+  if (period === 'daily' || period === 'weekly') {
+    period = 'this month';
+  } else {
+    period = 'this year';
+  }
+
+  const ctx = document
+    .getElementById('secondReportsChart')
+    .getContext('2d');
+  if (popularBooksChartInstance) {
+    popularBooksChartInstance.destroy();
+  }
+
+  popularBooksChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: `${period}`,
+        data: values,
+        backgroundColor: '#007bff',
+        maxBarThickness: 30
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        x: {
+          title: { display: true, text: 'Book Title' },
+          ticks: { autoSkip: false }
+        },
+        y: {
+          title: { display: true, text: 'Total Checkouts' },
+          beginAtZero: true
+        }
+      },
+      plugins: {
+        title: {
+          display: true,
+          text: 'Most Popular Books',
+          position: 'top',    // default
+          align: 'center',    // center it
+          font: {
+            size: 16,         // adjust as needed
+            weight: 'bold'
+          }
+        },
+        legend: { display: false },
+        tooltip: { mode: 'index', intersect: false }
+      }
+    }
+  });
+}
+
+/**
+ * Renders the "Most Popular Genres" bar chart into #thirdReportsChart
+ * @param {Array<{ genre: string, count: number }>} rows
+ * @param {string} period
+ */
+function renderCirculationPopularGenres(rows, period) {
+  // Extract and reverse so oldest → newest left-to-right
+  const labels = rows.map(r => r.genre).reverse();
+  const values = rows.map(r => r.count).reverse();
+
+  if (period === 'daily' || period === 'weekly') {
+    period = 'monthly';
+  } else {
+    period = 'yearly';
+  }
+
+  const ctx = document
+    .getElementById('thirdReportsChart')
+    .getContext('2d');
+  if (popularGenresChartInstance) {
+    popularGenresChartInstance.destroy();
+  }
+
+  popularGenresChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: `Popular Genre (${period})`,
+        data: values,
+        backgroundColor: '#007bff',
+        maxBarThickness: 30
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        x: {
+          title: { display: true, text: 'Genre' },
+          ticks: { autoSkip: false }
+        },
+        y: {
+          title: { display: true, text: 'Total Checkouts' },
+          beginAtZero: true
+        }
+      },
+      plugins: {
+        title: {
+          display: true,
+          text: 'Most Popular Genres',
+          position: 'top',    // default
+          align: 'center',    // center it
+          font: {
+            size: 16,         // adjust as needed
+            weight: 'bold'
+          }
+        },
+        legend: { display: false },
+        tooltip: { mode: 'index', intersect: false }
+      }
+    }
+  });
+}
 
 /* ------------------------ PAGINATION CONTROLS UTILITY ------------------------ */
 function renderPaginationControls(total, page, fetchFunc, containerId) {

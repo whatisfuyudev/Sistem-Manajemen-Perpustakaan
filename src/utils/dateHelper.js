@@ -55,14 +55,15 @@ exports.groupByPeriod = (data, period) => {
  * using Op.gte and Op.lte for an inclusive range.
  *
  * @param {Object} filters
- * @param {string} [filters.month_year] - "MM-YYYY" (e.g. "01-2020")
+ * @param {string} [filters.month] - "YYYY-MM" (e.g. "2020-01")
  * @param {string} [filters.year]      - "YYYY"      (e.g. "2020")
  * @returns {Object} a Sequelize WHERE fragment
  */
-exports.buildDateFilter = ({ month_year, year }) => {
-  // If month_year provided, parse MM and YYYY
-  if (month_year) {
-    const [mm, yyyy] = month_year.split('-').map(s => parseInt(s, 10));
+exports.buildDateFilter = ({ month, year }) => {
+  // If month provided, parse YYYYand MM
+  if (month) {
+    let [yyyy, mm] = month.split('-').map(s => parseInt(s, 10));
+
     if (!isNaN(mm) && !isNaN(yyyy)) {
       // JS months are zero‑based: monthIndex = mm - 1
       const start = new Date(yyyy, mm - 1, 1);                         // first ms of month

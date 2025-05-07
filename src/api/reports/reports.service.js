@@ -24,7 +24,6 @@ exports.getCirculationReport = async ({ period, month, year }) => {
   if (period === 'monthly' && !year) {
     // default to current YYYY
     year = format(now, 'yyyy');
-
   }
   
   // Build a WHERE clause
@@ -70,7 +69,7 @@ exports.getPopularBooks = async (filters) => {
   // 1) date filter
   const dateFilter = buildDateFilter(filters);
   const whereClause = dateFilter ? { [Op.and]: [dateFilter] } : {};
-
+  
   // 2) aggregate checkouts by bookIsbn
   const rows = await Checkout.findAll({
     attributes: [

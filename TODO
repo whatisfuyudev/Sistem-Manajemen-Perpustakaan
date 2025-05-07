@@ -28,7 +28,7 @@
         - circulation
           - popular books borrowed and popular genre
             - two new endpoint on api/reports, called "popular/books" "and popular/genres"
-              - two new function each rendering a single chart on the front end [now]
+              - two new function each rendering a single chart on the front end 
 
 
         - ask gpt for the best way to visualize each report, what type of chart
