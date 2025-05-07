@@ -9,6 +9,8 @@ router.get('/popular/books', authMiddleware.verifyToken, authMiddleware.isLibrar
 router.get('/popular/genres', authMiddleware.verifyToken, authMiddleware.isLibrarianOrAdmin, reportsController.getPopularGenres);
 
 router.get('/overdue', authMiddleware.verifyToken, authMiddleware.isLibrarianOrAdmin, reportsController.getOverdueReport);
+
+
 router.get('/inventory', authMiddleware.verifyToken, authMiddleware.isLibrarianOrAdmin, reportsController.getInventoryReport);
 router.get('/user-engagement', authMiddleware.verifyToken, authMiddleware.isLibrarianOrAdmin, reportsController.getUserEngagementReport);
 router.get('/financial', authMiddleware.verifyToken, authMiddleware.isLibrarianOrAdmin, reportsController.getFinancialReport);

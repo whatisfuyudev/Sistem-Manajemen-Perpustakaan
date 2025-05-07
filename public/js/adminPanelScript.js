@@ -1516,7 +1516,7 @@ function renderReport(type, data, page) {
     if (type === 'circulation') {
       renderCirculation(data.checkouts, period);
     } else if (type === 'overdue') {
-      html += '<th>User ID</th><th>Book ISBN</th><th>Days Overdue</th>';
+      renderOverdue(data);
     } else if (type === 'inventory') {
       html += '<th>ISBN</th><th>Title</th><th>Available Copies</th>';
     } else if (type === 'user-engagement') {
@@ -1524,6 +1524,7 @@ function renderReport(type, data, page) {
     }
     html += '</tr></thead><tbody>';
 
+    // old version
     // if (Array.isArray(data.checkouts || data)) {
     //   const rows = data.checkouts || data;
     //   rows.forEach(item => {
@@ -1564,9 +1565,9 @@ function renderReport(type, data, page) {
 }
 
 // keep these at top level so we can destroy existing charts
-let circulationChartInstance = null;
-let popularBooksChartInstance = null;
-let popularGenresChartInstance = null;
+let firstChartInstance = null;
+let secondChartInstance = null;
+let thirdChartInstance = null;
 
 function renderCirculation(rows, period) {
   // Reverse them so oldest → newest left-to-right
@@ -1575,10 +1576,10 @@ function renderCirculation(rows, period) {
 
   // --- Render Chart.js line chart ---
   const ctx = document.getElementById('reportsChart').getContext('2d');
-  if (circulationChartInstance) {
-    circulationChartInstance.destroy();
+  if (firstChartInstance) {
+    firstChartInstance.destroy();
   }
-  circulationChartInstance = new Chart(ctx, {
+  firstChartInstance = new Chart(ctx, {
     type: 'line',         
     data: {
       labels,
@@ -1652,11 +1653,11 @@ function renderCirculationPopularBooks(rows, period) {
   const ctx = document
     .getElementById('secondReportsChart')
     .getContext('2d');
-  if (popularBooksChartInstance) {
-    popularBooksChartInstance.destroy();
+  if (secondChartInstance) {
+    secondChartInstance.destroy();
   }
 
-  popularBooksChartInstance = new Chart(ctx, {
+  secondChartInstance = new Chart(ctx, {
     type: 'bar',
     data: {
       labels,
@@ -1716,11 +1717,11 @@ function renderCirculationPopularGenres(rows, period) {
   const ctx = document
     .getElementById('thirdReportsChart')
     .getContext('2d');
-  if (popularGenresChartInstance) {
-    popularGenresChartInstance.destroy();
+  if (thirdChartInstance) {
+    thirdChartInstance.destroy();
   }
 
-  popularGenresChartInstance = new Chart(ctx, {
+  thirdChartInstance = new Chart(ctx, {
     type: 'bar',
     data: {
       labels,
@@ -1759,6 +1760,124 @@ function renderCirculationPopularGenres(rows, period) {
       }
     }
   });
+}
+
+/**
+ * Renders the Overdue Report:
+ *  - Line chart of days overdue over time
+ *  - Table of each overdue checkout record
+ *
+ * @param {Object} data
+ * @param {Array}  data.overdueCheckouts   — array of { id, bookIsbn, userId, checkoutDate, overdueDays, overdueFine }
+ * @param {number} data.page
+ * @param {number} data.limit
+ * @param {number} data.totalCount
+ */
+function renderOverdue(data) {
+  const {
+    overdueCheckouts,
+    page, limit, totalCount,
+    totalUncollectedFine
+  } = data;
+
+  // 1) Bucket counts by checkoutDate (YYYY-MM-DD)
+  const countsByDate = overdueCheckouts.reduce((acc, r) => {
+    const date = r.dueDate.split('T')[0];
+    acc[date] = (acc[date] || 0) + 1;
+    return acc;
+  }, {});
+
+  // 2) Sort dates ascending
+  const labels = Object.keys(countsByDate).sort();
+  const values = labels.map(date => countsByDate[date]);
+
+  // 3) Render line chart of counts over time
+  const ctx = document.getElementById('reportsChart').getContext('2d');
+  if (firstChartInstance) firstChartInstance.destroy();
+
+  firstChartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Overdue Checkouts',
+        data: values,
+        fill: false,
+        borderColor: '#dc3545',
+        backgroundColor: '#dc3545',
+        tension: 0.3,
+        pointRadius: 4,
+        pointHoverRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        title: {
+          display: true,
+          text: 'Overdue Checkouts Over Time',
+          align: 'center',
+          font: { size: 16, weight: 'bold' }
+        },
+        tooltip: { mode: 'index', intersect: false }
+      },
+      scales: {
+        x: {
+          title: { display: true, text: 'Due Date' }
+        },
+        y: {
+          title: { display: true, text: 'Number of Overdues' },
+          beginAtZero: true,
+          precision: 0
+        }
+      }
+    }
+  });
+
+  // 4) Render table as before
+  const tableEl = document.getElementById('reportsContainer');
+  let html = `
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th><th>User ID</th><th>Book ISBN</th>
+          <th>Due Date</th><th>Days Overdue</th><th>Overdue Fine</th>
+        </tr>
+      </thead><tbody>
+  `;
+  overdueCheckouts.forEach(r => {
+    const date = r.dueDate.split('T')[0];
+    html += `
+      <tr>
+        <td>${r.id}</td>
+        <td>${r.userId}</td>
+        <td>${r.bookIsbn}</td>
+        <td>${date}</td>
+        <td>${r.overdueDays}</td>
+        <td>$${r.overdueFine.toFixed(2)}</td>
+      </tr>
+    `;
+  });
+  html += `</tbody></table>`;
+
+  tableEl.innerHTML = html;
+
+  // 5) Update pagination
+  renderPaginationControls(totalCount, page, fetchReport, 'reportsPagination');
+
+  // 6) total uncollected fines
+  const paginationEl = document.getElementById('reportsPagination');
+  const existing = document.getElementById('overdueSummary');
+  if (existing) existing.remove();
+
+  const summaryHtml = `
+    <div id="overdueSummary" style="margin-top:16px; padding:12px;
+         background:#f8d7da; border:1px solid #f5c6cb; border-radius:4px;">
+      <strong>Total Uncollected Fine:</strong>
+      $${totalUncollectedFine.toFixed(2)}
+    </div>
+  `;
+  paginationEl.insertAdjacentHTML('afterend', summaryHtml);
 }
 
 /* ------------------------ PAGINATION CONTROLS UTILITY ------------------------ */
@@ -1894,4 +2013,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const params = new URLSearchParams(window.location.search);
   const initial = params.get('tab') || 'books';
   activateTab(initial);
+
+  (function setDefaultMonth() {
+    // 1) Get current date as ISO string: "YYYY-MM-DDTHH:mm:ss.sssZ"
+    const now = new Date();
+  
+    // 2) Extract "YYYY-MM" for the month input
+    const monthYear = now.toISOString().substring(0, 7);
+  
+    // 3) Assign to the input's value
+    document.getElementById('monthPicker').value = monthYear;
+  })();
 });

@@ -18,6 +18,13 @@ function addDays(date, days) {
 // Maximum renewals allowed
 const MAX_RENEWALS = 2;
 
+// fine
+const dailyFineAmount = 0.50;
+
+exports.getDailyFineAmount = async () => {
+  return dailyFineAmount;
+}
+
 exports.getById = async (checkoutId) => {
   const checkout = await Checkout.findOne({ where: { id: checkoutId } });
   if (!checkout) {
@@ -197,7 +204,7 @@ exports.processReturn = async (data) => {
     throw new CustomError('Return date cannot be before the checkout date.', 400);
   }
   
-  let fine = 0;
+  let fine
   let finalStatus = 'returned';
   
   if (returnStatus && (returnStatus === 'lost' || returnStatus === 'damaged')) {
@@ -222,7 +229,7 @@ exports.processReturn = async (data) => {
     // Standard returned: Calculate overdue fine if returned after due date
     if (actualReturnDate > checkout.dueDate) {
       const lateDays = Math.ceil((actualReturnDate - checkout.dueDate) / (1000 * 60 * 60 * 24));
-      fine = lateDays * 0.50;
+      fine = lateDays * dailyFineAmount;
     }
   }
   
@@ -393,12 +400,12 @@ exports.getCheckoutHistory = async (query, authUser) => {
     whereClause[fieldToFilter] = { [Op.lte]: new Date(endDate) };
   }
 
-  // Execute the query with pagination.
+  // Execute the query with pagination, ordering by id DESC
   const { count, rows } = await Checkout.findAndCountAll({
     where: whereClause,
     offset,
     limit: parseInt(limit, 10),
-    order: [['checkoutDate', 'DESC']]
+    order: [['id', 'DESC']],   // ← sort by id from largest to smallest
   });
 
   return {

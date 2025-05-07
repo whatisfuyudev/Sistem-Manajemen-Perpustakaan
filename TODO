@@ -24,12 +24,11 @@
   - make the admin/librarian side
     - construct admin panel 
       - rework the reports section based on docs
-
-        - circulation
-          - popular books borrowed and popular genre
-            - two new endpoint on api/reports, called "popular/books" "and popular/genres"
-              - two new function each rendering a single chart on the front end 
-
+        
+        - overdue
+          - in reports tab, overdue section, support searching by id of a checkout and select
+            input where it can be applied to sort the data from most to least fine or vice versa.
+            the back end does the sorting, front end only ask
 
         - ask gpt for the best way to visualize each report, what type of chart
         - reservations with visual

@@ -8,6 +8,7 @@ const { groupByPeriod, buildDateFilter } = require('../../utils/dateHelper');
 const { format } = require('date-fns');
 const CustomError = require('../../utils/customError');
 const {getBookByISBN} = require('../books/books.service');
+const { getDailyFineAmount } = require('../checkouts/checkouts.service');
 
 /**
  * Circulation Report: Aggregates checkouts, renewals, returns, and overdue transactions.
@@ -69,7 +70,7 @@ exports.getPopularBooks = async (filters) => {
   // 1) date filter
   const dateFilter = buildDateFilter(filters);
   const whereClause = dateFilter ? { [Op.and]: [dateFilter] } : {};
-  
+
   // 2) aggregate checkouts by bookIsbn
   const rows = await Checkout.findAll({
     attributes: [
@@ -156,30 +157,77 @@ exports.getPopularGenres = async (filters) => {
 
 /**
  * Overdue Report: Identifies overdue checkouts and aggregates overdue metrics.
- * Pagination added.
  */
 exports.getOverdueReport = async (query) => {
+  // 1) Extract pagination & filter flags
+  const page          = query.page  ? parseInt(query.page, 10)  : 1;
+  const limit         = query.limit ? parseInt(query.limit, 10) : 10;
+  const wantMostFine  = query.mostFine === 'true';
+  const wantLeastFine = query.leastFine === 'true';
+  const searchId      = query.id    ? parseInt(query.id, 10)   : null;
+
+  // 2) Base overdue criteria (no date filtering)
   const now = new Date();
-  const page = query.page ? parseInt(query.page) : 1;
-  const limit = query.limit ? parseInt(query.limit) : 10;
-  const offset = (page - 1) * limit;
-  
-  const { rows, count } = await Checkout.findAndCountAll({
-    where: {
-      status: { [Op.in]: ['active', 'overdue'] },
-      dueDate: { [Op.lt]: now }
-    },
-    order: [['dueDate', 'ASC']],
-    limit,
-    offset
+  const baseWhere = {
+    status:  { [Op.in]: ['active', 'overdue'] },
+    dueDate: { [Op.lt]: now }
+  };
+  // 2a) If ID search provided, add exact match
+  if (searchId !== null && !isNaN(searchId)) {
+    baseWhere.id = searchId;
+  }
+
+  // 3) Fetch all matching rows
+  const rows = await Checkout.findAll({
+    where: baseWhere,
+    raw: true
   });
-  
-  const totalFine = rows.reduce((sum, checkout) => {
-    return sum + parseFloat(checkout.fine || 0);
-  }, 0);
-  
-  return { overdueCheckouts: rows, totalFine, page, limit, totalCount: count };
+
+  // 4) Compute overdueDays & overdueFine
+  const msPerDay        = 1000 * 60 * 60 * 24;
+  const dailyFineAmount = await getDailyFineAmount();
+  const enriched = rows.map(co => {
+    const dueMs       = new Date(co.dueDate).getTime();
+    const overdueMs   = now.getTime() - dueMs;
+    const overdueDays = Math.max(0, Math.floor(overdueMs / msPerDay));
+    const overdueFine = parseFloat((overdueDays * dailyFineAmount).toFixed(2));
+    return {
+      id:           co.id,
+      bookIsbn:     co.bookIsbn,
+      userId:       co.userId,
+      dueDate:      co.dueDate,
+      overdueDays,
+      overdueFine
+    };
+  });
+
+  // 5) Sort by fine or by id
+  enriched.sort((a, b) => {
+    if (wantMostFine)   return b.overdueFine - a.overdueFine;
+    if (wantLeastFine)  return a.overdueFine - b.overdueFine;
+    return b.id - a.id;
+  });
+
+  // 6) Paginate
+  const totalCount = enriched.length;
+  const start      = (page - 1) * limit;
+  const paged      = enriched.slice(start, start + limit);
+
+  // 7) Compute total uncollected fine
+  const totalUncollectedFine = enriched
+    .reduce((sum, r) => sum + r.overdueFine, 0);
+
+  // 8) Return paginated & filtered data
+  return {
+    overdueCheckouts:      paged,
+    page,
+    limit,
+    totalCount,
+    totalUncollectedFine: parseFloat(totalUncollectedFine.toFixed(2))
+  };
 };
+
+
 
 /**
  * Inventory Report: Provides insights into book availability and condition.
