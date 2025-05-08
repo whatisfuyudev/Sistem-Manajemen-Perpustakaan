@@ -1389,7 +1389,19 @@ async function loadReportsModule() {
       yearGroup .classList.remove('hidden');
     }
   });
+
+  (function setDefaultMonth() {
+    // 1) Get current date as ISO string: "YYYY-MM-DDTHH:mm:ss.sssZ"
+    const now = new Date();
   
+    // 2) Extract "YYYY-MM" for the month input
+    const monthYear = now.toISOString().substring(0, 7);
+  
+    // 3) Assign to the input's value
+    document.getElementById('monthPicker').value = monthYear;
+  })();
+  
+  // initial load
   fetchReport();
 }
 
@@ -1762,6 +1774,41 @@ function renderCirculationPopularGenres(rows, period) {
   });
 }
 
+async function fetchOverdueWithFilters() {
+  const idInput = document.getElementById('overdueCheckoutIdSearch');
+  const fineSelect = document.getElementById('overdueCheckoutMostLeastFilter');
+  const params = new URLSearchParams({
+    page: currentPage,       // preserve pagination
+    limit: 10
+  });
+
+  // add ID filter if non-empty
+  const id = idInput.value.trim();
+  if (id) params.set('id', id);
+
+  // map select value to query flags
+  const f = fineSelect.value;
+  if (f === 'most') {
+    params.set('mostFine', 'true');
+    params.delete('leastFine');
+  } else if (f === 'least') {
+    params.set('leastFine', 'true');
+    params.delete('mostFine');
+  } else {
+    params.delete('mostFine');
+    params.delete('leastFine');
+  }
+
+  // call endpoint
+  const res = await fetch(`/api/reports/overdue?${params.toString()}`);
+  if (!res.ok) {
+    console.error('Failed to fetch overdue report', res.status);
+    return;
+  }
+  const data = await res.json();
+  renderOverdueDetails(data);
+}
+
 /**
  * Renders the Overdue Report:
  *  - Line chart of days overdue over time
@@ -1834,7 +1881,20 @@ function renderOverdue(data) {
     }
   });
 
-  // 4) Render table as before
+  // 4) render table and other things
+  renderOverdueDetails({
+    overdueCheckouts,
+    page,
+    totalCount,
+    totalUncollectedFine
+  });
+}
+
+/**
+ * Renders just the overdue details (table, pagination, summary)
+ */
+function renderOverdueDetails({ overdueCheckouts, page, totalCount, totalUncollectedFine }) {
+  // 1) Render table
   const tableEl = document.getElementById('reportsContainer');
   let html = `
     <table>
@@ -1843,10 +1903,11 @@ function renderOverdue(data) {
           <th>ID</th><th>User ID</th><th>Book ISBN</th>
           <th>Due Date</th><th>Days Overdue</th><th>Overdue Fine</th>
         </tr>
-      </thead><tbody>
+      </thead>
+      <tbody>
   `;
   overdueCheckouts.forEach(r => {
-    const date = r.dueDate.split('T')[0];
+    const date = r.dueDate.slice(0,10);
     html += `
       <tr>
         <td>${r.id}</td>
@@ -1859,24 +1920,68 @@ function renderOverdue(data) {
     `;
   });
   html += `</tbody></table>`;
-
   tableEl.innerHTML = html;
 
-  // 5) Update pagination
+  // 2) Render pagination
   renderPaginationControls(totalCount, page, fetchReport, 'reportsPagination');
 
-  // 6) total uncollected fines
+  // 3) Render summary
   const paginationEl = document.getElementById('reportsPagination');
-  const existing = document.getElementById('overdueSummary');
-  if (existing) existing.remove();
-
+  let summaryEl = document.getElementById('overdueSummary');
+  if (summaryEl) summaryEl.remove();
   const summaryHtml = `
-    <div id="overdueSummary" style="margin-top:16px; padding:12px;
-         background:#f8d7da; border:1px solid #f5c6cb; border-radius:4px;">
+    <div id="overdueSummary" style="
+         margin-top:16px;
+         padding:12px;
+         background:#f8d7da;
+         border:1px solid #f5c6cb;
+         border-radius:4px;
+    ">
       <strong>Total Uncollected Fine:</strong>
       $${totalUncollectedFine.toFixed(2)}
     </div>
   `;
+
+  // 5) inject filters once 
+  if (!document.getElementById('overdueFilterContainer')) {
+    const wrapper = document.createElement('div');
+    wrapper.id = 'overdueFilterContainer';
+    wrapper.style.margin = '16px 0';
+    wrapper.innerHTML = `
+      <input
+        type="text"
+        id="overdueCheckoutIdSearch"
+        placeholder="Search by Checkout ID"
+        style="margin-right:12px; padding:4px;"
+      />
+      <select
+        id="overdueCheckoutMostLeastFilter"
+        style="padding:4px;"
+      >
+        <option value="">-- Fine Amount --</option>
+        <option value="most">Most</option>
+        <option value="least">Least</option>
+      </select>
+    `;
+    tableEl.insertBefore(wrapper, tableEl.firstChild);
+
+    // wire listeners
+    document
+      .getElementById('overdueCheckoutIdSearch')
+      .addEventListener('keypress', e => {
+        if (e.key === 'Enter') {
+          currentPage = 1;
+          fetchOverdueWithFilters();
+        }
+      });
+    document
+      .getElementById('overdueCheckoutMostLeastFilter')
+      .addEventListener('change', () => {
+        currentPage = 1;
+        fetchOverdueWithFilters();
+      });
+  }
+
   paginationEl.insertAdjacentHTML('afterend', summaryHtml);
 }
 
@@ -2013,15 +2118,4 @@ document.addEventListener('DOMContentLoaded', () => {
   const params = new URLSearchParams(window.location.search);
   const initial = params.get('tab') || 'books';
   activateTab(initial);
-
-  (function setDefaultMonth() {
-    // 1) Get current date as ISO string: "YYYY-MM-DDTHH:mm:ss.sssZ"
-    const now = new Date();
-  
-    // 2) Extract "YYYY-MM" for the month input
-    const monthYear = now.toISOString().substring(0, 7);
-  
-    // 3) Assign to the input's value
-    document.getElementById('monthPicker').value = monthYear;
-  })();
 });
