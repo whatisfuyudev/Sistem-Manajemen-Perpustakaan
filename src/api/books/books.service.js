@@ -72,6 +72,30 @@ exports.getBookByISBN = async (isbn) => {
 };
 
 /**
+ * Retrieve books whose title contains the given substring.
+ * @param {string} titlePart — partial title to search for
+ * @returns {Promise<Book[]>}
+ */
+exports.getBookByTitle = async (titlePart) => {
+  if (!titlePart) {
+    return [];
+  }
+
+  const books = await Book.findAll({
+    where: {
+      title: {
+        // For Postgres, use iLike for case-insensitive:
+        [Op.iLike]: `%${titlePart}%`
+        // For other dialects, you can use Op.like:
+        // [Op.like]: `%${titlePart}%`
+      }
+    }
+  });
+
+  return books;
+};
+
+/**
  * Update a book record by ISBN.
  * Adjusts availableCopies if totalCopies is modified.
  */

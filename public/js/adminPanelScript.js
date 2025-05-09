@@ -1526,7 +1526,7 @@ function renderReport(type, data, page) {
     // Generic table for other reports
     html += '<table><thead><tr>';
     if (type === 'circulation') {
-      renderCirculation(data.checkouts, period);
+      renderCirculation(data.checkouts, period, page);
     } else if (type === 'overdue') {
       renderOverdue(data);
     } else if (type === 'inventory') {
@@ -1535,45 +1535,7 @@ function renderReport(type, data, page) {
       html += '<th>User ID</th><th>Checkouts</th><th>Reservations</th>';
     }
     html += '</tr></thead><tbody>';
-
-    // old version
-    // if (Array.isArray(data.checkouts || data)) {
-    //   const rows = data.checkouts || data;
-    //   rows.forEach(item => {
-    //     html += '<tr>';
-    //     if (type === 'circulation') {
-    //       html += `<td>${item.date}</td><td>${item.totalCheckouts}</td>`;
-    //     } else if (type === 'overdue') {
-    //       html += `
-    //         <td>${item.userId}</td>
-    //         <td>${item.bookIsbn}</td>
-    //         <td>${item.daysOverdue}</td>`;
-    //     } else if (type === 'inventory') {
-    //       html += `
-    //         <td>${item.isbn}</td>
-    //         <td>${item.title}</td>
-    //         <td>${item.availableCopies}</td>`;
-    //     } else if (type === 'user-engagement') {
-    //       html += `
-    //         <td>${item.userId}</td>
-    //         <td>${item.checkoutsCount}</td>
-    //         <td>${item.reservationsCount}</td>`;
-    //     }
-    //     html += '</tr>';
-    //   });
-    // }
-
-    // html += '</tbody></table>';
   }
-
-  // container.innerHTML = html;
-
-  renderPaginationControls(
-    data.total || data.totalCount || 0,
-    page,
-    fetchReport,
-    'reportsPagination'
-  );
 }
 
 // keep these at top level so we can destroy existing charts
@@ -1581,7 +1543,7 @@ let firstChartInstance = null;
 let secondChartInstance = null;
 let thirdChartInstance = null;
 
-function renderCirculation(rows, period) {
+function renderCirculation(rows, period, page) {
   // Reverse them so oldest → newest left-to-right
   const labels = rows.map(r => r.date).reverse();
   const values = rows.map(r => r.totalCheckouts).reverse();
@@ -1644,6 +1606,13 @@ function renderCirculation(rows, period) {
   });
   html += '</tbody></table>';
   tableEl.innerHTML = html;
+
+  renderPaginationControls(
+    rows,
+    page,
+    fetchReport,
+    'reportsPagination'
+  );
 }
 
 /**
@@ -1843,18 +1812,14 @@ function renderOverdue(data) {
   if (firstChartInstance) firstChartInstance.destroy();
 
   firstChartInstance = new Chart(ctx, {
-    type: 'line',
+    type: 'bar',                // ← switched to bar chart
     data: {
       labels,
       datasets: [{
         label: 'Overdue Checkouts',
         data: values,
-        fill: false,
-        borderColor: '#dc3545',
         backgroundColor: '#dc3545',
-        tension: 0.3,
-        pointRadius: 4,
-        pointHoverRadius: 6
+        maxBarThickness: 30       // optional: limit bar width
       }]
     },
     options: {
@@ -1879,7 +1844,7 @@ function renderOverdue(data) {
         }
       }
     }
-  });
+  });  
 
   // 4) render table and other things
   renderOverdueDetails({
@@ -1984,6 +1949,32 @@ function renderOverdueDetails({ overdueCheckouts, page, totalCount, totalUncolle
 
   paginationEl.insertAdjacentHTML('afterend', summaryHtml);
 }
+
+function renderInventory() {
+
+}
+
+async function fetchBooksInventory() {
+  
+}
+
+function renderBookInventory() {
+  // top part, multiple bar chart and a table
+}
+
+async function fetchInventoryHealth() {
+  
+}
+
+function renderInventoryHealth() {
+  // bottom part, donut chart and a table
+}
+
+function renderInventoryHealthDetails() {
+  // render the table to support searching by title or isbn
+}
+
+
 
 /* ------------------------ PAGINATION CONTROLS UTILITY ------------------------ */
 function renderPaginationControls(total, page, fetchFunc, containerId) {

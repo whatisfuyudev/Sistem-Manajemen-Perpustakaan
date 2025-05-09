@@ -11,8 +11,11 @@ router.get('/popular/genres', authMiddleware.verifyToken, authMiddleware.isLibra
 router.get('/overdue', authMiddleware.verifyToken, authMiddleware.isLibrarianOrAdmin, reportsController.getOverdueReport);
 
 
-router.get('/inventory', authMiddleware.verifyToken, authMiddleware.isLibrarianOrAdmin, reportsController.getInventoryReport);
-router.get('/user-engagement', authMiddleware.verifyToken, authMiddleware.isLibrarianOrAdmin, reportsController.getUserEngagementReport);
+router.get('/inventory/book', authMiddleware.verifyToken, authMiddleware.isLibrarianOrAdmin, reportsController.getBookInventory);
+router.get('/inventory/health', authMiddleware.verifyToken, authMiddleware.isLibrarianOrAdmin, reportsController.getInventoryHealth);
+
+
+router.get('/user/engagement', authMiddleware.verifyToken, authMiddleware.isLibrarianOrAdmin, reportsController.getUserEngagementReport);
 router.get('/financial', authMiddleware.verifyToken, authMiddleware.isLibrarianOrAdmin, reportsController.getFinancialReport);
 
 module.exports = router;

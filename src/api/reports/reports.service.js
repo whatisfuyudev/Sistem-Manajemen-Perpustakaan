@@ -233,7 +233,7 @@ exports.getOverdueReport = async (query) => {
  * Inventory Report: Provides insights into book availability and condition.
  * Pagination added.
  */
-exports.getInventoryReport = async (query) => {
+exports.getBookInventory = async (query) => {
   const page = query.page ? parseInt(query.page) : 1;
   const limit = query.limit ? parseInt(query.limit) : 10;
   const offset = (page - 1) * limit;
@@ -245,6 +245,83 @@ exports.getInventoryReport = async (query) => {
     offset
   });
   return { books: rows, page, limit, totalCount: count };
+};
+
+/**
+ * Inventory Health: Provides insights into overall inventory health.
+ */
+exports.getInventoryHealth = async ({ page = 1, limit = 50, search = '' }) => {
+  page   = parseInt(page, 10);
+  limit  = parseInt(limit, 10);
+  const offset = (page - 1) * limit;
+
+  // 1) Build optional search filter for books
+  const searchFilter = search.trim()
+    ? {
+        [Op.or]: [
+          { isbn:  { [Op.iLike]: `%${search}%` } },  // Postgres iLike
+          { title: { [Op.iLike]: `%${search}%` } }
+        ]
+      }
+    : {};
+
+  // 2) Fetch paginated books
+  const { count: totalCount, rows: books } = await Book.findAndCountAll({
+    where: searchFilter,
+    attributes: ['isbn', 'title', 'totalCopies', 'availableCopies'],
+    order: [['title', 'ASC']],
+    limit,
+    offset,
+    raw: true
+  });
+
+  // 3) Aggregate lost/damaged counts for these ISBNs only
+  const isbns = books.map(b => b.isbn);
+  const aggRows = isbns.length
+    ? await Checkout.findAll({
+        attributes: [
+          'bookIsbn',
+          'status',
+          [Checkout.sequelize.fn('COUNT', '*'), 'count']
+        ],
+        where: {
+          bookIsbn: { [Op.in]: isbns },
+          status:   { [Op.in]: ['lost', 'damaged'] }
+        },
+        group: ['bookIsbn', 'status'],
+        raw: true
+      })
+    : [];
+
+  // 4) Build lookup of counts per ISBN
+  const countsByIsbn = {};
+  aggRows.forEach(({ bookIsbn, status, count }) => {
+    if (!countsByIsbn[bookIsbn]) {
+      countsByIsbn[bookIsbn] = { lost: 0, damaged: 0 };
+    }
+    countsByIsbn[bookIsbn][status] = parseInt(count, 10);
+  });
+
+  // 5) Merge counts into books, computing good = total – lost – damaged
+  const enriched = books.map(b => {
+    const { lost = 0, damaged = 0 } = countsByIsbn[b.isbn] || {};
+    const good = b.totalCopies - lost - damaged;
+    return {
+      isbn:            b.isbn,
+      title:           b.title,
+      totalCopies:     b.totalCopies,
+      availableCopies: b.availableCopies,
+      conditionCounts: { good, lost, damaged }
+    };
+  });
+
+  // 6) Return paginated, merged results
+  return {
+    books:      enriched,
+    page,
+    limit,
+    totalCount
+  };
 };
 
 /**

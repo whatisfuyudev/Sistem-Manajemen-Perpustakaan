@@ -25,10 +25,9 @@
     - construct admin panel 
       - rework the reports section based on docs
         
-        - overdue
-          - in reports tab, overdue section, support searching by id of a checkout and select
-            input where it can be applied to sort the data from most to least fine or vice versa.
-            the back end does the sorting, front end only ask
+        - inventory
+          - front end
+
 
         - ask gpt for the best way to visualize each report, what type of chart
         - reservations with visual

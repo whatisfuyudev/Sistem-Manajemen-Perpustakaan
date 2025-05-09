@@ -45,14 +45,24 @@ exports.getOverdueReport = async (req, res, next) => {
   }
 };
 
-exports.getInventoryReport = async (req, res, next) => {
+exports.getBookInventory = async (req, res, next) => {
   try {
-    const report = await reportsService.getInventoryReport(req.query);
+    const report = await reportsService.getBookInventory(req.query);
     res.status(200).json(report);
   } catch (error) {
     next(error);
   }
 };
+
+exports.getInventoryHealth = async (req, res, next) => {
+  try {
+    const report = await reportsService.getInventoryHealth(req.query);
+    res.status(200).json(report);
+  } catch (error) {
+    next(error);
+  }
+};
+
 
 exports.getUserEngagementReport = async (req, res, next) => {
   try {
