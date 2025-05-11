@@ -234,17 +234,36 @@ exports.getOverdueReport = async (query) => {
  * Pagination added.
  */
 exports.getBookInventory = async (query) => {
-  const page = query.page ? parseInt(query.page) : 1;
-  const limit = query.limit ? parseInt(query.limit) : 10;
+  const page   = query.page  ? parseInt(query.page, 10)  : 1;
+  const limit  = query.limit ? parseInt(query.limit, 10) : 10;
   const offset = (page - 1) * limit;
-  
+
+  // 1) Build optional search filter
+  const search = (query.search || '').trim();
+  const where  = search
+    ? {
+        [Op.or]: [
+          { isbn:  { [Op.iLike]: `%${search}%` } },   // Postgres case-insensitive
+          { title: { [Op.iLike]: `%${search}%` } }
+        ]
+      }
+    : {};
+
+  // 2) Query with pagination + search
   const { rows, count } = await Book.findAndCountAll({
+    where,
     attributes: ['isbn', 'title', 'availableCopies', 'totalCopies'],
     order: [['title', 'ASC']],
     limit,
     offset
   });
-  return { books: rows, page, limit, totalCount: count };
+
+  return {
+    books:      rows,
+    page,
+    limit,
+    totalCount: count
+  };
 };
 
 /**

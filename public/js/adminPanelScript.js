@@ -41,7 +41,7 @@ const API = {
     circulation: '/api/reports/circulation',
     reservations: '/api/reports/reservations',
     overdue: '/api/reports/overdue',
-    inventory: '/api/reports/inventory',
+    inventory: '/api/reports/inventory/book',
     'user-engagement': '/api/reports/user-engagement',
     financial: '/api/reports/financial',
     custom: '/api/reports/custom'
@@ -1363,13 +1363,22 @@ async function loadReportsModule() {
       secondReportsChart.classList.remove('hidden');
       thirdReportsChart.classList.remove('hidden');
       monthlyOpts.classList.add('hidden');
-      periodSel.value = 'daily';
+      dailyWeekly.value = 'daily';
     } else {
       dailyWeekly.classList.add('hidden');
       secondReportsChart.classList.add('hidden');
       thirdReportsChart.classList.add('hidden');
       monthlyOpts.classList.add('hidden');
     }
+
+    if (type !== 'overdue') {
+      document.getElementById('overdueSummary')?.remove();
+    }
+
+    if (type !== 'inventory') {
+      document.getElementById('inventorySearchInput')?.remove();
+    }
+
   });
     
   
@@ -1474,6 +1483,8 @@ async function fetchReport() {
   // Only circulation has period/month/year filters
   if (reportType === 'circulation') {
     return fetchCirculationReports();
+  } else if (reportType === 'inventory') {
+    return fetchInventoryReports();
   }
 
   try {
@@ -1530,7 +1541,7 @@ function renderReport(type, data, page) {
     } else if (type === 'overdue') {
       renderOverdue(data);
     } else if (type === 'inventory') {
-      html += '<th>ISBN</th><th>Title</th><th>Available Copies</th>';
+      renderInventory(data);
     } else if (type === 'user-engagement') {
       html += '<th>User ID</th><th>Checkouts</th><th>Reservations</th>';
     }
@@ -1917,11 +1928,11 @@ function renderOverdueDetails({ overdueCheckouts, page, totalCount, totalUncolle
         type="text"
         id="overdueCheckoutIdSearch"
         placeholder="Search by Checkout ID"
-        style="margin-right:12px; padding:4px;"
+        style="margin-right:12px; padding:8px 12px;"
       />
       <select
         id="overdueCheckoutMostLeastFilter"
-        style="padding:4px;"
+        style="padding:8px 12px;"
       >
         <option value="">-- Fine Amount --</option>
         <option value="most">Most</option>
@@ -1950,31 +1961,381 @@ function renderOverdueDetails({ overdueCheckouts, page, totalCount, totalUncolle
   paginationEl.insertAdjacentHTML('afterend', summaryHtml);
 }
 
-function renderInventory() {
+async function fetchInventoryReports() {
+  // compose full url
+  const bookInventoryUrl = API.reports.inventory;
+  const inventoryHealthUrl = API.reports.inventory.replace('inventory/book', 'inventory/health');
 
+  try {
+    const [bookInventoryRes, inventoryHealthRes] = await Promise.all([
+      fetch(bookInventoryUrl),
+      fetch(inventoryHealthUrl)
+    ]);
+
+    // Check all OK
+    if (!bookInventoryRes.ok || !inventoryHealthRes.ok) {
+      throw new Error('One or more report fetches failed.');
+    }
+
+    // Parse JSON in parallel
+    const [bookInventoryData, inventoryHealthData] = await Promise.all([
+      bookInventoryRes.json(),
+      inventoryHealthRes.json()
+    ]);
+    
+    renderInventory(bookInventoryData, inventoryHealthData);
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById('reportsContainer').innerHTML =
+      '<p>Error loading reports.</p>';
+  }
+}
+
+function renderInventory(bookInventoryData, inventoryHealthData) {
+  renderBookInventory(bookInventoryData.books)
+
+  renderPaginationControls(
+    bookInventoryData.totalCount,
+    currentPage,
+    fetchBooksInventory, 
+    'reportsPagination'
+  );
+
+  // renderInventoryHealth(inventoryHealthData);
+
+  // renderPaginationControls(
+  //   inventoryHealthData.totalCount,
+  //   inventoryHealthData.page,
+  //   fetchReport, 
+  //   'reportsPagination'
+  // );
+  
 }
 
 async function fetchBooksInventory() {
-  
+  // 1) Read search input
+  const searchTerm = document
+    .getElementById('inventorySearchInput')
+    .value
+    .trim();
+
+  // 2) Build query params
+  const params = new URLSearchParams({
+    page: currentPage,
+    limit: 10
+  });
+  if (searchTerm) {
+    params.set('search', searchTerm);
+  }
+
+  // 3) Fetch from API
+  const url = `/api/reports/inventory/book?${params.toString()}`;
+  try {
+    const res = await fetch(url, {
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+    if (!res.ok) {
+      throw new Error(`Inventory fetch failed: ${res.status}`);
+    }
+    const data = await res.json();
+
+    // 4) Render table and chart
+    renderBookInventory(data.books);
+
+    // 5) Render pagination
+    renderPaginationControls(
+      data.totalCount,
+      data.page,
+      fetchReport, 
+      'reportsPagination'
+    );
+ 
+  } catch (err) {
+    console.error(err);
+    document.getElementById('reportsContainer').innerHTML =
+      '<p>Error loading inventory.</p>';
+  }
 }
 
-function renderBookInventory() {
-  // top part, multiple bar chart and a table
+/**
+ * Renders the Inventory view:
+ *  • Grouped bar chart of Available vs Total Copies per book
+ *  • HTML table of the same data
+ *
+ * @param {Array} books — array of { isbn, title, availableCopies, totalCopies }
+ */
+function renderBookInventory(books) {
+  // 1) Prepare chart data
+  const labels        = books.map(b => b.title);
+  const availableData = books.map(b => b.availableCopies);
+  const totalData     = books.map(b => b.totalCopies);
+
+  // 2) Render overlapping bar chart
+  const ctx = document.getElementById('reportsChart').getContext('2d');
+  if (firstChartInstance) firstChartInstance.destroy();
+  firstChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Total Copies',
+          data: totalData,
+          backgroundColor: 'rgba(0, 123, 255, 0.3)',
+          barThickness: 30,
+          order: 1
+        },
+        {
+          label: 'Available Copies',
+          data: availableData,
+          backgroundColor: '#28a745',
+          barThickness: 30,
+          order: 2
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        title: {
+          display: true,
+          text: 'Book Inventory: Available vs Total Copies',
+          align: 'center',
+          font: { size: 16, weight: 'bold' }
+        },
+        tooltip: { mode: 'index', intersect: false },
+        legend: { position: 'top' }
+      },
+      scales: {
+        x: {
+          title: { display: true, text: 'Book Title' },
+          categoryPercentage: 1.0,
+          barPercentage: 1.0,
+          ticks: { autoSkip: false }
+        },
+        y: { beginAtZero: true }
+      }
+    }
+  });
+
+  // 3) Inject search bar once, above the table
+  const tableContainer = document.getElementById('reportsContainer');
+  if (!document.getElementById('inventorySearchInput')) {
+    const wrapper = document.createElement('div');
+    wrapper.id = 'inventorySearchContainer';
+    wrapper.style = 'margin: 16px 0;';
+    wrapper.innerHTML = `
+      <input
+        type="text"
+        id="inventorySearchInput"
+        placeholder="Search by ISBN or Title"
+        style="
+          width: 300px;
+          max-width: 80%;
+          padding: 8px 12px;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+          font-size: 1rem;
+        "
+      />
+    `;
+    tableContainer.parentNode.insertBefore(wrapper, tableContainer);
+
+    // 4) Wire up listeners
+    const inputEl = document.getElementById('inventorySearchInput');
+    inputEl.addEventListener('keypress', e => {
+      if (e.key === 'Enter') {
+        currentPage = 1;
+        fetchBooksInventory();
+      }
+    });
+  }
+
+  // 5) Render table of books
+  let html = `
+    <table>
+      <thead>
+        <tr>
+          <th>ISBN</th>
+          <th>Title</th>
+          <th>Available Copies</th>
+          <th>Total Copies</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+  books.forEach(b => {
+    html += `
+      <tr>
+        <td>${b.isbn}</td>
+        <td>${b.title}</td>
+        <td>${b.availableCopies}</td>
+        <td>${b.totalCopies}</td>
+      </tr>
+    `;
+  });
+  html += `</tbody></table>`;
+  tableContainer.innerHTML = html;
 }
 
-async function fetchInventoryHealth() {
-  
+async function fetchInventoryHealth(searchTerm) {
+  // 1) Build query string
+  const params = new URLSearchParams({
+    page: currentPage,
+    limit: 10
+  });
+  if (searchTerm) {
+    params.set('search', searchTerm);
+  }
+
+  const url = `/api/reports/inventory/health?${params.toString()}`;
+
+  try {
+    const res = await fetch(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        // add auth header if needed
+      }
+    });
+    if (!res.ok) throw new Error(`Fetch failed: ${res.status}`);
+
+    const data = await res.json();
+
+    return data;
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById('inventoryHealthContainer').innerHTML =
+      '<p>Error loading inventory health.</p>';
+  }
 }
 
-function renderInventoryHealth() {
-  // bottom part, donut chart and a table
+/**
+ * Renders the Inventory Health section:
+ *  - Fetches data
+ *  - Draws a donut chart of overall condition counts
+ *  - Calls renderInventoryHealthDetails to draw the search bar + table
+ */
+function renderInventoryHealth(data) {
+  const { books } = data;
+
+  // 2) Aggregate totals for chart
+  const totals = books.reduce(
+    (acc, b) => {
+      acc.good    += b.conditionCounts.good;
+      acc.lost    += b.conditionCounts.lost;
+      acc.damaged += b.conditionCounts.damaged;
+      return acc;
+    },
+    { good: 0, lost: 0, damaged: 0 }
+  );
+
+  // 3) Render donut chart into <canvas id="secondReportsChart">
+  const ctx = document.getElementById('secondReportsChart').getContext('2d');
+  if (secondChartInstance) secondChartInstance.destroy();
+  secondChartInstance = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Good', 'Lost', 'Damaged'],
+      datasets: [{
+        data: [totals.good, totals.lost, totals.damaged],
+        backgroundColor: ['#28a745','#dc3545','#ffc107']
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        title: {
+          display: true,
+          text: 'Overall Inventory Health',
+          align: 'center',
+          font: { size: 16, weight: 'bold' }
+        },
+        legend: { position: 'bottom' }
+      }
+    }
+  });
+
+  // 4) Render the details (search bar + table)
+  renderInventoryHealthDetails(books);
 }
 
-function renderInventoryHealthDetails() {
-  // render the table to support searching by title or isbn
+/**
+ * Renders the search bar and table of inventory health details.
+ * @param {Array} data — contain property books that is an array of { isbn, title, totalCopies, availableCopies, conditionCounts }
+ */
+function renderInventoryHealthDetails(books) {
+  const container = document.getElementById('reportsContainer');
+
+  // Inject search bar once
+  if (!document.getElementById('inventoryHealthSearch')) {
+    const searchWrapper = document.createElement('div');
+    searchWrapper.style = 'margin:16px 0;';
+    searchWrapper.innerHTML = `
+      <input
+        type="text"
+        id="inventoryHealthSearch"
+        placeholder="Search by ISBN or Title"
+        style="
+          width: 300px;
+          max-width: 80%;
+          padding: 8px 12px;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+          font-size: 1rem;
+        "
+      />
+    `;
+    container.parentNode.insert(searchWrapper, container);
+
+    // Wire search listeners
+    const inputEl = document.getElementById('inventoryHealthSearch');
+    inputEl.addEventListener('keypress', e => {
+      if (e.key === 'Enter') {
+        currentPage = 1;
+        renderInventoryHealth();
+      }
+    });
+    inputEl.addEventListener('input', () => {
+      currentPage = 1;
+      renderInventoryHealth();
+    });
+  }
+
+  // Render table
+  let html = `
+    <table>
+      <thead>
+        <tr>
+          <th>ISBN</th>
+          <th>Title</th>
+          <th>Total</th>
+          <th>Good</th>
+          <th>Lost</th>
+          <th>Damaged</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+  books.forEach(b => {
+    html += `
+      <tr>
+        <td>${b.isbn}</td>
+        <td>${b.title}</td>
+        <td>${b.totalCopies}</td>
+        <td>${b.conditionCounts.good}</td>
+        <td>${b.conditionCounts.lost}</td>
+        <td>${b.conditionCounts.damaged}</td>
+      </tr>
+    `;
+  });
+  html += `</tbody></table>`;
+
+  container.innerHTML = html;
 }
-
-
 
 /* ------------------------ PAGINATION CONTROLS UTILITY ------------------------ */
 function renderPaginationControls(total, page, fetchFunc, containerId) {

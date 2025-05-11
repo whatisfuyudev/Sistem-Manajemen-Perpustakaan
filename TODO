@@ -14,12 +14,13 @@
 
 2. make user interface, reponsive html pages
   - make the user/client side first
-    - make it similiar to https://www.libib.com/ (no lol)
+    - make it similiar to ipusnas (have article section and news/pengumuman section)
       - there will be homepage, individual book page, profile page, my reservations page, my checkouts page, register page, login page
         - rework profile page 
         - probably add more things on the homepage example would be book based by author, genre, or even a new section about article and dedicated article page that is related to book news or book things or library news.
 
         - replace alert in my reservation page, book details, profile,  with custom popup/modal
+        - refresh after window.reload() or something on my reservations
 
   - make the admin/librarian side
     - construct admin panel 
@@ -34,8 +35,6 @@
         - user fines with donut chart showing 3 different type of fines and the table show all of the checkout with fines
       
       - every report section has its own render function for rendering chart and table at the same time 
-      - maybe limit to only a single month data or year on the chart but for table limit to only 10
-          - pagination not working properly
 
 
     
