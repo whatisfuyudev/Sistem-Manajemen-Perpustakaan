@@ -1357,12 +1357,16 @@ async function loadReportsModule() {
     const monthlyOpts = document.getElementById('monthlyOptions');
     const secondReportsChart = document.getElementById('secondReportsChart');
     const thirdReportsChart = document.getElementById('thirdReportsChart');
-  
+    
+
     if (type === 'circulation') {
       dailyWeekly.classList.remove('hidden');
       secondReportsChart.classList.remove('hidden');
       thirdReportsChart.classList.remove('hidden');
-      monthlyOpts.classList.add('hidden');
+      if (document.getElementById('circulationPeriod').value === 'monthly') {
+        monthlyOpts.classList.remove('hidden');
+      }
+      
       dailyWeekly.value = 'daily';
     } else {
       dailyWeekly.classList.add('hidden');
@@ -1377,6 +1381,11 @@ async function loadReportsModule() {
 
     if (type !== 'inventory') {
       document.getElementById('inventorySearchInput')?.remove();
+      document.getElementById('inventoryHealthTable')?.remove();
+      document.getElementById('inventoryHealthSearch')?.remove();
+      document.getElementById('inventoryHealthPagination')?.remove();
+    } else {
+      secondReportsChart.classList.remove('hidden');
     }
 
   });
@@ -1665,7 +1674,16 @@ function renderCirculationPopularBooks(rows, period) {
       scales: {
         x: {
           title: { display: true, text: 'Book Title' },
-          ticks: { autoSkip: false }
+          ticks: { 
+            callback: function(value, index, values) {
+              const label = this.getLabelForValue(value);
+              const maxLength = 10; // adjust as needed
+              return label.length > maxLength
+                ? label.substring(0, maxLength) + '…'
+                : label;
+            }
+          },
+          autoSkip: false 
         },
         y: {
           title: { display: true, text: 'Total Checkouts' },
@@ -1961,6 +1979,8 @@ function renderOverdueDetails({ overdueCheckouts, page, totalCount, totalUncolle
   paginationEl.insertAdjacentHTML('afterend', summaryHtml);
 }
 
+let inventoryHealthCurrentPage = 1;
+
 async function fetchInventoryReports() {
   // compose full url
   const bookInventoryUrl = API.reports.inventory;
@@ -2001,16 +2021,8 @@ function renderInventory(bookInventoryData, inventoryHealthData) {
     fetchBooksInventory, 
     'reportsPagination'
   );
-
-  // renderInventoryHealth(inventoryHealthData);
-
-  // renderPaginationControls(
-  //   inventoryHealthData.totalCount,
-  //   inventoryHealthData.page,
-  //   fetchReport, 
-  //   'reportsPagination'
-  // );
   
+  renderInventoryHealth(inventoryHealthData); 
 }
 
 async function fetchBooksInventory() {
@@ -2049,7 +2061,7 @@ async function fetchBooksInventory() {
     renderPaginationControls(
       data.totalCount,
       data.page,
-      fetchReport, 
+      fetchBooksInventory, 
       'reportsPagination'
     );
  
@@ -2114,7 +2126,16 @@ function renderBookInventory(books) {
           title: { display: true, text: 'Book Title' },
           categoryPercentage: 1.0,
           barPercentage: 1.0,
-          ticks: { autoSkip: false }
+          ticks: { 
+            callback: function(value, index, values) {
+              const label = this.getLabelForValue(value);
+              const maxLength = 10; // adjust as needed
+              return label.length > maxLength
+                ? label.substring(0, maxLength) + '…'
+                : label;
+            }
+          },
+          autoSkip: false 
         },
         y: { beginAtZero: true }
       }
@@ -2222,7 +2243,7 @@ async function fetchInventoryHealth(searchTerm) {
 function renderInventoryHealth(data) {
   const { books } = data;
 
-  // 2) Aggregate totals for chart
+  // 1) Aggregate totals for chart
   const totals = books.reduce(
     (acc, b) => {
       acc.good    += b.conditionCounts.good;
@@ -2233,7 +2254,7 @@ function renderInventoryHealth(data) {
     { good: 0, lost: 0, damaged: 0 }
   );
 
-  // 3) Render donut chart into <canvas id="secondReportsChart">
+  // 2) Render donut chart into <canvas id="secondReportsChart">
   const ctx = document.getElementById('secondReportsChart').getContext('2d');
   if (secondChartInstance) secondChartInstance.destroy();
   secondChartInstance = new Chart(ctx, {
@@ -2258,22 +2279,31 @@ function renderInventoryHealth(data) {
       }
     }
   });
+  
+  // 3) Render the details (search bar + table)
+  renderInventoryHealthDetails(books, data.totalCount, data.page);
+}
 
-  // 4) Render the details (search bar + table)
-  renderInventoryHealthDetails(books);
+// for rendering paginations
+async function fetchInventoryHealthWrapper() {
+  const inputEl = document.getElementById('inventoryHealthSearch');
+  const result = await fetchInventoryHealth(inputEl.value.trim());
+  document.getElementById('inventoryHealthTable').innerHTML = '';
+  
+  renderInventoryHealthDetails(result.books, result.totalCount, result.page);
 }
 
 /**
  * Renders the search bar and table of inventory health details.
  * @param {Array} data — contain property books that is an array of { isbn, title, totalCopies, availableCopies, conditionCounts }
  */
-function renderInventoryHealthDetails(books) {
-  const container = document.getElementById('reportsContainer');
-
+async function renderInventoryHealthDetails(books, totalCount, page) {
+  let target = document.getElementById('secondReportsChart');
+  
   // Inject search bar once
   if (!document.getElementById('inventoryHealthSearch')) {
     const searchWrapper = document.createElement('div');
-    searchWrapper.style = 'margin:16px 0;';
+    searchWrapper.style = 'margin:16px 0; margin-top:24px;';
     searchWrapper.innerHTML = `
       <input
         type="text"
@@ -2289,26 +2319,31 @@ function renderInventoryHealthDetails(books) {
         "
       />
     `;
-    container.parentNode.insert(searchWrapper, container);
+    target.insertAdjacentElement('afterend', searchWrapper);
 
     // Wire search listeners
     const inputEl = document.getElementById('inventoryHealthSearch');
-    inputEl.addEventListener('keypress', e => {
+    inputEl.addEventListener('keypress', async e => {
       if (e.key === 'Enter') {
         currentPage = 1;
-        renderInventoryHealth();
+        const result = await fetchInventoryHealth(inputEl.value.trim());
+        document.getElementById('inventoryHealthTable').innerHTML = '';
+        renderInventoryHealthDetails(result.books, result.totalCount, result.page);
       }
-    });
-    inputEl.addEventListener('input', () => {
-      currentPage = 1;
-      renderInventoryHealth();
     });
   }
 
+  let html = '';
   // Render table
-  let html = `
-    <table>
-      <thead>
+  if (!document.getElementById('inventoryHealthTable')) {
+    html = `
+    <table id="inventoryHealthTable">
+  `;
+  } else {
+    html = document.getElementById('inventoryHealthTable').outerHTML.replace('</table>', '');
+  }
+  html += `
+  <thead>
         <tr>
           <th>ISBN</th>
           <th>Title</th>
@@ -2318,8 +2353,9 @@ function renderInventoryHealthDetails(books) {
           <th>Damaged</th>
         </tr>
       </thead>
-      <tbody>
+  <tbody>
   `;
+  
   books.forEach(b => {
     html += `
       <tr>
@@ -2334,7 +2370,24 @@ function renderInventoryHealthDetails(books) {
   });
   html += `</tbody></table>`;
 
-  container.innerHTML = html;
+  if (!document.getElementById('inventoryHealthPagination')) {
+    html += `<div id="inventoryHealthPagination" class="pagination"></div>`
+  }
+  
+  if (!document.getElementById('inventoryHealthTable')) {
+    target = document.getElementById('inventoryHealthSearch').parentNode;
+    target.insertAdjacentHTML('afterend', html);
+  } else {
+    target = document.getElementById('inventoryHealthTable')
+    target.innerHTML = html;
+  }
+
+  renderPaginationControls(
+    totalCount,
+    page,
+    fetchInventoryHealthWrapper, 
+    'inventoryHealthPagination'
+  );
 }
 
 /* ------------------------ PAGINATION CONTROLS UTILITY ------------------------ */

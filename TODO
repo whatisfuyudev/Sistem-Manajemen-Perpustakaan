@@ -14,7 +14,7 @@
 
 2. make user interface, reponsive html pages
   - make the user/client side first
-    - make it similiar to ipusnas (have article section and news/pengumuman section)
+    - make it similiar to IPUSNAS (have article section and news/pengumuman section)
       - there will be homepage, individual book page, profile page, my reservations page, my checkouts page, register page, login page
         - rework profile page 
         - probably add more things on the homepage example would be book based by author, genre, or even a new section about article and dedicated article page that is related to book news or book things or library news.
@@ -28,6 +28,12 @@
         
         - inventory
           - front end
+            - fix damage book button
+            - replace lost book button
+
+        - overdue
+          - when filter most least is on, pagination should still
+            paginate with the filter on, but it just reset the filter and paginate without filter.
 
 
         - ask gpt for the best way to visualize each report, what type of chart
@@ -36,7 +42,7 @@
       
       - every report section has its own render function for rendering chart and table at the same time 
 
-
+      - notification maybe batch send, new endpoint?
     
 
 
