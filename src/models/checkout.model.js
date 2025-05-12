@@ -39,7 +39,14 @@ const Checkout = sequelize.define('Checkout', {
     allowNull: false,
     defaultValue: 0
   },
+  //  can be used as a history
   fine: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: true,
+    defaultValue: 0.00
+  },
+  // how much actual fine yet to be payed
+  outstandingFine: {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: true,
     defaultValue: 0.00

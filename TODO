@@ -26,15 +26,15 @@
     - construct admin panel 
       - rework the reports section based on docs
         
-        - inventory
-          - front end
-            - fix damage book button
-            - replace lost book button
-
         - overdue
           - when filter most least is on, pagination should still
             paginate with the filter on, but it just reset the filter and paginate without filter.
 
+        - make user engagement
+          - ask gpt what is the best chart to represent it
+
+        - do not depend on load report button, instead report type on change immedietaly loads the needed report section?
+        - make the report section works with url parameter similar to "?tab=reports"
 
         - ask gpt for the best way to visualize each report, what type of chart
         - reservations with visual
@@ -102,3 +102,6 @@ this app will have two sides, one for patron (book enjoyer) and one for libraria
 - stress test, 1 million data is too big, test for 100k, 10k, 1k
 
 - sequilize association between table/model
+
+- maybe add replace lost book and repair damaged book functionality that handle
+  checkout record properly

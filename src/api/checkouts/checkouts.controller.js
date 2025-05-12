@@ -73,3 +73,22 @@ exports.updateAdminCheckout = async (req, res, next) => {
     next(err);
   }
 };
+
+// maybe latter
+// exports.markDamagedRepaired = async (req, res, next) => {
+//   try {
+//     const result = await checkoutsService.markDamagedRepaired(req.params.id);
+//     res.status(200).json(result);
+//   } catch (err) {
+//     next(err);
+//   }
+// };
+
+// exports.markLostReplaced = async (req, res, next) => {
+//   try {
+//     const result = await checkoutsService.markLostReplaced(req.params.id);
+//     res.status(200).json(result);
+//   } catch (err) {
+//     next(err);
+//   }
+// };

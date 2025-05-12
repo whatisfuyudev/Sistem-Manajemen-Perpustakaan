@@ -1382,7 +1382,7 @@ async function loadReportsModule() {
     if (type !== 'inventory') {
       document.getElementById('inventorySearchInput')?.remove();
       document.getElementById('inventoryHealthTable')?.remove();
-      document.getElementById('inventoryHealthSearch')?.remove();
+      document.getElementById('inventoryHealthSearch')?.parentNode.remove();
       document.getElementById('inventoryHealthPagination')?.remove();
     } else {
       secondReportsChart.classList.remove('hidden');
@@ -2295,29 +2295,29 @@ async function fetchInventoryHealthWrapper() {
 
 /**
  * Renders the search bar and table of inventory health details.
- * @param {Array} data — contain property books that is an array of { isbn, title, totalCopies, availableCopies, conditionCounts }
+ * @param {Array} books — books that is an array of { isbn, title, totalCopies, availableCopies, conditionCounts }
  */
 async function renderInventoryHealthDetails(books, totalCount, page) {
   let target = document.getElementById('secondReportsChart');
   
-  // Inject search bar once
+  // Inject search bar + action buttons once
   if (!document.getElementById('inventoryHealthSearch')) {
     const searchWrapper = document.createElement('div');
-    searchWrapper.style = 'margin:16px 0; margin-top:24px;';
+    searchWrapper.style = 'margin:16px 0; margin-top:24px; display:flex; gap:8px; align-items:center;';
     searchWrapper.innerHTML = `
       <input
         type="text"
         id="inventoryHealthSearch"
         placeholder="Search by ISBN or Title"
         style="
-          width: 300px;
-          max-width: 80%;
+          
           padding: 8px 12px;
           border: 1px solid #ccc;
           border-radius: 4px;
           font-size: 1rem;
         "
       />
+      
     `;
     target.insertAdjacentElement('afterend', searchWrapper);
 
@@ -2331,6 +2331,43 @@ async function renderInventoryHealthDetails(books, totalCount, page) {
         renderInventoryHealthDetails(result.books, result.totalCount, result.page);
       }
     });
+
+    // maybe latter
+    // // Wire Repair button
+    // document.getElementById('repairBookBtn').addEventListener('click', async () => {
+    //   const modalResult = await showRepairReplaceModal();
+    //   if (!modalResult) return;
+    //   const { checkoutId, action } = modalResult;  // action will be "repair"
+    //   try {
+    //     const res = await fetch(`/api/checkouts/${checkoutId}/repair`, { method: 'POST' });
+    //     const body = await res.json();
+    //     if (!res.ok) throw new Error(body.message || res.statusText);
+    //     alert('Success: ' + (body.message || 'Book repaired.'));
+    //     // optionally refresh table
+    //     const updated = await fetchInventoryHealth(inputEl.value.trim());
+    //     renderInventoryHealthDetails(updated.books, updated.totalCount, updated.page);
+    //   } catch (err) {
+    //     alert('Error: ' + err.message);
+    //   }
+    // });
+
+    // // Wire Replace button
+    // document.getElementById('replaceBookBtn').addEventListener('click', async () => {
+    //   const modalResult = await showRepairReplaceModal();
+    //   if (!modalResult) return;
+    //   const { checkoutId, action } = modalResult;  // action will be "replace"
+    //   try {
+    //     const res = await fetch(`/api/checkouts/${checkoutId}/replace`, { method: 'POST' });
+    //     const body = await res.json();
+    //     if (!res.ok) throw new Error(body.message || res.statusText);
+    //     alert('Success: ' + (body.message || 'Book replaced.'));
+    //     // optionally refresh table
+    //     const updated = await fetchInventoryHealth(inputEl.value.trim());
+    //     renderInventoryHealthDetails(updated.books, updated.totalCount, updated.page);
+    //   } catch (err) {
+    //     alert('Error: ' + err.message);
+    //   }
+    // });
   }
 
   let html = '';
@@ -2517,6 +2554,83 @@ function showPromptModal({ message, defaultValue = '' }) {
     cancelButton.addEventListener('click', onCancel);
   });
 }
+
+// maybe latter
+// /**
+//  * Shows your existing modal overlay with checkout-repair/replace form.
+//  * Returns a Promise that resolves to { checkoutId, action } or null on cancel.
+//  */
+// function showRepairReplaceModal() {
+//   return new Promise(resolve => {
+//     // 1) Grab your existing elements
+//     const overlay   = document.getElementById('modal-overlay');
+//     const msgEl     = document.getElementById('modal-message');
+//     const okBtn     = document.getElementById('modal-ok');
+//     const cancelBtn = document.getElementById('modal-cancel');
+
+//     // 2) Inject the form only once
+//     let formEl = overlay.querySelector('form#modal-form');
+//     if (!formEl) {
+//       formEl = document.createElement('form');
+//       formEl.id = 'modal-form';
+//       formEl.innerHTML = `
+//         <label style="display:block; margin:1em 0; text-align:left;">
+//           Checkout ID
+//           <input type="number" id="modal-input-id" placeholder="Enter checkout ID" required
+//                  style="width:100%;padding:0.5em;margin-top:0.5em;"/>
+//         </label>
+//         <label style="display:block; margin:1em 0; text-align:left;">
+//           Action
+//           <select id="modal-input-action" style="width:100%;padding:0.5em;margin-top:0.5em;">
+//             <option value="repair">Repair Damaged</option>
+//             <option value="replace">Replace Lost</option>
+//           </select>
+//         </label>
+//       `;
+//       // Insert the form right after the message paragraph
+//       msgEl.insertAdjacentElement('afterend', formEl);
+//     }
+
+//     // 3) Reset state
+//     msgEl.textContent = '';
+//     msgEl.className   = '';        // remove any old success/error class
+//     cancelBtn.classList.add('hidden'); // hide cancel if you like
+
+//     overlay.classList.remove('hidden');  // show the overlay
+
+//     const inputId = document.getElementById('modal-input-id');
+//     const inputAct= document.getElementById('modal-input-action');
+
+//     // 4) Handlers
+//     function cleanUp() {
+//       okBtn   .removeEventListener('click', onOk);
+//       cancelBtn.removeEventListener('click', onCancel);
+//       overlay .classList.add('hidden');
+//     }
+
+//     function onOk(e) {
+//       e.preventDefault();
+//       const id = inputId.value.trim();
+//       if (!id) {
+//         msgEl.textContent = 'Please enter a valid checkout ID.';
+//         msgEl.classList.add('error');
+//         return;
+//       }
+//       cleanUp();
+//       resolve({ checkoutId: id, action: inputAct.value });
+//     }
+
+//     function onCancel(e) {
+//       e.preventDefault();
+//       cleanUp();
+//       resolve(null);
+//     }
+
+//     okBtn  .addEventListener('click', onOk);
+//     cancelBtn.classList.remove('hidden');
+//     cancelBtn.addEventListener('click', onCancel);
+//   });
+// }
 
 /* ------------------------ INITIAL LOAD ------------------------ */
 document.addEventListener('DOMContentLoaded', () => {

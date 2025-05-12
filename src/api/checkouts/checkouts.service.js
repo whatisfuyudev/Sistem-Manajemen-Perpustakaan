@@ -187,70 +187,78 @@ exports.processReturn = async (data) => {
   if (!checkoutId) {
     throw new CustomError('Missing checkoutId.', 400);
   }
-  
+
   const checkout = await Checkout.findOne({ where: { id: checkoutId } });
   if (!checkout) {
     throw new CustomError('Checkout record not found.', 404);
   }
-  
-  if (checkout.status !== 'active' && checkout.status !== 'overdue') {
+
+  if (!['active','overdue'].includes(checkout.status)) {
     throw new CustomError('Checkout is not active.', 400);
   }
-  
-  const actualReturnDate = returnDate ? new Date(returnDate) : new Date();
-  
-  // Validate: Return date should not be before the checkout date
+
+  const actualReturnDate = returnDate
+    ? new Date(returnDate)
+    : new Date();
+
   if (actualReturnDate < new Date(checkout.checkoutDate)) {
-    throw new CustomError('Return date cannot be before the checkout date.', 400);
+    throw new CustomError(
+      'Return date cannot be before the checkout date.',
+      400
+    );
   }
-  
-  let fine
+
+  // 1) Compute any overdue fine
+  let overdueFine = 0;
+  if (actualReturnDate > checkout.dueDate) {
+    const msPerDay = 1000 * 60 * 60 * 24;
+    const lateDays = Math.ceil(
+      (actualReturnDate - checkout.dueDate) / msPerDay
+    );
+    overdueFine = lateDays * dailyFineAmount;
+  }
+
+  // 2) Determine base fine + final status
+  let baseFine = 0;
   let finalStatus = 'returned';
-  
-  if (returnStatus && (returnStatus === 'lost' || returnStatus === 'damaged')) {
+
+  if (returnStatus === 'lost' || returnStatus === 'damaged') {
     finalStatus = returnStatus;
-    
-    // Validate customFine if provided
+
     if (customFine !== undefined && customFine !== null && customFine !== '') {
-      const parsedFine = parseFloat(customFine);
-      if (isNaN(parsedFine) || parsedFine < 1 || parsedFine > 1000000) {
-        throw new CustomError('Custom fine must be between 1 and 1,000,000 dollars.', 400);
+      const parsed = parseFloat(customFine);
+      if (isNaN(parsed) || parsed < 1 || parsed > 1_000_000) {
+        throw new CustomError(
+          'Custom fine must be between 1 and 1,000,000 dollars.',
+          400
+        );
       }
-      fine = parsedFine;
+      baseFine = parsed;
     } else {
-      // Fallback default fines if customFine is not provided
-      if (returnStatus === 'lost') {
-        fine = 20.00;
-      } else if (returnStatus === 'damaged') {
-        fine = 10.00;
-      }
-    }
-  } else {
-    // Standard returned: Calculate overdue fine if returned after due date
-    if (actualReturnDate > checkout.dueDate) {
-      const lateDays = Math.ceil((actualReturnDate - checkout.dueDate) / (1000 * 60 * 60 * 24));
-      fine = lateDays * dailyFineAmount;
+      baseFine = returnStatus === 'lost' ? 20.00 : 10.00;
     }
   }
-  
-  const updatedCheckout = await checkout.update({
-    returnDate: actualReturnDate,
-    status: finalStatus,
-    fine
+
+  // 3) Total fine is sum of overdue + base (if any)
+  const totalFine = parseFloat((overdueFine + baseFine).toFixed(2));
+
+  // 4) Update the checkout
+  const updated = await checkout.update({
+    returnDate:      actualReturnDate,
+    status:          finalStatus,
+    fine:            totalFine,   // historical assessed
+    outstandingFine: totalFine    // current owed
   });
-  
-  // Increase available copies only if the item is returned in good condition.
+
+  // 5) If truly returned (not lost/damaged), put the copy back
   if (finalStatus === 'returned') {
-    const book = await Book.findOne({ where: { isbn: checkout.bookIsbn } });
-    if (book) {
-      await Book.update(
-        { availableCopies: book.availableCopies + 1 },
-        { where: { isbn: checkout.bookIsbn } }
-      );
-    }
+    await Book.increment(
+      { availableCopies: 1 },
+      { where: { isbn: checkout.bookIsbn } }
+    );
   }
-  
-  return updatedCheckout;
+
+  return updated;
 };
 
 exports.requestRenewal = async (checkoutId, data) => {
@@ -415,4 +423,45 @@ exports.getCheckoutHistory = async (query, authUser) => {
   };
 };
 
+// maybe latter
+// exports.markDamagedRepaired = async (checkoutId) => {
+//   // 1) Find the checkout
+//   const co = await Checkout.findByPk(checkoutId);
+//   if (!co || co.status !== 'damaged') {
+//     throw new Error('Checkout not found or not in damaged state');
+//   }
 
+//   // 2) “Return” that checkout
+//   co.status     = 'returned';
+//   co.returnDate = new Date();
+//   await co.save();
+
+//   // 3) Repair means the same physical copy becomes available again
+//   //    so increment the book’s availableCopies by 1
+//   await Book.increment(
+//     { availableCopies: 1 },
+//     { where: { isbn: co.bookIsbn } }
+//   );
+
+//   return { message: 'Damaged book repaired and checkout closed.' };
+// };
+
+// exports.markLostReplaced = async (checkoutId) => {
+//   const co = await Checkout.findByPk(checkoutId);
+//   if (!co || co.status !== 'lost') {
+//     throw new Error('Checkout not found or not in lost state');
+//   }
+
+//   // 1) Close out the old checkout
+//   co.status     = 'returned';  
+//   co.returnDate = new Date();
+//   await co.save();
+
+//   // 2) Replacement: add one new copy
+//   await Book.increment(
+//     { availableCopies: 1 },
+//     { where: { isbn: co.bookIsbn } }
+//   );
+
+//   return { message: 'Lost book replaced and checkout closed.' };
+// };
