@@ -73,6 +73,15 @@ exports.getUserEngagementReport = async (req, res, next) => {
   }
 };
 
+exports.getReservationsReport = async (req, res, next) => {
+  try {
+    const report = await reportsService.getUserReservationsReport(req.query);
+    res.status(200).json(report);
+  } catch (err) {
+    next(err);
+  }
+};
+
 exports.getFinancialReport = async (req, res, next) => {
   try {
     const report = await reportsService.getFinancialReport(req.query);

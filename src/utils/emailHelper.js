@@ -1,108 +1,98 @@
 // src/utils/emailHelper.js
 require('dotenv/config');
 const { MailerSend, EmailParams, Sender, Recipient } = require("mailersend");
-// Import models (adjust paths as needed)
-const User = require('../models/user.model');
-const Book = require('../models/book.model');
-const CustomError = require('./customError');
+const User       = require('../models/user.model');
+const Book       = require('../models/book.model');
+const logger     = require('./logger');   // your Winston instance
 
-
-// Initialize MailerSend with your API key
 const mailerSend = new MailerSend({
   apiKey: process.env.MAILERSEND_API_KEY,
 });
 
 /**
- * Sends an email using MailerSend.
- * @param {Object} options - Email options
- * @param {string|string[]} options.to - Recipient email(s). Can be a comma-separated string.
- * @param {string} options.subject - Email subject.
- * @param {string} options.html - HTML content of the email.
+ * Sends a raw email via MailerSend.
+ * Always catches & logs errors so nothing ever throws.
  */
 exports.sendEmail = async ({ to, subject, html }) => {
-  // Create a sender instance from environment variables
-  const sender = new Sender(process.env.EMAIL_FROM, process.env.EMAIL_FROM_NAME || "Library Notifications");
-
-  // Normalize recipients: if a string, split by commas; if an array, use as-is.
-  let recipients = [];
-  if (Array.isArray(to)) {
-    recipients = to.map(email => new Recipient(email.trim()));
-  } else {
-    const emails = to.split(",").map(email => email.trim()).filter(email => email);
-    recipients = emails.map(email => new Recipient(email));
-  }
-
-  // Build email parameters
-  const emailParams = new EmailParams()
-    .setFrom(sender)
-    .setTo(recipients)
-    .setReplyTo(sender)
-    .setSubject(subject)
-    .setHtml(html)
-    .setText(html.replace(/<[^>]+>/g, '')); // generate plain text by stripping HTML tags
-
   try {
-    const response = await mailerSend.email.send(emailParams);
-    console.log("Email sent:", response);
-    return response;
-  } catch (error) {
-    console.error("Error sending email:", error);
-    throw new CustomError(`Error sending email: ${error.body.message}`, 422);
-  }
-};
+    const sender = new Sender(
+      process.env.EMAIL_FROM,
+      process.env.EMAIL_FROM_NAME || "Library Notifications"
+    );
 
-// New function to send a reservation availability email
-exports.sendReservationAvailableEmail = async (reservation) => {
-  // Retrieve user data based on reservation.userId
-  const user = await User.findOne({ where: { id: reservation.userId } });
-  if (!user) {
-    throw new Error('User not found for reservation.');
+    // normalize recipients
+    let recipients = Array.isArray(to)
+      ? to.map(e => new Recipient(e.trim()))
+      : to.split(",").map(e => new Recipient(e.trim()));
+
+    const emailParams = new EmailParams()
+      .setFrom(sender)
+      .setTo(recipients)
+      .setReplyTo(sender)
+      .setSubject(subject)
+      .setHtml(html)
+      .setText(html.replace(/<[^>]+>/g, ''));
+
+    const resp = await mailerSend.email.send(emailParams);
+    logger.info(`Email sent to ${to}: ${subject}`);
+    return resp;
+  } catch (err) {
+    // Log the full error stack, but do not throw
+    logger.error("sendEmail failed", err);
+    return null;
   }
-  
-  // Retrieve book data based on reservation.bookIsbn
-  const book = await Book.findOne({ where: { isbn: reservation.bookIsbn } });
-  if (!book) {
-    throw new Error('Book not found for reservation.');
-  }
-  
-  // Use library name from environment variable or fallback value
-  const libraryName = 'Library App';
-  const subject = 'Your Reserved Book is Now Available!';
-  const html = `
-    <p>Hi ${user.name || 'Patron'},</p>
-    <p>Good news—your reserved book, “${book.title}”, is now available for checkout. Please visit the library to borrow it.</p>
-    <p>Thank you,<br>${libraryName}</p>
-  `;
-  
-  // Send email using the sendEmail function
-  return await exports.sendEmail({ to: user.email, subject, html });
 };
 
 /**
- * Build and send an email for a Notification record.
- * Delegates actual delivery to sendEmail().
- *
- * @param {Notification} notification – Sequelize instance
+ * Notify a user when their reservation is available.
+ * Errors are caught & logged internally.
+ */
+exports.sendReservationAvailableEmail = async (reservation) => {
+  try {
+    const user = await User.findByPk(reservation.userId);
+    if (!user) {
+      logger.error(`Reservation#${reservation.id}: user ${reservation.userId} not found.`);
+      return null;
+    }
+
+    const book = await Book.findOne({ where: { isbn: reservation.bookIsbn } });
+    if (!book) {
+      logger.error(`Reservation#${reservation.id}: book ${reservation.bookIsbn} not found.`);
+      return null;
+    }
+
+    const subject = 'Your Reserved Book is Now Available!';
+    const html = `
+      <p>Hi ${user.name || 'Patron'},</p>
+      <p>Your reserved book <strong>“${book.title}”</strong> is now available for checkout.</p>
+      <p>Thanks,<br/>Library App</p>
+    `;
+
+    return await exports.sendEmail({ to: user.email, subject, html });
+  } catch (err) {
+    logger.error(`sendReservationAvailableEmail failed for reservation#${reservation.id}`, err);
+    return null;
+  }
+};
+
+/**
+ * Send a generic notification email.
  */
 exports.sendNotificationEmail = async (notification) => {
-  // 1. Only handle email-channel notifications
-  if (notification.channel !== 'email') {
-    throw new CustomError('Notification channel is not email', 400);
+  try {
+    if (notification.channel !== 'email') {
+      logger.warn(`Notification#${notification.id} skipped: channel is ${notification.channel}`);
+      return null;
+    }
+
+    const html = `<div style="font-family:sans-serif">${notification.message}</div>`;
+    return await exports.sendEmail({
+      to:       notification.recipient,
+      subject:  notification.subject || 'Library Notification',
+      html
+    });
+  } catch (err) {
+    logger.error(`sendNotificationEmail failed for notification#${notification.id}`, err);
+    return null;
   }
-
-  // 2. Prepare recipients: Notification.recipient is a comma-separated string
-  const to = notification.recipient;  
-
-  // 3. Subject comes from the model (fallback if missing)
-  const subject = notification.subject || 'Library Notification';
-
-  // 4. Build a simple HTML body using the notification’s message
-  const html = `
-    <div style="font-family:sans-serif;line-height:1.4;">
-      <p>${notification.message}</p>
-    </div>
-  `;
-
-  // 5. Delegate to existing sendEmail utility
-  return await exports.sendEmail({ to, subject, html });
 };

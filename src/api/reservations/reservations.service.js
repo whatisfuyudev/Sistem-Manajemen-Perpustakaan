@@ -199,7 +199,7 @@ exports.promoteNextReservation = async (bookIsbn) => {
   }
   
   // Optionally, send a notification to the user here.
-  emailHelper.sendReservationAvailableEmail(reservation);
+  await emailHelper.sendReservationAvailableEmail(reservation);
 
   return reservation;
 };

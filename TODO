@@ -26,12 +26,7 @@
     - construct admin panel 
       - rework the reports section based on docs
         
-        - overdue
-          - when filter most least is on, pagination should still
-            paginate with the filter on, but it just reset the filter and paginate without filter.
-
-        - make user engagement
-          - ask gpt what is the best chart to represent it
+        - make financials, pie chart not donut chart
 
         - do not depend on load report button, instead report type on change immedietaly loads the needed report section?
         - make the report section works with url parameter similar to "?tab=reports"

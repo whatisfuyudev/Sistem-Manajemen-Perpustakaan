@@ -343,33 +343,108 @@ exports.getInventoryHealth = async ({ page = 1, limit = 50, search = '' }) => {
   };
 };
 
+function parseSortDirection(sort) {
+  if (sort === 'least') return 'ASC';
+  // default & “most”
+  return 'DESC';
+}
+
 /**
- * User Engagement Report: Aggregates user activity metrics.
- * Pagination added.
+ * User Engagement Report: Aggregates user checkout counts.
  */
 exports.getUserEngagementReport = async (query) => {
-  const page = query.page ? parseInt(query.page) : 1;
-  const limit = query.limit ? parseInt(query.limit) : 10;
+  // 1) Pagination
+  const page   = query.page  ? parseInt(query.page, 10) : 1;
+  const limit  = query.limit ? parseInt(query.limit, 10) : 10;
   const offset = (page - 1) * limit;
-  
-  const result = await Checkout.findAndCountAll({
+
+  // 2) Optional userId filter
+  const where = {};
+  if (query.userId) {
+    const uid = parseInt(query.userId, 10);
+    if (!isNaN(uid)) where.userId = uid;
+  }
+
+  // 3) Date filter on checkoutDate
+  Object.assign(where, buildDateFilter(query));
+
+  // 4) Determine sort direction
+  const sortDir = parseSortDirection(query.sort);
+
+  // 5) Aggregate
+  const { count: rawCount, rows } = await Checkout.findAndCountAll({
+    where,
     attributes: [
       'userId',
-      [fn('COUNT', col('id')), 'checkoutCount']
+      [ fn('COUNT', col('id')), 'checkoutCount' ]
     ],
     group: ['userId'],
-    order: [[fn('COUNT', col('id')), 'DESC']],
-    limit,
-    offset,
-    subQuery: false
+    order: [[ fn('COUNT', col('id')), sortDir ]],
+    limit, offset,
+    subQuery: false,
+    raw: true
   });
 
-  // If result.count is an array (due to grouping), take its length
-  const totalCount = Array.isArray(result.count) ? result.count.length : result.count;
-  
-  return { userActivity: result.rows, page, limit, totalCount };
+  const totalCount = Array.isArray(rawCount) ? rawCount.length : rawCount;
+
+  return {
+    userActivity: rows.map(r => ({
+      userId:        r.userId,
+      checkoutCount: parseInt(r.checkoutCount, 10)
+    })),
+    page, limit, totalCount
+  };
 };
 
+/**
+ * User Reservations Report: Aggregates user reservation counts.
+ */
+exports.getUserReservationsReport = async (query) => {
+  // 1) Pagination
+  const page   = query.page  ? parseInt(query.page, 10) : 1;
+  const limit  = query.limit ? parseInt(query.limit, 10) : 10;
+  const offset = (page - 1) * limit;
+
+  // 2) Optional userId filter
+  const where = {};
+  if (query.userId) {
+    const uid = parseInt(query.userId, 10);
+    if (!isNaN(uid)) where.userId = uid;
+  }
+
+  // 3) Build and remap date filter to requestDate
+  const df = buildDateFilter(query);  // yields { checkoutDate: ... } or {}
+  if (df.checkoutDate) {
+    where.requestDate = df.checkoutDate;
+  }
+
+  // 4) Determine sort direction
+  const sortDir = parseSortDirection(query.sort);
+
+  // 5) Aggregate
+  const { rows, count: rawCount } = await Reservation.findAndCountAll({
+    where,
+    attributes: [
+      'userId',
+      [ fn('COUNT', col('id')), 'reservationsCount' ]
+    ],
+    group: ['userId'],
+    order: [[ fn('COUNT', col('id')), sortDir ]],
+    limit, offset,
+    subQuery: false,
+    raw: true
+  });
+
+  const totalCount = Array.isArray(rawCount) ? rawCount.length : rawCount;
+
+  return {
+    userReservations: rows.map(r => ({
+      userId:            r.userId,
+      reservationsCount: parseInt(r.reservationsCount, 10)
+    })),
+    page, limit, totalCount
+  };
+};
 
 /**
  * Financial Report: Breaks down fines by source (using 'status').

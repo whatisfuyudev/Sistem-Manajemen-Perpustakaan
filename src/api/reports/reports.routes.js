@@ -15,7 +15,15 @@ router.get('/inventory/book', authMiddleware.verifyToken, authMiddleware.isLibra
 router.get('/inventory/health', authMiddleware.verifyToken, authMiddleware.isLibrarianOrAdmin, reportsController.getInventoryHealth);
 
 
-router.get('/user/engagement', authMiddleware.verifyToken, authMiddleware.isLibrarianOrAdmin, reportsController.getUserEngagementReport);
+router.get('/user/engagement/checkouts', authMiddleware.verifyToken, authMiddleware.isLibrarianOrAdmin, reportsController.getUserEngagementReport);
+router.get(
+  '/user/engagement/reservations',
+  authMiddleware.verifyToken,
+  authMiddleware.isLibrarianOrAdmin,
+  reportsController.getReservationsReport
+);
+
+
 router.get('/financial', authMiddleware.verifyToken, authMiddleware.isLibrarianOrAdmin, reportsController.getFinancialReport);
 
 module.exports = router;

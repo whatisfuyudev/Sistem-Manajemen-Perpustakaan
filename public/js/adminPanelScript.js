@@ -42,7 +42,8 @@ const API = {
     reservations: '/api/reports/reservations',
     overdue: '/api/reports/overdue',
     inventory: '/api/reports/inventory/book',
-    'user-engagement': '/api/reports/user-engagement',
+    engagementCheckouts: '/api/reports/user/engagement/checkouts',
+    engagementReservations: '/api/reports/user/engagement/reservations',
     financial: '/api/reports/financial',
     custom: '/api/reports/custom'
   }
@@ -1377,6 +1378,7 @@ async function loadReportsModule() {
 
     if (type !== 'overdue') {
       document.getElementById('overdueSummary')?.remove();
+      document.getElementById('overdueFilterContainer')?.remove();
     }
 
     if (type !== 'inventory') {
@@ -1386,6 +1388,12 @@ async function loadReportsModule() {
       document.getElementById('inventoryHealthPagination')?.remove();
     } else {
       secondReportsChart.classList.remove('hidden');
+    }
+
+    if (type !== 'user-engagement') {
+      document.querySelector('.user-engagement-controls')?.classList.add('hidden');
+    } else {
+      document.querySelector('.user-engagement-controls')?.classList.remove('hidden');
     }
 
   });
@@ -1494,6 +1502,8 @@ async function fetchReport() {
     return fetchCirculationReports();
   } else if (reportType === 'inventory') {
     return fetchInventoryReports();
+  } else if (reportType === 'user-engagement') {
+    return fetchUserEngagementsReport();
   }
 
   try {
@@ -1884,11 +1894,60 @@ function renderOverdue(data) {
   });
 }
 
+let filterInitialized = false;
+
+function renderOverdueFiltersOnce() {
+  if (filterInitialized) return;
+  filterInitialized = true;
+
+  const tableEl = document.getElementById('reportsContainer');
+  const wrapper = document.createElement('div');
+  wrapper.id = 'overdueFilterContainer';
+  wrapper.style.margin = '16px 0';
+  wrapper.innerHTML = `
+    <input
+      type="text"
+      id="overdueCheckoutIdSearch"
+      placeholder="Search by Checkout ID"
+      style="margin-right:12px; padding:8px 12px;"
+    />
+    <select
+      id="overdueCheckoutMostLeastFilter"
+      style="padding:8px 12px;"
+    >
+      <option value="">-- Fine Amount --</option>
+      <option value="most">Most</option>
+      <option value="least">Least</option>
+    </select>
+  `;
+  tableEl.before(wrapper); // place above the reports container
+
+  // wire listeners once
+  document
+    .getElementById('overdueCheckoutIdSearch')
+    .addEventListener('keypress', e => {
+      if (e.key === 'Enter') {
+        currentPage = 1;
+        fetchOverdueWithFilters();
+      }
+    });
+
+  document
+    .getElementById('overdueCheckoutMostLeastFilter')
+    .addEventListener('change', () => {
+      currentPage = 1;
+      fetchOverdueWithFilters();
+    });
+}
+
 /**
  * Renders just the overdue details (table, pagination, summary)
  */
 function renderOverdueDetails({ overdueCheckouts, page, totalCount, totalUncollectedFine }) {
-  // 1) Render table
+  // Render filters first
+  renderOverdueFiltersOnce();
+
+  // Render table
   const tableEl = document.getElementById('reportsContainer');
   let html = `
     <table>
@@ -1901,7 +1960,7 @@ function renderOverdueDetails({ overdueCheckouts, page, totalCount, totalUncolle
       <tbody>
   `;
   overdueCheckouts.forEach(r => {
-    const date = r.dueDate.slice(0,10);
+    const date = r.dueDate.slice(0, 10);
     html += `
       <tr>
         <td>${r.id}</td>
@@ -1916,13 +1975,14 @@ function renderOverdueDetails({ overdueCheckouts, page, totalCount, totalUncolle
   html += `</tbody></table>`;
   tableEl.innerHTML = html;
 
-  // 2) Render pagination
-  renderPaginationControls(totalCount, page, fetchReport, 'reportsPagination');
+  // Render pagination
+  renderPaginationControls(totalCount, page, fetchOverdueWithFilters, 'reportsPagination');
 
-  // 3) Render summary
+  // Render summary
   const paginationEl = document.getElementById('reportsPagination');
   let summaryEl = document.getElementById('overdueSummary');
   if (summaryEl) summaryEl.remove();
+
   const summaryHtml = `
     <div id="overdueSummary" style="
          margin-top:16px;
@@ -1935,49 +1995,9 @@ function renderOverdueDetails({ overdueCheckouts, page, totalCount, totalUncolle
       $${totalUncollectedFine.toFixed(2)}
     </div>
   `;
-
-  // 5) inject filters once 
-  if (!document.getElementById('overdueFilterContainer')) {
-    const wrapper = document.createElement('div');
-    wrapper.id = 'overdueFilterContainer';
-    wrapper.style.margin = '16px 0';
-    wrapper.innerHTML = `
-      <input
-        type="text"
-        id="overdueCheckoutIdSearch"
-        placeholder="Search by Checkout ID"
-        style="margin-right:12px; padding:8px 12px;"
-      />
-      <select
-        id="overdueCheckoutMostLeastFilter"
-        style="padding:8px 12px;"
-      >
-        <option value="">-- Fine Amount --</option>
-        <option value="most">Most</option>
-        <option value="least">Least</option>
-      </select>
-    `;
-    tableEl.insertBefore(wrapper, tableEl.firstChild);
-
-    // wire listeners
-    document
-      .getElementById('overdueCheckoutIdSearch')
-      .addEventListener('keypress', e => {
-        if (e.key === 'Enter') {
-          currentPage = 1;
-          fetchOverdueWithFilters();
-        }
-      });
-    document
-      .getElementById('overdueCheckoutMostLeastFilter')
-      .addEventListener('change', () => {
-        currentPage = 1;
-        fetchOverdueWithFilters();
-      });
-  }
-
   paginationEl.insertAdjacentHTML('afterend', summaryHtml);
 }
+
 
 let inventoryHealthCurrentPage = 1;
 
@@ -2425,6 +2445,226 @@ async function renderInventoryHealthDetails(books, totalCount, page) {
     fetchInventoryHealthWrapper, 
     'inventoryHealthPagination'
   );
+}
+
+// 1) Top‐level fetch that applies filters if present
+async function fetchUserEngagementsReport() {
+  // 1.1 Read filters
+  const userId = document.getElementById('userSearch')?.value.trim();
+  const sortBy = document.getElementById('quantityFilter')?.value;        // "most" or "least"
+  const metric = document.getElementById('metricTypeFilter')?.value || 'both';
+
+  // 1.2 Build base query string
+  const params = new URLSearchParams({
+    page:  currentPage,
+    limit: 10
+  });
+  if (userId)   params.set('userId', userId);
+  if (sortBy)   params.set('sort', sortBy);
+  // note: descending = "most", ascending = "least"
+
+  // 1.3 Kick off one or both fetches
+  const toFetch = [];
+  if (metric === 'both' || metric === 'checkouts') {
+    toFetch.push(
+      fetch(`${API.reports.engagementCheckouts}?${params}`)
+        .then(r => r.json())
+        .then(d => ({ type: 'checkouts', data: d.userActivity, totalCount: d.totalCount }))
+    );
+  }
+  if (metric === 'both' || metric === 'reservations') {
+    toFetch.push(
+      fetch(`${API.reports.engagementReservations}?${params}`)
+        .then(r => r.json())
+        .then(d => ({ type: 'reservations', data: d.userReservations, totalCount: d.totalCount }))
+    );
+  }
+
+  try {
+    const results = await Promise.all(toFetch);
+    renderUserEngagement(results);
+  } catch (err) {
+    console.error('Error fetching user engagement:', err);
+    document.getElementById('reportsContainer').innerHTML = '<p>Error loading data.</p>';
+  }
+}
+
+// 2) Master render: dispatch to chart + table
+function renderUserEngagement(fetchResults) {
+  // Merge the two sets into a map keyed by userId
+  const byUser = new Map();
+  let totalCount = 0;
+  fetchResults.forEach(({ type, data, totalCount: tc }) => {
+    totalCount = Math.max(totalCount, tc);
+    data.forEach(u => {
+      if (!byUser.has(u.userId)) {
+        byUser.set(u.userId, { userId: u.userId, checkouts: 0, reservations: 0 });
+      }
+      const rec = byUser.get(u.userId);
+      if (type === 'checkouts')    rec.checkouts    = u.checkoutCount;
+      if (type === 'reservations') rec.reservations = u.reservationsCount;
+    });
+  });
+
+  const users = Array.from(byUser.values());
+
+  // Extract series
+  const labels          = users.map(u => `${u.userId}`);
+  const checkoutData    = users.map(u => u.checkouts);
+  const reservationData = users.map(u => u.reservations);
+
+  renderUserEngagementChart(labels, checkoutData, reservationData);
+  renderUserEngagementFiltersOnce();
+  renderUserEngagementTable(users, totalCount);
+}
+
+function renderUserEngagementChart(labels, checkoutData, reservationData) {
+  const ctx = document.getElementById('reportsChart').getContext('2d');
+  if (firstChartInstance) firstChartInstance.destroy();
+
+  firstChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Checkouts',
+          data: checkoutData,
+          backgroundColor: '#007bff',
+          barPercentage: 0.4,
+          order: 1,
+          maxBarThickness: 30
+        },
+        {
+          label: 'Reservations',
+          data: reservationData,
+          backgroundColor: '#28a745',
+          barPercentage: 0.4,
+          order: 2,
+          maxBarThickness: 30
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        title: {
+          display: true,
+          text: 'User Checkouts vs. Reservations',
+          align: 'center',
+          font: { size: 16, weight: 'bold' }
+        },
+        tooltip: { mode: 'index', intersect: false },
+        legend: { position: 'top' }
+      },
+      scales: {
+        x: {
+          title: { display: true, text: 'User ID' },
+          categoryPercentage: 1.0,
+          barPercentage: 1.0,
+          ticks: {
+            autoSkip: false,
+            callback: function(value) {
+              const lab = this.getLabelForValue(value);
+              return lab.length > 12 ? lab.slice(0,12) + '…' : lab;
+            }
+          }
+        },
+        y: {
+          title: { display: true, text: 'Count' },
+          beginAtZero: true
+        }
+      }
+    }
+  });
+}
+
+// 4) Table renderer (including pagination)
+function renderUserEngagementTable(users, totalCount) {
+  const container = document.getElementById('reportsContainer');
+  let html = `
+    <table>
+      <thead>
+        <tr>
+          <th>User ID</th>
+          <th>Checkouts</th>
+          <th>Reservations</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+  users.forEach(u => {
+    html += `
+      <tr>
+        <td>${u.userId}</td>
+        <td>${u.checkouts}</td>
+        <td>${u.reservations}</td>
+      </tr>
+    `;
+  });
+  html += '</tbody></table>';
+  container.innerHTML = html;
+
+  renderPaginationControls(
+    totalCount,
+    currentPage,
+    fetchUserEngagementsReport,
+    'reportsPagination'
+  );
+}
+
+// 5) Filters injector (once only)
+let _userEngagementFiltersInitialized = false;
+function renderUserEngagementFiltersOnce() {
+  if (_userEngagementFiltersInitialized) return;
+  _userEngagementFiltersInitialized = true;
+
+  const container = document.querySelector('.user-engagement-controls') ||
+                    document.createElement('div');
+  container.classList.add('user-engagement-controls');
+
+  // Insert into the DOM once
+  if (!document.querySelector('.user-engagement-controls')) {
+    document.getElementById('contentArea')
+      .insertBefore(container, document.getElementById('reportsChart'));
+  }
+
+  container.innerHTML = `
+    <input type="number" id="userSearch" placeholder="Filter by User ID">
+    <select id="quantityFilter">
+      <option value="">-- Sort by Count --</option>
+      <option value="most">Most</option>
+      <option value="least">Least</option>
+    </select>
+    <select id="metricTypeFilter">
+      <option value="both">Both</option>
+      <option value="checkouts">Checkouts</option>
+      <option value="reservations">Reservations</option>
+    </select>
+    <button id="applyFilters">Apply</button>
+  `;
+
+  const applyBtn = document.getElementById('applyFilters');
+  applyBtn.addEventListener('click', () => {
+    currentPage = 1;
+    fetchUserEngagementsReport();
+  });
+
+  // change on selects resets page
+  ['quantityFilter','metricTypeFilter'].forEach(id => {
+    document.getElementById(id)
+      .addEventListener('change', () => { currentPage = 1; });
+  });
+
+  // both change *and* enter on userSearch trigger a fetch
+  const searchInput = document.getElementById('userSearch');
+  searchInput.addEventListener('change', () => { currentPage = 1; });
+  searchInput.addEventListener('keypress', e => {
+    if (e.key === 'Enter') {
+      currentPage = 1;
+      fetchUserEngagementsReport();
+    }
+  });
 }
 
 /* ------------------------ PAGINATION CONTROLS UTILITY ------------------------ */

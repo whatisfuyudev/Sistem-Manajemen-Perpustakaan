@@ -140,6 +140,13 @@
       color: #666;
     }
 
+    .book-panel .isbn {
+      font-size: 0.9rem;
+      color: #555;
+      text-align: center;
+      margin-top: 0.25rem;
+    }
+
     /* Footer */
     .card-footer {
       padding: 0.75rem 1rem;
@@ -271,9 +278,14 @@
           <%= bookExists && book.title ? book.title : '–' %>
         </div>
         <div class="authors">
-          <%= bookExists && Array.isArray(book.authors) 
-                ? book.authors.join(', ') 
+          <%= bookExists && Array.isArray(book.authors)
+                ? book.authors.join(', ')
                 : '–' %>
+        </div>
+        <!-- NEW: ISBN display -->
+        <div class="isbn" style="font-size:0.9rem; color:#555; text-align:center; margin-top:0.25rem;">
+          <strong>ISBN:</strong>
+          <%= bookExists && book.isbn ? book.isbn : '–' %>
         </div>
       </div>
 
@@ -300,7 +312,7 @@
       <!-- User Panel -->
       <% const userExists = Boolean(user); %>
       <div class="panel user-panel">
-        <h2>User</h2>
+        <h2>User <%= userExists && user.id ? user.id : '–' %></h2>
         <img
           src="<%= userExists && user.profilePicture
                 ? user.profilePicture
