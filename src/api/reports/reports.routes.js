@@ -23,7 +23,6 @@ router.get(
   reportsController.getReservationsReport
 );
 
-
 router.get('/financial', authMiddleware.verifyToken, authMiddleware.isLibrarianOrAdmin, reportsController.getFinancialReport);
 
 module.exports = router;

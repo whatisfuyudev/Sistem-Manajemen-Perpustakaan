@@ -45,7 +45,6 @@ const API = {
     engagementCheckouts: '/api/reports/user/engagement/checkouts',
     engagementReservations: '/api/reports/user/engagement/reservations',
     financial: '/api/reports/financial',
-    custom: '/api/reports/custom'
   }
 };
 
@@ -1396,6 +1395,12 @@ async function loadReportsModule() {
       document.querySelector('.user-engagement-controls')?.classList.remove('hidden');
     }
 
+    if (type === 'financial') {
+      document.getElementById('reportsPagination').innerHTML = '';
+      document.getElementById('financialFiltersWrapper')?.classList.remove('hidden');
+    } else {
+      document.getElementById('financialFiltersWrapper')?.classList.add('hidden');
+    }
   });
     
   
@@ -1525,33 +1530,7 @@ function renderReport(type, data, page) {
   let html = '';
 
   if (type === 'financial') {
-    let overallTotal = 0;
-    html += '<table><thead><tr><th>Status</th><th>Total Fines</th></tr></thead><tbody>';
-    data.forEach(item => {
-      const fineAmount = parseFloat(item.totalFines) || 0;
-      overallTotal += fineAmount;
-      html += `
-        <tr>
-          <td>${item.status || 'Unknown'}</td>
-          <td>$${fineAmount.toFixed(2)}</td>
-        </tr>`;
-    });
-    html += `
-      <tr style="font-weight:bold; background:#e9ecef;">
-        <td>Total Fines</td>
-        <td>$${overallTotal.toFixed(2)}</td>
-      </tr>
-    </tbody></table>
-    <div>
-      <h3>Understanding Financial Fines</h3>
-      <p>The Financial Report breaks down the fines collected by checkout status:</p>
-      <ul>
-        <li><strong>Overdue:</strong> Late returns, fined per day.</li>
-        <li><strong>Lost:</strong> Replacement cost fines.</li>
-        <li><strong>Damaged:</strong> Repair/replacement charges.</li>
-      </ul>
-      <p>The table above shows totals per status, with the final row as the grand total.</p>
-    </div>`;
+    renderFinancial(data);
   } else {
     // Generic table for other reports
     html += '<table><thead><tr>';
@@ -2533,7 +2512,7 @@ function renderUserEngagementChart(labels, checkoutData, reservationData) {
           backgroundColor: '#007bff',
           barPercentage: 0.4,
           order: 1,
-          maxBarThickness: 30
+          barThickness: 30
         },
         {
           label: 'Reservations',
@@ -2541,7 +2520,7 @@ function renderUserEngagementChart(labels, checkoutData, reservationData) {
           backgroundColor: '#28a745',
           barPercentage: 0.4,
           order: 2,
-          maxBarThickness: 30
+          barThickness: 30
         }
       ]
     },
@@ -2625,8 +2604,9 @@ function renderUserEngagementFiltersOnce() {
 
   // Insert into the DOM once
   if (!document.querySelector('.user-engagement-controls')) {
-    document.getElementById('contentArea')
-      .insertBefore(container, document.getElementById('reportsChart'));
+    // Instead of inserting before the chart, insert before the table container
+    const reportsContainer = document.getElementById('reportsContainer');
+    reportsContainer.parentNode.insertBefore(container, reportsContainer);
   }
 
   container.innerHTML = `
@@ -2665,6 +2645,151 @@ function renderUserEngagementFiltersOnce() {
       fetchUserEngagementsReport();
     }
   });
+}
+
+// Keep a handle so we can destroy and redraw
+let _financialFiltersRendered = false;
+
+async function fetchFinancialReports() {
+  // 1) Read filters
+  const month = document.getElementById('finMonth')?.value;
+  const year  = document.getElementById('finYear')?.value;
+
+  // 2) Build query string
+  const params = new URLSearchParams();
+  if (month) params.set('month', month);
+  if (year)  params.set('year', year);
+
+  // 3) Fetch
+  try {
+    const url = API.reports.financial + (params.toString() ? `?${params}` : '');
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Fetch failed (${res.status})`);
+    const data = await res.json();
+    renderFinancial(data);
+  } catch (err) {
+    console.error('fetchFinancialReports error:', err);
+    document.getElementById('reportsContainer')
+      .innerHTML = '<p>Error loading financial report.</p>';
+  }
+}
+
+function renderFinancial(data) {
+  // 1) Ensure filters are on the page
+  renderFinancialFilters();
+
+  const canvas = document.getElementById('reportsChart');
+  if (!data || data.length === 0) {
+    // no data → hide chart and show a placeholder in the table area
+    canvas.style.display = 'none';
+    document.getElementById('reportsContainer')
+      .innerHTML = '<p style="color:#666;">No fine data for the selected period.</p>';
+    return;
+  }
+
+  // data exists → show chart + table
+  canvas.style.display = '';
+  renderFinancialChart(data);
+  renderFinancialDetails(data);
+}
+
+function renderFinancialFilters() {
+  if (_financialFiltersRendered) return;
+  _financialFiltersRendered = true;
+
+  const container = document.getElementById('reportsContainer');
+  // Insert above the table/chart
+  const wrapper = document.createElement('div');
+  wrapper.id = 'financialFiltersWrapper';   // <— here’s your new id
+  wrapper.style.paddingLeft = '2px';
+  wrapper.innerHTML = `
+    <label style="margin-right:8px;">
+      Month:
+      <input type="month" id="finMonth" style="margin-left:4px;">
+    </label>
+    <label style="margin-right:8px;">
+      Year:
+      <input type="number" id="finYear" min="2000" max="2100" step="1" placeholder="YYYY"
+             style="width:5em; margin-left:4px;">
+    </label>
+  `;
+  container.parentNode.insertBefore(wrapper, container);
+
+  // Wire change events
+  ['finMonth','finYear'].forEach(id => {
+    document.getElementById(id)
+      .addEventListener('change', () => {
+        fetchFinancialReports();
+      });
+  });
+}
+
+function renderFinancialChart(data) {
+  const labels = data.map(r => r.status);
+  const values = data.map(r => parseFloat(r.totalFines));
+
+  const ctx = document.getElementById('reportsChart').getContext('2d');
+  if (firstChartInstance) firstChartInstance.destroy();
+
+  firstChartInstance = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels,
+      datasets: [{
+        data: values,
+        backgroundColor: ['#ffc107','#dc3545','#007bff','#28a745']
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        title: {
+          display: true,
+          text: 'Fines by Status',
+          font: { size: 16, weight: 'bold' }
+        },
+        tooltip: { callbacks: {
+          label: ctx => {
+            const v = ctx.parsed;
+            return `${ctx.label}: $${v.toFixed(2)}`;
+          }
+        }}
+      }
+    }
+  });
+}
+
+function renderFinancialDetails(data) {
+  // Build table
+  let html = `
+    <table style="width:100%;border-collapse:collapse;">
+      <thead>
+        <tr>
+          <th style="border-bottom:1px solid #ccc;text-align:left;padding:4px;">Status</th>
+          <th style="border-bottom:1px solid #ccc;text-align:right;padding:4px;">Total Fines</th>
+        </tr>
+      </thead><tbody>
+  `;
+  let grand = 0;
+  data.forEach(r => {
+    const amt = parseFloat(r.totalFines);
+    grand += amt;
+    html += `
+      <tr>
+        <td style="padding:10px;">${r.status}</td>
+        <td style="padding:10px;text-align:right;">$${amt.toFixed(2)}</td>
+      </tr>
+    `;
+  });
+  html += `
+      <tr style="font-weight:bold;background:#f1f1f1;">
+        <td style="padding:10px;">Total</td>
+        <td style="padding:10px;text-align:right;">$${grand.toFixed(2)}</td>
+      </tr>
+    </tbody>
+  </table>
+  `;
+  document.getElementById('reportsContainer').innerHTML = html;
 }
 
 /* ------------------------ PAGINATION CONTROLS UTILITY ------------------------ */

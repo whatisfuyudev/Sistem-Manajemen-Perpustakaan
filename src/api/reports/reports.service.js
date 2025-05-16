@@ -2,11 +2,9 @@ const { Op, fn, col, literal } = require('sequelize');
 const Checkout = require('../../models/checkout.model');
 const Reservation = require('../../models/reservation.model');
 const Book = require('../../models/book.model');
-const User = require('../../models/user.model');
 // Assume you have some utility functions in dateHelper if needed
 const { groupByPeriod, buildDateFilter } = require('../../utils/dateHelper');
 const { format } = require('date-fns');
-const CustomError = require('../../utils/customError');
 const {getBookByISBN} = require('../books/books.service');
 const { getDailyFineAmount } = require('../checkouts/checkouts.service');
 
@@ -368,8 +366,16 @@ exports.getUserEngagementReport = async (query) => {
   // 3) Date filter on checkoutDate
   Object.assign(where, buildDateFilter(query));
 
-  // 4) Determine sort direction
-  const sortDir = parseSortDirection(query.sort);
+  // 4) Determine sort
+  let order;
+  if (query.sort === 'most' || query.sort === 'least') {
+    // sort by count
+    const dir = parseSortDirection(query.sort); // 'DESC' or 'ASC'
+    order = [[ fn('COUNT', col('id')), dir ]];
+  } else {
+    // default sort by userId descending
+    order = [['userId', 'DESC']];
+  }
 
   // 5) Aggregate
   const { count: rawCount, rows } = await Checkout.findAndCountAll({
@@ -379,7 +385,7 @@ exports.getUserEngagementReport = async (query) => {
       [ fn('COUNT', col('id')), 'checkoutCount' ]
     ],
     group: ['userId'],
-    order: [[ fn('COUNT', col('id')), sortDir ]],
+    order,
     limit, offset,
     subQuery: false,
     raw: true
@@ -412,14 +418,21 @@ exports.getUserReservationsReport = async (query) => {
     if (!isNaN(uid)) where.userId = uid;
   }
 
-  // 3) Build and remap date filter to requestDate
-  const df = buildDateFilter(query);  // yields { checkoutDate: ... } or {}
+  // 3) Remap date filter to requestDate
+  const df = buildDateFilter(query);  // yields { checkoutDate: … } or {}
   if (df.checkoutDate) {
     where.requestDate = df.checkoutDate;
   }
 
-  // 4) Determine sort direction
-  const sortDir = parseSortDirection(query.sort);
+  // 4) Determine sort
+  let order;
+  if (query.sort === 'most' || query.sort === 'least') {
+    const dir = parseSortDirection(query.sort);
+    order = [[ fn('COUNT', col('id')), dir ]];
+  } else {
+    // default sort by userId descending
+    order = [['userId', 'DESC']];
+  }
 
   // 5) Aggregate
   const { rows, count: rawCount } = await Reservation.findAndCountAll({
@@ -429,7 +442,7 @@ exports.getUserReservationsReport = async (query) => {
       [ fn('COUNT', col('id')), 'reservationsCount' ]
     ],
     group: ['userId'],
-    order: [[ fn('COUNT', col('id')), sortDir ]],
+    order,
     limit, offset,
     subQuery: false,
     raw: true
@@ -451,18 +464,32 @@ exports.getUserReservationsReport = async (query) => {
  * No pagination added as the grouping typically yields few rows.
  */
 exports.getFinancialReport = async (query) => {
-  const fineBreakdown = await Checkout.findAll({
+  // 1) Build optional date filter on checkoutDate
+  const dateFilter = buildDateFilter(query);  
+  // buildDateFilter returns e.g. { checkoutDate: { [Op.gte]: start, [Op.lte]: end } } or {}
+
+  // 2) Combine with fine > 0
+  const where = {
+    fine: { [Op.gt]: 0 },
+    ...dateFilter
+  };
+
+  // 3) Aggregate sum of fines by status
+  const rows = await Checkout.findAll({
     attributes: [
       'status',
-      [fn('SUM', col('fine')), 'totalFines']
+      [ fn('SUM', col('fine')), 'totalFines' ]
     ],
-    where: {
-      fine: { [Op.gt]: 0 }
-    },
+    where,
     group: ['status'],
-    order: [[fn('SUM', col('fine')), 'DESC']]
+    order: [[ fn('SUM', col('fine')), 'DESC' ]],
+    raw: true
   });
-  
-  return fineBreakdown;
+
+  // 4) Turn totalFines into numbers and return
+  return rows.map(r => ({
+    status:      r.status,
+    totalFines:  parseFloat(r.totalFines)
+  }));
 };
 

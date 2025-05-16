@@ -430,6 +430,49 @@
       cursor: pointer;
       border: none;
     }
+
+    /* Container for the financial filters */
+    #financialFiltersWrapper {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    /* Style each label */
+    #financialFiltersWrapper label {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: #333;
+      display: flex;
+      align-items: center;
+    }
+
+    /* Style the inputs */
+    #financialFiltersWrapper input[type="month"],
+    #financialFiltersWrapper input[type="number"] {
+      margin-left: 0.5rem;
+      padding: 0.4em 0.6em;
+      font-size: 0.9rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      transition: border-color 0.2s ease;
+    }
+
+    /* On focus, highlight the input */
+    #financialFiltersWrapper input:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 0 2px rgba(0,123,255,0.2);
+    }
+
+    /* Placeholder text style for the year field */
+    #financialFiltersWrapper input[type="number"]::placeholder {
+      color: #999;
+      opacity: 1;
+    }
   </style>
 </head>
 <body>
