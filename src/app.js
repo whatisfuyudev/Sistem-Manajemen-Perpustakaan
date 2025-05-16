@@ -17,7 +17,6 @@ const authMiddleware = require('./middleware/auth.middleware');
 // importing it so it runs even if the variable is not used
 const combinedScheduler = require('./utils/combinedScheduler'); 
 
-
 const loggerMiddleware = require('./middleware/logging.middleware'); // our Morgan configured with Winston
 
 const app = express();
@@ -147,38 +146,12 @@ app.get(
   }
 );
 
-app.get('/users/create', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public', 'createUser.html'));
-});
-
-app.get('/users/update', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public', 'updateUser.html'));
-});
-
-app.get('/users/delete', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public', 'deleteUser.html'));
-});
-
 app.get('/auth/register', (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'register.html'));
 });
 
 app.get('/auth/login', (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'login.html'));
-});
-
-app.get('/admin/notifications', 
-  authMiddleware.verifyToken, 
-  authMiddleware.isLibrarianOrAdmin, 
-  (req, res) => {
-  res.sendFile(path.join(__dirname, '../public', 'notification.html'));
-});
-
-app.get('/admin/reports', 
-  authMiddleware.verifyToken, 
-  authMiddleware.isLibrarianOrAdmin, 
-  (req, res) => {
-  res.sendFile(path.join(__dirname, '../public', 'report.html'));
 });
 
 app.get('/admin/panel', 

@@ -1300,7 +1300,6 @@ async function loadReportsModule() {
         <option value="user-engagement">User Engagement</option>
         <option value="financial">Financial</option>
       </select>
-      <button id="loadReportBtn">Load Report</button>
     </div>
 
     <!-- Wrap the period selector so we can show/hide it -->
@@ -1344,13 +1343,6 @@ async function loadReportsModule() {
     <canvas id="secondReportsChart" style="max-height:480px; margin-top:24px;"></canvas>
     <canvas id="thirdReportsChart" style="max-height:480px; margin-top:24px;"></canvas>
   `;
-  document.getElementById('loadReportBtn')
-    .addEventListener('click', () => {
-      currentPage = 1;
-      fetchReport();
-    });
-
-
   document.getElementById('reportType').addEventListener('change', e => {
     const type = e.target.value;
     const dailyWeekly = document.getElementById('dailyWeeklyOptions');
@@ -1401,6 +1393,11 @@ async function loadReportsModule() {
     } else {
       document.getElementById('financialFiltersWrapper')?.classList.add('hidden');
     }
+
+    
+    currentPage = 1;
+    // then immediately reload the report for the new type
+    fetchReport();
   });
     
   

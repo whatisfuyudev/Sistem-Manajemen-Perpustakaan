@@ -25,20 +25,11 @@
   - make the admin/librarian side
     - construct admin panel 
       - rework the reports section based on docs
-        
-        - user engagement, because it fetch two different api endpoint the data retrieved can be different. the difference in data mess up the front end. handle when there is a user with only reservation or checkouts
-
-        - do not depend on load report button, instead report type on change immedietaly loads the needed report section?
-        - make the report section works with url parameter similar to "?tab=reports"
-
-        - ask gpt for the best way to visualize each report, what type of chart
-        - reservations with visual
-        - user fines with donut chart showing 3 different type of fines and the table show all of the checkout with fines
       
-      - every report section has its own render function for rendering chart and table at the same time 
 
       - notification maybe batch send, new endpoint?
-    
+
+      - on admin panel, instead of window.href when a table column/data is clicked, how about opening a new tab
 
 
 
@@ -100,3 +91,5 @@ this app will have two sides, one for patron (book enjoyer) and one for libraria
 
 - maybe add replace lost book and repair damaged book functionality that handle
   checkout record properly
+
+- user engagement, because it fetch two different api endpoint the data retrieved can be different. the difference in data mess up the front end. handle when there is a user with only reservation or checkouts
