@@ -2737,7 +2737,7 @@ function renderFinancialChart(data) {
       labels,
       datasets: [{
         data: values,
-        backgroundColor: ['#ffc107','#dc3545','#007bff','#28a745']
+        backgroundColor: ['#ffc107', '#dc3545','#007bff','#28a745']
       }]
     },
     options: {
