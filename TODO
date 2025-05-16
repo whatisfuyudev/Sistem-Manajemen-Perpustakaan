@@ -21,20 +21,10 @@
 
         - replace alert in my reservation page, book details, profile,  with custom popup/modal
         - refresh after window.reload() or something on my reservations
-
-  - make the admin/librarian side
-    - construct admin panel 
-      - rework the reports section based on docs
-      
-
-      - notification maybe batch send, new endpoint?
-
-      - on admin panel, instead of window.href when a table column/data is clicked, how about opening a new tab
-
-
+     
 
 ### General TODO
-- look for free sms provider??
+- notification maybe batch send, new endpoint?
 - make sure the book service works properly, ensure data sanitization
 - checkout model no negative number on renewalCount or other number based column
 - prevent upload cover image abuse (upload the image at the same time as clicking update book data)

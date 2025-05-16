@@ -305,7 +305,8 @@ function renderBooks(books, total, page) {
       // Otherwise navigate to the book details page using the data-isbn attribute
       const isbn = row.getAttribute('data-isbn');
       if (isbn) {
-        window.location.href = 'http://localhost:5000/admin/books/details/' + isbn;
+        const url = 'http://localhost:5000/admin/books/details/' + isbn;
+        window.open(url, '_blank');
       }
     });
   });
@@ -512,7 +513,9 @@ function renderCheckoutsModule(checkouts, total, page) {
     .forEach(row => {
       row.addEventListener('click', () => {
         const id = row.getAttribute('data-id');
-        window.location.href = `/admin/checkout/detail/${id}`;
+
+        const url = `/admin/checkout/detail/${id}`;
+        window.open(url, '_blank');
       });
     });
 
@@ -718,8 +721,9 @@ function renderReservations(reservations, total, page) {
       // on click, navigate to detail page
       row.addEventListener('click', () => {
         const id = row.getAttribute('data-id');
-        // redirect
-        window.location.href = `/admin/reservations/${id}`;
+        // redirect        
+        const url = `/admin/reservations/${id}`;
+        window.open(url, '_blank');
       });
     });
 
@@ -1015,7 +1019,8 @@ function renderUsers(users, total, page) {
         if (cell && cell.cellIndex === 0) return;
         const userId = row.getAttribute('data-userid');
         if (userId) {
-          window.location.href = `/admin/users/${userId}`;
+          const url = `/admin/users/${userId}`;
+          window.open(url, '_blank');
         }
       });
     });
@@ -1261,7 +1266,8 @@ function renderNotifications(data, total, page) {
         if (cell && cell.cellIndex === 0) return;
         const notificationId = row.getAttribute('data-notificationid');
         if (notificationId) {
-          window.location.href = `/admin/notifications/${notificationId}`;
+          const url = `/admin/notifications/${notificationId}`;
+          window.open(url, '_blank');
         }
       });
     });
