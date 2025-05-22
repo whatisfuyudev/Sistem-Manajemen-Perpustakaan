@@ -154,58 +154,6 @@ async function renderReservations(data) {
   }
 }
 
-// Cancel Reservation Function
-async function cancelReservation(reservationId, card) {
-  if (!confirm('Are you sure you want to cancel this reservation?')) return;
-
-  try {
-    const response = await fetch(`/api/reservations/cancel/${reservationId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' }
-    });
-
-    if (response.ok) {
-      card.querySelector('.reservation-status').textContent = 'Status: canceled';
-      alert('Reservation canceled successfully.');
-    } else {
-      const error = await response.json();
-      alert('Error: ' + error.message);
-    }
-  } catch (error) {
-    console.error('Error canceling reservation:', error);
-    alert('An error occurred while canceling the reservation.');
-  }
-}
-
-// Modify Reservation Function (Edit Notes)
-async function modifyReservation(reservationId, currentNotes, card) {
-  const newNotes = prompt('Edit your notes:', currentNotes || '');
-  if (newNotes === null) return; // Cancel if user clicks "Cancel" in prompt
-
-  try {
-    const response = await fetch(`/api/reservations/modify/${reservationId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ notes: newNotes })
-    });
-
-    if (response.ok) {
-      card.querySelector('.notes')?.remove();
-      const notesDiv = document.createElement('div');
-      notesDiv.className = 'notes';
-      notesDiv.textContent = 'Notes: ' + newNotes;
-      card.appendChild(notesDiv);
-      alert('Notes updated successfully.');
-    } else {
-      const error = await response.json();
-      alert('Error: ' + error.message);
-    }
-  } catch (error) {
-    console.error('Error updating notes:', error);
-    alert('An error occurred while updating the notes.');
-  }
-}
-
 
 // Pagination: update controls based on current page and total results
 function updatePagination() {
@@ -364,6 +312,8 @@ async function cancelReservation(reservationId, card) {
       // Update UI: update status text
       card.querySelector('.reservation-status').textContent = 'Status: canceled';
       await showModal({ message: 'Reservation canceled successfully!', showCancel: false });
+
+      window.location.reload();
     } else {
       const error = await response.json();
       await showModal({ message: 'Error: ' + error.message, showCancel: false });
@@ -396,6 +346,8 @@ async function modifyReservation(reservationId, currentNotes, card) {
       }
       notesDiv.textContent = 'Notes: ' + newNotes;
       await showModal({ message: 'Notes updated successfully!', showCancel: false });
+
+      window.location.reload();
     } else {
       const error = await response.json();
       await showModal({ message: 'Error: ' + error.message, showCancel: false });

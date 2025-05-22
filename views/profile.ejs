@@ -107,7 +107,7 @@
   <div class="container">
     <!-- Profile Header -->
     <div class="profile-header">
-      <img src="<%= user.profilePicture ? user.profilePicture : 'https://via.placeholder.com/150' %>" alt="Profile Picture" class="profile-picture" id="profilePicDisplay">
+      <img src="<%= user.profilePicture ? user.profilePicture : '/public/images/profile-pictures/default.jpg' %>" alt="Profile Picture" class="profile-picture" id="profilePicDisplay">
       <h2 id="userNameDisplay"><%= user.name %></h2>
       <p id="userRoleDisplay"><%= user.role %></p>
     </div>

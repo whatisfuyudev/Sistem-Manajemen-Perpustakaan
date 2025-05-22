@@ -1421,7 +1421,10 @@ async function loadReportsModule() {
       // hide the month input, show the year input
       monthPicker.classList.add   ('hidden');
       yearGroup .classList.remove('hidden');
+      document.getElementById('yearPicker').value = new Date().getFullYear();
     }
+
+    fetchReport();
   });
 
   (function setDefaultMonth() {
@@ -1434,7 +1437,11 @@ async function loadReportsModule() {
     // 3) Assign to the input's value
     document.getElementById('monthPicker').value = monthYear;
   })();
+
   
+  document.getElementById('monthOptions').addEventListener('change', fetchReport);
+  document.getElementById('monthlyOptions').addEventListener('change', fetchReport);
+
   // initial load
   fetchReport();
 }
@@ -1669,7 +1676,7 @@ function renderCirculationPopularBooks(rows, period) {
           ticks: { 
             callback: function(value, index, values) {
               const label = this.getLabelForValue(value);
-              const maxLength = 10; // adjust as needed
+              const maxLength = 12; // adjust as needed
               return label.length > maxLength
                 ? label.substring(0, maxLength) + '…'
                 : label;
@@ -1739,7 +1746,16 @@ function renderCirculationPopularGenres(rows, period) {
       scales: {
         x: {
           title: { display: true, text: 'Genre' },
-          ticks: { autoSkip: false }
+          ticks:{ 
+            callback: function(value, index, values) {
+              const label = this.getLabelForValue(value);
+              const maxLength = 12; // adjust as needed
+              return label.length > maxLength
+                ? label.substring(0, maxLength) + '…'
+                : label;
+            }
+          }, 
+          autoSkip: false
         },
         y: {
           title: { display: true, text: 'Total Checkouts' },

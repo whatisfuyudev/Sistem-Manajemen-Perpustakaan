@@ -31,6 +31,8 @@ document.addEventListener('DOMContentLoaded', function () {
     
         // 6. Notify success
         await showModal({ message: 'Checkout successfully renewed!' });
+
+        window.location.reload();
       } catch (error) {
         // 7. Notify failure
         await showModal({ message: `Renewal failed: ${error.message}` });
