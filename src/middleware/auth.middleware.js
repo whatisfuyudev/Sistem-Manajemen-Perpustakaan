@@ -5,7 +5,7 @@ exports.verifyToken = (req, res, next) => {
   // Retrieve token from cookie "jwt_token"
   const token = req.cookies.jwt_token;
   if (!token) {
-    return res.status(401).json({ message: 'No token provided, please log in first at /auth/login.' });
+    return res.status(401).json({ message: 'No token provided, please log in first.' });
   }
   
   jwt.verify(token, authConfig.secret, (err, decoded) => {

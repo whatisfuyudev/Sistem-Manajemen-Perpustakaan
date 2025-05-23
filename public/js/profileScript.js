@@ -1,5 +1,33 @@
 let profilePictureUrl = '';
 
+// Tab toggle logic
+const tabView = document.getElementById('tab-view');
+const tabEdit = document.getElementById('tab-edit');
+const viewSection = document.getElementById('view-section');
+const editSection = document.getElementById('edit-section');
+
+tabView.addEventListener('click', () => {
+  tabView.classList.add('active-tab');
+  tabEdit.classList.remove('active-tab');
+  tabView.style.fontWeight = 'bold';
+  tabEdit.style.fontWeight = 'normal';
+  tabEdit.style.color = '#555';
+
+  viewSection.style.display = '';
+  editSection.style.display = 'none';
+});
+
+tabEdit.addEventListener('click', () => {
+  tabEdit.classList.add('active-tab');
+  tabView.classList.remove('active-tab');
+  tabEdit.style.fontWeight = 'bold';
+  tabView.style.fontWeight = 'normal';
+  tabView.style.color = '#555';
+
+  viewSection.style.display = 'none';
+  editSection.style.display = '';
+});
+
 // Basic client-side validations and form submission handling
 document.getElementById('profileForm').addEventListener('submit', function(e) {
   e.preventDefault();
@@ -18,13 +46,13 @@ document.getElementById('profileForm').addEventListener('submit', function(e) {
   // Simple regex for email validation
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailPattern.test(email)) {
-    alert('Please enter a valid email address.');
+    showModal({ message: 'Please enter a valid email address.' });
     return false;
   }
   
   // Name should not be empty and allow letters and spaces
   if (!name.match(/^[A-Za-z\s]+$/)) {
-    alert('Name can only contain letters and spaces.');
+    showModal({ message: 'Name can only contain letters and spaces.' });
     return false;
   }
   
@@ -69,42 +97,65 @@ document.getElementById('profileForm').addEventListener('submit', function(e) {
   if (profilePicture) {
     document.getElementById('profilePicDisplay').src = profilePicture;
   }
+
+  setTimeout(() => window.location.reload(), 1500);
 });
 
-// Upload profile picture
-document.getElementById('submitBtnProfilePic').addEventListener('click', async function (e) {
+document.getElementById('uploadedImage')
+  .addEventListener('change', async function (e) {
   e.preventDefault();
   e.stopPropagation();
 
-  const file = document.getElementById('uploadedImage').files[0];
+  const file = this.files[0];
   if (!file) {
-    alert("No file selected");
+    showModal({ message: 'No file selected.' });
     return;
   }
 
+  // 1) upload picture immediately
   const formData = new FormData();
   formData.append('_comesFrom', 'profilePicture');
   formData.append('uploadedImage', file);
-  
+
   try {
     const response = await fetch('/api/users/upload/profile-picture', {
       method: 'POST',
       body: formData
     });
 
-    if (response.ok) {
-      const result = await response.json();
-      // Assume the JSON response has a property 'profilePicture'
-      profilePictureUrl = result.profilePicture;
-      alert('Profile picture uploaded successfully!');
+    if (!response.ok) {
+      const err = await response.text();
+      showModal({ message: 'Upload failed: ' + err });
+      return;
+    }
+
+    const { profilePicture: profilePictureUrl } = await response.json();
+
+    // 2) show loading while we commit the new URL
+    showLoading('Updating profile picture…');
+
+    const updateRes = await fetch('/api/users/update', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ profilePicture: profilePictureUrl })
+    });
+
+    hideLoading();
+
+    if (!updateRes.ok) {
+      const err = await updateRes.text();
+      showModal({ message: 'Error updating profile picture: ' + err });
     } else {
-      const errorText = await response.text();
-      alert("Upload failed: " + errorText);
+      showModal({ message: 'Profile picture updated successfully!' });
+      window.location.reload();
     }
   } catch (error) {
-    console.error("Error during file upload:", error);
+    hideLoading();
+    console.error(error);
+    showModal({ message: 'An unexpected error occurred.' });
   }
 });
+
 
 // Logout button functionality
 document.getElementById('logoutButton').addEventListener('click', async function() {
@@ -126,3 +177,41 @@ document.getElementById('logoutButton').addEventListener('click', async function
 document.getElementById('backButton').addEventListener('click', () => {
   history.back();
 });
+
+// Modal utility
+function showModal({ message, showCancel = false }) {
+  return new Promise(resolve => {
+    const overlay = document.getElementById('modal-overlay');
+    const msgEl   = document.getElementById('modal-message');
+    const okBtn   = document.getElementById('modal-ok');
+    const cancelBtn = document.getElementById('modal-cancel');
+
+    msgEl.textContent = message;
+    cancelBtn.classList.toggle('hidden', !showCancel);
+    overlay.classList.remove('hidden');
+
+    const clean = () => {
+      overlay.classList.add('hidden');
+      okBtn.removeEventListener('click', onOk);
+      cancelBtn.removeEventListener('click', onCancel);
+    };
+
+    const onOk = () => { clean(); resolve(true); };
+    const onCancel = () => { clean(); resolve(false); };
+
+    okBtn.addEventListener('click', onOk);
+    if (showCancel) cancelBtn.addEventListener('click', onCancel);
+  });
+}
+
+function showLoading(message = 'Loading…') {
+  const overlay = document.getElementById('loading-overlay');
+  const msg      = document.getElementById('loading-message');
+  msg.textContent = message;
+  overlay.classList.remove('hidden');
+}
+
+function hideLoading() {
+  document.getElementById('loading-overlay')
+          .classList.add('hidden');
+}

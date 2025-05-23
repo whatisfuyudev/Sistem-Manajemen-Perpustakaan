@@ -16,9 +16,11 @@
   - make the user/client side first
     - make it similiar to IPUSNAS (have article section and news/pengumuman section)
       - there will be homepage, individual book page, profile page, my reservations page, my checkouts page, register page, login page
-        - rework profile page like ipusnas
-           - replace alert in my profile,  with custom popup/modal
-        - probably add more things on the homepage example would be book based by author, genre, or even a new section about article and dedicated article page that is related to book news or book things or library news.
+        
+        - top right becomes menu dropdown like ipusnas
+          - top nav bar on my checkouts, my reservations, profile, book details, search book
+
+        - probably add more things on the homepage example would be book based by author, genre, or even a new section about article and dedicated article page, also news section that is related to book news or book things or library news.
         - my checkout, better request renewal css ui
         - article section similar to ipusnas, front end side swiping card, back end manage
 

@@ -96,6 +96,67 @@
     @media (max-width: 576px) {
       .profile-picture { width: 100px; height: 100px; }
     }
+
+    #profile-tabs {
+      display: flex; justify-content: center; gap: 24px; margin-bottom: 16px; border-bottom: 2px solid #e0e0e0;
+    }
+
+    #tab-view{
+      background: none; border: none; padding: 8px 0; font-weight: bold; cursor: pointer; color: #555;
+    }
+
+    #tab-edit{
+      background: none; border: none; padding: 8px 0; font-weight: normal; color: #555; cursor: pointer;
+    }
+
+    #view-section-content {
+      display: flex; 
+      gap: 16px;
+      flex-direction: column;
+    }
+
+    .individual-view-section-content {
+      border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed; top:0; left:0; width:100%; height:100%;
+      background: rgba(0,0,0,0.5);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1000; padding: 20px;
+    }
+    .hidden { display: none; }
+    .modal {
+      background: #fff; border-radius: 4px; max-width: 400px;
+      width:100%; padding:20px; text-align:center;
+      box-shadow:0 4px 8px rgba(0,0,0,0.2);
+    }
+    .modal-buttons { margin-top:16px; display:flex; gap:10px; justify-content:center; }
+    .modal-buttons button {
+      padding:8px 16px; font-size:0.9rem; border:none; border-radius:4px; cursor:pointer;
+      transition: background 0.2s ease;
+    }
+    #modal-ok { background:#28a745; color:#fff; }
+    #modal-cancel { background:#dc3545; color:#fff; }
+
+    /* Spinner */
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid rgba(0,0,0,0.1);
+      border-top-color: #007bff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 12px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
   </style>
 </head>
 <body>
@@ -108,40 +169,110 @@
     <!-- Profile Header -->
     <div class="profile-header">
       <img src="<%= user.profilePicture ? user.profilePicture : '/public/images/profile-pictures/default.jpg' %>" alt="Profile Picture" class="profile-picture" id="profilePicDisplay">
+      
       <h2 id="userNameDisplay"><%= user.name %></h2>
       <p id="userRoleDisplay"><%= user.role %></p>
     </div>
     
-    <!-- Profile Form -->
-    <form id="profileForm" method="POST" action="/api/users/updateProfile">
-      <div>
-        <label for="name">Full Name</label>
-        <input type="text" id="name" name="name" value="<%= user.name %>" required>
+     <!-- Profile Information -->
+    <div>
+      <!-- Tabs for toggling -->
+      <div id="profile-tabs">
+        <button type="button"
+                id="tab-view">
+          Profile Data
+        </button>
+        <button type="button"
+                id="tab-edit">
+          Modify Profile
+        </button>
       </div>
-      <div>
-        <label for="email">Email</label>
-        <input type="email" id="email" name="email" value="<%= user.email %>" required>
+
+      <!-- Static display of all user fields except password -->
+      <div id="view-section">
+        <div id="view-section-content">
+          <div class="individual-view-section-content">
+            <h4>Full Name</h4>
+            <p><%= user.name %></p>
+          </div>
+          
+          <div class="individual-view-section-content">
+            <h4>Email</h4>
+            <p><%= user.email %></p>
+          </div>
+          
+          <div class="individual-view-section-content">
+            <h4>Phone Number</h4>
+            <p><%= user.phone || '-' %></p>
+          </div>
+          
+          <div class="individual-view-section-content">
+            <h4>Address</h4>
+            <p><%= user.address || '-' %></p>
+          </div>
+
+          <!-- add more fields here as needed -->
+        </div>
       </div>
-      <div>
-        <label for="password">Password <small>(leave blank to keep unchanged)</small></label>
-        <input type="password" id="password" name="password" placeholder="New password">
+    </div>
+
+    <!-- your existing form; just wrap it so we can toggle it too -->
+    <div id="edit-section" style="display: none;">
+      <!-- Profile Form -->
+      <form id="profileForm" method="POST" action="/api/users/updateProfile">
+        <div>
+          <label for="name">Full Name</label>
+          <input type="text" id="name" name="name" value="<%= user.name %>" required>
+        </div>
+        <div>
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" value="<%= user.email %>" required>
+        </div>
+        <div>
+          <label for="password">Password <small>(leave blank to keep unchanged)</small></label>
+          <input type="password" id="password" name="password" placeholder="New password">
+        </div>
+        <div>
+          <label for="phone">Phone</label>
+          <input type="text" id="phone" name="phone" value="<%= user.phone %>">
+        </div>
+        <div>
+          <label for="address">Address</label>
+          <input type="text" id="address" name="address" value="<%= user.address %>">
+        </div>
+        <div id="uploadProfilePictureForm">
+          <label for="uploadedImage">Profile Picture:</label>
+          <input type="file" id="uploadedImage" name="uploadedImage">
+          <input type="hidden" id="profilePicInput" name="profilePicture" value="">
+          <!-- <button id="submitBtnProfilePic" type="button">Upload</button> -->
+        </div>
+        <button type="submit">Save Changes</button>
+        <div id="profileMessage" class="message"></div>
+      </form>
+    </div>
+
+    
+  </div>
+
+  <!-- Modal -->
+  <div id="modal-overlay" class="modal-overlay hidden">
+    <div class="modal">
+      <p id="modal-message"></p>
+      <div class="modal-buttons">
+        <button id="modal-ok">OK</button>
+        <button id="modal-cancel" class="hidden">Cancel</button>
       </div>
-      <div>
-        <label for="phone">Phone</label>
-        <input type="text" id="phone" name="phone" value="<%= user.phone %>">
-      </div>
-      <div>
-        <label for="address">Address</label>
-        <input type="text" id="address" name="address" value="<%= user.address %>">
-      </div>
-      <div id="uploadProfilePictureForm">
-        <label for="uploadedImage">Profile Picture:</label>
-        <input type="file" id="uploadedImage" name="uploadedImage">
-        <button id="submitBtnProfilePic" type="button">Upload</button>
-      </div>
-      <button type="submit">Save Changes</button>
-      <div id="profileMessage" class="message"></div>
-    </form>
+    </div>
+  </div>
+
+  <!-- Loading Modal (no buttons) -->
+  <div id="loading-overlay" class="modal-overlay hidden">
+    <div class="modal">
+      <div class="spinner"></div>
+      <p id="loading-message" style="font-size:0.95rem; color:#333; margin:0;">
+        Loading…
+      </p>
+    </div>
   </div>
 
   <script src="/public/js/profileScript.js">
