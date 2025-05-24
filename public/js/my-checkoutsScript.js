@@ -15,11 +15,6 @@ const pageIndicator = document.getElementById('pageIndicator');
 // Maximum number of renewals allowed
 const MAX_RENEWALS = 2;
 
-// Back button functionality
-document.getElementById('backButton').addEventListener('click', () => {
-  history.back();
-});
-
 // Fetch user data from API (using jwt_token from cookie)
 async function fetchUserData() {
   try {
@@ -385,3 +380,4 @@ function showPromptModal({ message, defaultValue = '14', showCancel = true }) {
     cancelButton.addEventListener('click', onCancel);
   });
 }
+

@@ -173,10 +173,6 @@ document.getElementById('logoutButton').addEventListener('click', async function
   }
 });
 
-// Back button functionality
-document.getElementById('backButton').addEventListener('click', () => {
-  history.back();
-});
 
 // Modal utility
 function showModal({ message, showCancel = false }) {

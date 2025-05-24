@@ -8,35 +8,17 @@
     /* Base Reset */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: #f5f5f5;
       color: #333;
-      padding: 20px;
+      padding-bottom: 20px;
     }
     h1 {
       text-align: center;
       margin-bottom: 20px;
+      margin-top: 40px;
     }
-    /* Top Buttons */
-    .top-buttons {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 20px;
-    }
-    .top-buttons button {
-      padding: 8px 16px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 0.9rem;
-    }
-    #backButton {
-      background-color: #6c757d;
-      color: #fff;
-    }
-    #backButton:hover {
-      background-color: #5a6268;
-    }
+    
     /* Filters */
     .filters {
       display: flex;
@@ -272,35 +254,55 @@
       }
     }
 
+    #outerContainer {
+      padding: 0 20px;
+    }
   </style>
+  <link rel="stylesheet" href="/public/css/topNavBarStyle.css">
 </head>
-<body>
-  <!-- Top Buttons: Back -->
-  <div class="top-buttons">
-    <button id="backButton">Back</button>
-  </div>
-  
-  <h1>My Checkouts</h1>
-  
-  <!-- Filters -->
-  <div class="filters">
-    <button data-filter="all" class="active">All</button>
-    <button data-filter="active">Active</button>
-    <button data-filter="returned">Returned</button>
-    <button data-filter="overdue">Overdue</button>
-    <button data-filter="others">Others</button>
-  </div>
-  
-  <!-- Checkouts Grid -->
-  <div class="checkouts-grid" id="checkoutsGrid">
-    <!-- Checkout cards will be injected here -->
-  </div>
-  
-  <!-- Pagination Controls -->
-  <div class="pagination" id="paginationControls">
-    <button id="prevButton" disabled>Previous</button>
-    <span id="pageIndicator">Page 1</span>
-    <button id="nextButton" disabled>Next</button>
+<body> 
+  <!-- Navigation Bar -->
+  <nav>
+    <div class="logo">
+      <a href="/">Library</a>
+    </div>
+
+    <div class="dropdown" id="navDropdown">
+      <button class="dropbtn" id="menuBtn">☰ Menu</button>
+      <div class="dropdown-content" id="dropdownContent">
+        <a href="/">Home</a>
+        <a href="/profile">Profile</a>
+        <a href="/user/reservations">Reservations</a>
+        <a href="/user/checkouts">Checkouts</a>
+        <a href="/auth/login">Login</a>
+        <a href="/auth/register">Register</a>
+      </div>
+    </div>
+  </nav>
+
+  <div id="outerContainer">
+    <h1>My Checkouts</h1>
+    
+    <!-- Filters -->
+    <div class="filters">
+      <button data-filter="all" class="active">All</button>
+      <button data-filter="active">Active</button>
+      <button data-filter="returned">Returned</button>
+      <button data-filter="overdue">Overdue</button>
+      <button data-filter="others">Others</button>
+    </div>
+    
+    <!-- Checkouts Grid -->
+    <div class="checkouts-grid" id="checkoutsGrid">
+      <!-- Checkout cards will be injected here -->
+    </div>
+    
+    <!-- Pagination Controls -->
+    <div class="pagination" id="paginationControls">
+      <button id="prevButton" disabled>Previous</button>
+      <span id="pageIndicator">Page 1</span>
+      <button id="nextButton" disabled>Next</button>
+    </div>
   </div>
   
   <!-- Modal Popup for custom alerts/prompts -->
@@ -323,5 +325,6 @@
   <script src="/public/js/my-checkoutsScript.js">
  
   </script>
+  <script src="/public/js/topNavBarScript.js"></script>
 </body>
 </html>

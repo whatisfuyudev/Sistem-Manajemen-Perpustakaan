@@ -10,11 +10,6 @@ const prevButton = document.getElementById('prevButton');
 const nextButton = document.getElementById('nextButton');
 const pageIndicator = document.getElementById('pageIndicator');
 
-// Back button functionality
-document.getElementById('backButton').addEventListener('click', () => {
-  history.back();
-});
-
 // Fetch full user data from the API (using jwt_token in cookie)
 async function fetchUserData() {
   try {

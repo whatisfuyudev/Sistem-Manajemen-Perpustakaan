@@ -8,39 +8,20 @@
     /* Basic Reset */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background-color: #f8f9fa;
-      padding: 20px;
+      padding-bottom: 20px;
       position: relative;
     }
-    /* Logout button styling */
+    
     #logoutButton {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      padding: 8px 16px;
-      background-color: #dc3545;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 0.9rem;
+      all: unset;
     }
-    #logoutButton:hover { background-color: #c82333; }
-    /* Back button styling */
-    #backButton {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      padding: 8px 16px;
-      background-color: #6c757d;
-      color: white;
-      border: none;
-      border-radius: 4px;
+
+    #logoutButton:hover {
       cursor: pointer;
-      font-size: 0.9rem;
     }
-    #backButton:hover { background-color: #5a6268; }
+    
     .container {
       max-width: 600px;
       margin: auto;
@@ -48,6 +29,7 @@
       padding: 20px;
       border-radius: 8px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      margin-top: 40px;
     }
     .profile-header { text-align: center; margin-bottom: 30px; }
     .profile-picture {
@@ -157,103 +139,125 @@
       to { transform: rotate(360deg); }
     }
 
+    #outerContainer {
+      padding: 0 20px;
+    }
   </style>
+  <link rel="stylesheet" href="/public/css/topNavBarStyle.css">
 </head>
 <body>
-  <!-- Back Button -->
-  <button id="backButton" >Back</button>
-  <!-- Logout Button -->
-  <button id="logoutButton" onclick="logout()">Logout</button>
+  <!-- Navigation Bar -->
+  <nav>
+    <div class="logo">
+      <a href="/">Library</a>
+    </div>
 
-  <div class="container">
-    <!-- Profile Header -->
-    <div class="profile-header">
-      <img src="<%= user.profilePicture ? user.profilePicture : '/public/images/profile-pictures/default.jpg' %>" alt="Profile Picture" class="profile-picture" id="profilePicDisplay">
+    <div class="dropdown" id="navDropdown">
+      <button class="dropbtn" id="menuBtn">☰ Menu</button>
+      <div class="dropdown-content" id="dropdownContent">
+        <a href="/">Home</a>
+        <a href="/profile">Profile</a>
+        <a href="/user/reservations">Reservations</a>
+        <a href="/user/checkouts">Checkouts</a>
+        <a href="/auth/login">Login</a>
+        <a href="/auth/register">Register</a>
+        <!-- Logout Button -->
+        <a>
+          <button id="logoutButton">Logout</button>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <div id="outerContainer">
+    <div class="container">
+      <!-- Profile Header -->
+      <div class="profile-header">
+        <img src="<%= user.profilePicture ? user.profilePicture : '/public/images/profile-pictures/default.jpg' %>" alt="Profile Picture" class="profile-picture" id="profilePicDisplay">
+        
+        <h2 id="userNameDisplay"><%= user.name %></h2>
+        <p id="userRoleDisplay"><%= user.role %></p>
+      </div>
       
-      <h2 id="userNameDisplay"><%= user.name %></h2>
-      <p id="userRoleDisplay"><%= user.role %></p>
-    </div>
-    
-     <!-- Profile Information -->
-    <div>
-      <!-- Tabs for toggling -->
-      <div id="profile-tabs">
-        <button type="button"
-                id="tab-view">
-          Profile Data
-        </button>
-        <button type="button"
-                id="tab-edit">
-          Modify Profile
-        </button>
+      <!-- Profile Information -->
+      <div>
+        <!-- Tabs for toggling -->
+        <div id="profile-tabs">
+          <button type="button"
+                  id="tab-view">
+            Profile Data
+          </button>
+          <button type="button"
+                  id="tab-edit">
+            Modify Profile
+          </button>
+        </div>
+
+        <!-- Static display of all user fields except password -->
+        <div id="view-section">
+          <div id="view-section-content">
+            <div class="individual-view-section-content">
+              <h4>Full Name</h4>
+              <p><%= user.name %></p>
+            </div>
+            
+            <div class="individual-view-section-content">
+              <h4>Email</h4>
+              <p><%= user.email %></p>
+            </div>
+            
+            <div class="individual-view-section-content">
+              <h4>Phone Number</h4>
+              <p><%= user.phone || '-' %></p>
+            </div>
+            
+            <div class="individual-view-section-content">
+              <h4>Address</h4>
+              <p><%= user.address || '-' %></p>
+            </div>
+
+            <!-- add more fields here as needed -->
+          </div>
+        </div>
       </div>
 
-      <!-- Static display of all user fields except password -->
-      <div id="view-section">
-        <div id="view-section-content">
-          <div class="individual-view-section-content">
-            <h4>Full Name</h4>
-            <p><%= user.name %></p>
+      <!-- your existing form; just wrap it so we can toggle it too -->
+      <div id="edit-section" style="display: none;">
+        <!-- Profile Form -->
+        <form id="profileForm" method="POST" action="/api/users/updateProfile">
+          <div>
+            <label for="name">Full Name</label>
+            <input type="text" id="name" name="name" value="<%= user.name %>" required>
           </div>
-          
-          <div class="individual-view-section-content">
-            <h4>Email</h4>
-            <p><%= user.email %></p>
+          <div>
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" value="<%= user.email %>" required>
           </div>
-          
-          <div class="individual-view-section-content">
-            <h4>Phone Number</h4>
-            <p><%= user.phone || '-' %></p>
+          <div>
+            <label for="password">Password <small>(leave blank to keep unchanged)</small></label>
+            <input type="password" id="password" name="password" placeholder="New password">
           </div>
-          
-          <div class="individual-view-section-content">
-            <h4>Address</h4>
-            <p><%= user.address || '-' %></p>
+          <div>
+            <label for="phone">Phone</label>
+            <input type="text" id="phone" name="phone" value="<%= user.phone %>">
           </div>
-
-          <!-- add more fields here as needed -->
-        </div>
+          <div>
+            <label for="address">Address</label>
+            <input type="text" id="address" name="address" value="<%= user.address %>">
+          </div>
+          <div id="uploadProfilePictureForm">
+            <label for="uploadedImage">Profile Picture:</label>
+            <input type="file" id="uploadedImage" name="uploadedImage">
+            <input type="hidden" id="profilePicInput" name="profilePicture" value="">
+            <!-- <button id="submitBtnProfilePic" type="button">Upload</button> -->
+          </div>
+          <button type="submit">Save Changes</button>
+          <div id="profileMessage" class="message"></div>
+        </form>
       </div>
     </div>
-
-    <!-- your existing form; just wrap it so we can toggle it too -->
-    <div id="edit-section" style="display: none;">
-      <!-- Profile Form -->
-      <form id="profileForm" method="POST" action="/api/users/updateProfile">
-        <div>
-          <label for="name">Full Name</label>
-          <input type="text" id="name" name="name" value="<%= user.name %>" required>
-        </div>
-        <div>
-          <label for="email">Email</label>
-          <input type="email" id="email" name="email" value="<%= user.email %>" required>
-        </div>
-        <div>
-          <label for="password">Password <small>(leave blank to keep unchanged)</small></label>
-          <input type="password" id="password" name="password" placeholder="New password">
-        </div>
-        <div>
-          <label for="phone">Phone</label>
-          <input type="text" id="phone" name="phone" value="<%= user.phone %>">
-        </div>
-        <div>
-          <label for="address">Address</label>
-          <input type="text" id="address" name="address" value="<%= user.address %>">
-        </div>
-        <div id="uploadProfilePictureForm">
-          <label for="uploadedImage">Profile Picture:</label>
-          <input type="file" id="uploadedImage" name="uploadedImage">
-          <input type="hidden" id="profilePicInput" name="profilePicture" value="">
-          <!-- <button id="submitBtnProfilePic" type="button">Upload</button> -->
-        </div>
-        <button type="submit">Save Changes</button>
-        <div id="profileMessage" class="message"></div>
-      </form>
-    </div>
-
-    
   </div>
-
+  
   <!-- Modal -->
   <div id="modal-overlay" class="modal-overlay hidden">
     <div class="modal">
@@ -278,6 +282,6 @@
   <script src="/public/js/profileScript.js">
 
   </script>
-
+  <script src="/public/js/topNavBarScript.js"></script>
 </body>
 </html>

@@ -8,14 +8,18 @@
     /* Basic Reset */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background-color: #f4f4f4;
       color: #333;
-      padding: 20px;
+      padding-bottom: 20px;
+    }
+    #outerContainer {
+      padding: 0 20px;
     }
     .container {
       max-width: 800px;
       margin: 20px auto;
+      margin-top: 40px;
       background: #fff;
       border-radius: 8px;
       padding: 20px;
@@ -181,65 +185,87 @@
       }
     }
   </style>
+  <link rel="stylesheet" href="/public/css/topNavBarStyle.css">
 </head>
 <body>
-  <div class="container">
-    <!-- Book Header: Cover and Title/Authors -->
-    <div class="book-header">
-      <div class="book-cover">
-        <!-- Use coverImage from the book record; fallback to a default image if not present -->
-        <img src="<%= book.coverImage ? book.coverImage : '/public/images/book-covers/default-cover.jpg' %>" alt="Book Cover">
+  <!-- Navigation Bar -->
+  <nav>
+    <div class="logo">
+      <a href="/">Library</a>
+    </div>
+
+    <div class="dropdown" id="navDropdown">
+      <button class="dropbtn" id="menuBtn">☰ Menu</button>
+      <div class="dropdown-content" id="dropdownContent">
+        <a href="/">Home</a>
+        <a href="/profile">Profile</a>
+        <a href="/user/reservations">Reservations</a>
+        <a href="/user/checkouts">Checkouts</a>
+        <a href="/auth/login">Login</a>
+        <a href="/auth/register">Register</a>
       </div>
-      <div class="book-info">
-        <h1><%= book.title %></h1>
-        <p><strong >ISBN:</strong> <span id="isbnValue"><%= book.isbn %></span></p>
-        <p><strong>Authors:</strong> <%= book.authors.join(', ') %></p>
-        <% if (book.genres && book.genres.length) { %>
-          <p><strong>Genres:</strong> <%= book.genres.join(', ') %></p>
+    </div>
+  </nav>
+
+  <div id="outerContainer">
+    <div class="container">
+      <!-- Book Header: Cover and Title/Authors -->
+      <div class="book-header">
+        <div class="book-cover">
+          <!-- Use coverImage from the book record; fallback to a default image if not present -->
+          <img src="<%= book.coverImage ? book.coverImage : '/public/images/book-covers/default-cover.jpg' %>" alt="Book Cover">
+        </div>
+        <div class="book-info">
+          <h1><%= book.title %></h1>
+          <p><strong >ISBN:</strong> <span id="isbnValue"><%= book.isbn %></span></p>
+          <p><strong>Authors:</strong> <%= book.authors.join(', ') %></p>
+          <% if (book.genres && book.genres.length) { %>
+            <p><strong>Genres:</strong> <%= book.genres.join(', ') %></p>
+          <% } %>
+        </div>
+      </div>
+
+      <!-- Book Detailed Information -->
+      <div class="book-details">
+        <% if (book.publisher) { %>
+          <div class="detail-item">
+            <span>Publisher:</span> <%= book.publisher %>
+          </div>
+        <% } %>
+        <% if (book.publicationYear) { %>
+          <div class="detail-item">
+            <span>Publication Year:</span> <%= book.publicationYear %>
+          </div>
+        <% } %>
+        <% if (book.description) { %>
+          <div class="detail-item">
+            <span>Description:</span>
+            <p><%= book.description %></p>
+          </div>
+        <% } %>
+        <div class="detail-item">
+          <span>Available Copies:</span> <%= book.availableCopies %>
+        </div>
+        <% if (book.formats && book.formats.length) { %>
+          <div class="detail-item">
+            <span>Formats:</span> <%= book.formats.join(', ') %>
+          </div>
+        <% } %>
+        <% if (book.pages) { %>
+          <div class="detail-item">
+            <span>Pages:</span> <%= book.pages %>
+          </div>
         <% } %>
       </div>
-    </div>
-
-    <!-- Book Detailed Information -->
-    <div class="book-details">
-      <% if (book.publisher) { %>
-        <div class="detail-item">
-          <span>Publisher:</span> <%= book.publisher %>
-        </div>
-      <% } %>
-      <% if (book.publicationYear) { %>
-        <div class="detail-item">
-          <span>Publication Year:</span> <%= book.publicationYear %>
-        </div>
-      <% } %>
-      <% if (book.description) { %>
-        <div class="detail-item">
-          <span>Description:</span>
-          <p><%= book.description %></p>
-        </div>
-      <% } %>
-      <div class="detail-item">
-        <span>Available Copies:</span> <%= book.availableCopies %>
+      
+      <!-- Buttons -->
+      <div style="text-align: center;">
+        <button class="back-button">Back</button>
+        <a class="reserve-button" href="javascript:void(0);" id="reserveButton">Reserve</a>
       </div>
-      <% if (book.formats && book.formats.length) { %>
-        <div class="detail-item">
-          <span>Formats:</span> <%= book.formats.join(', ') %>
-        </div>
-      <% } %>
-      <% if (book.pages) { %>
-        <div class="detail-item">
-          <span>Pages:</span> <%= book.pages %>
-        </div>
-      <% } %>
-    </div>
-    
-    <!-- Buttons -->
-    <div style="text-align: center;">
-      <button class="back-button">Back</button>
-      <a class="reserve-button" href="javascript:void(0);" id="reserveButton">Reserve</a>
     </div>
   </div>
-
+  
   <!-- Modal Popup -->
   <div id="modal-overlay" class="modal-overlay hidden">
     <div class="modal">
@@ -254,5 +280,6 @@
   <script src="/public/js/book-detailsScript.js">
 
   </script>
+  <script src="/public/js/topNavBarScript.js"></script>
 </body>
 </html>
