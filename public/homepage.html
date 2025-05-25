@@ -36,6 +36,7 @@
       width: 90%;
       max-width: 1200px;
       margin: 20px auto;
+      margin-top: 40px;
       background: #fff;
       padding: 20px;
       border-radius: 8px;
@@ -46,7 +47,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      margin-bottom: 30px;
+      margin-bottom: 60px;
       gap: 10px;
     }
     .search-container input[type="text"] {
@@ -72,7 +73,7 @@
     }
     /* Featured Books Section */
     .books-section {
-      margin-top: 20px;
+      margin-top: 40px;
     }
     .books-section h2 {
       margin-bottom: 15px;
@@ -112,6 +113,14 @@
       color: #666;
       margin-bottom: 10px;
     }
+    .book-title,
+    .book-authors {
+      overflow: hidden;           /* hide anything past the box */
+      white-space: nowrap;        /* force a single line */
+      text-overflow: ellipsis;    /* display “…” when text is cut */
+      display: block;             /* ensure width can apply */
+      max-width: 30ch;            /* truncate after ~30 characters (≅30 “0”s) */
+    }
     .view-details {
       display: inline-block;
       padding: 8px 12px;
@@ -144,6 +153,119 @@
         width: 100%;
       }
     }
+    .news-slider {
+      position: relative;
+    }
+
+    /* Slides container */
+    .news-slider .slides {
+      display: flex;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scroll-snap-type: x mandatory;
+      gap: 16px;
+
+      /* hide native scrollbars */
+      scrollbar-width: none;      /* Firefox */
+      -ms-overflow-style: none;   /* IE 10+ */
+    }
+    .news-slider .slides::-webkit-scrollbar {
+      display: none;              /* WebKit */
+    }
+
+    /* Card */
+    .news-slider .card {
+      flex: 0 0 calc((100% - 16px) / 2);
+      height: 220px;
+      scroll-snap-align: start;
+      position: relative;
+      margin: 0;
+
+      /* gradient overlay setup */
+      overflow: hidden;
+      border-radius: 8px;
+    }
+    .news-slider .card::after {
+      content: '';
+      position: absolute;
+      left: 0; bottom: 0;
+      width: 100%; height: 100%;
+      background: linear-gradient(
+        to top,
+        rgba(0,0,0,0.5) 20%,
+        rgba(0,0,0,0.3) 50%,
+        transparent 90%
+      );
+      pointer-events: none;
+    }
+
+    /* Responsive: one card per view on small screens */
+    @media (max-width: 600px) {
+      .news-slider .card {
+        flex: 0 0 100%;
+        /* keep the same height, or change as desired */
+        height: 220px;
+      }
+    }
+
+    /* Card contents */
+    .card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .card-text {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      z-index: 1;
+      color: #fff;
+      /* if you want a little backdrop, wrap in an inner .card-text-inner */
+      background: none;
+      padding: 0;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    /* Navigation buttons */
+    .news-slider .nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,0.8);
+      border: none;
+      padding: 8px;
+      cursor: pointer;
+      border-radius: 50%;
+    }
+    .news-slider .prev { left: 8px; }
+    .news-slider .next { right: 8px; }
+
+    /* If you need to center the arrow icons inside the button */
+    .nav.next img,
+    .nav.prev img {
+      display: block;        /* no need for flex here */
+      margin: 0 auto;
+    }
+
+    /* Dot pagination */
+    .slider-dots {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .slider-dots .dot {
+      width: 12px;
+      height: 12px;
+      background: #eee;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .slider-dots .dot.active {
+      background: #007bff;
+    }
   </style>
   <link rel="stylesheet" href="/public/css/topNavBarStyle.css">
 </head>
@@ -174,6 +296,24 @@
       <input type="text" placeholder="Search by title...." id="searchInput">
       <button id="searchButton">Search</button>
     </div>
+
+    <!-- news section -->
+    <section class="news-slider">
+      <div class="slides">
+        <!-- repeat for each item -->
+         <article class="card">
+          <img src="/public/images/profile-pictures/6d041feb-de4f-4034-bbdb-852342a51b85-amogus.png" alt="">
+          <div class="card-text"> 
+            Item Title
+          </div>
+        </article>
+        <!-- … -->
+      </div>
+      <button class="nav prev"><img src="/public/images/arrow_back.svg" alt="left arrow"></button>
+      <button class="nav next"><img src="/public/images/arrow_forward.svg" alt="right arrow"></button>
+      <!-- dot pagination -->
+      <div class="slider-dots" id="sliderDots"></div>
+    </section>
 
     <!-- Featured Books Section -->
     <section class="books-section">

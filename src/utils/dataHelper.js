@@ -45,15 +45,14 @@ const storage = multer.diskStorage({
     // Files will be saved in the 'public/images/' directory
     let target = '../../public/images/';
     
+    // if upload from user profile picture api (the front end tells)
+    // modify request object, make new property that tells that
+    // else default to book-covers directory
     if (req.body._comesFrom === "profilePicture") {
       target += 'profile-pictures/';
     } else {
       target += 'book-covers/';
     }
-
-    // if upload from user profile picture api (the front end tells)
-    // modify request object, make new property that tells that
-    // else default to book-covers directory
 
     cb(null, path.join(__dirname, target));
   },

@@ -18,11 +18,17 @@
       - there will be homepage, individual book page, profile page, my reservations page, my checkouts page, register page, login page
 
         - probably add more things on the homepage example would be book based by author, genre, or even a new section about article and dedicated article page, also news section that is related to book news or book things or library news.
+          - article section on homepage
+            - di homepage, bagian atas news, tengah rekomendasi buku, bawah article section
+          - articles page
+          - individual article page
+
+          - homepage featured books, change behaviour when mobile/tablet to scroll left and right instead of going down
+
+        - login and register add library icon and name
+
         - my checkout my reservations, better request renewal css ui
         - article section similar to ipusnas, front end side swiping card, back end manage
-
-       
-     
 
 ### General TODO
 - notification maybe batch send, new endpoint?

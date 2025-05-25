@@ -89,3 +89,86 @@ document.getElementById('searchButton').addEventListener('click', (e) => {
   e.preventDefault();
   performSearch();
 });
+
+const slider = document.querySelector('.news-slider .slides');
+document.querySelector('.news-slider .next')
+  .addEventListener('click', () => {
+    slider.scrollBy({ left: slider.clientWidth, behavior: 'smooth' });
+  });
+document.querySelector('.news-slider .prev')
+  .addEventListener('click', () => {
+    slider.scrollBy({ left: -slider.clientWidth, behavior: 'smooth' });
+  });
+
+const cards    = Array.from(slider.querySelectorAll('.card'));
+const dotsCont = document.getElementById('sliderDots');
+let currentPage = 0;
+
+function getItemsPerPage() {
+  return window.innerWidth <= 600 ? 1 : 2;
+}
+
+function buildDots() {
+  dotsCont.innerHTML = '';
+  const ipp = getItemsPerPage();
+  const pageCount = Math.ceil(cards.length / ipp);
+
+  for (let i = 0; i < pageCount; i++) {
+    const dot = document.createElement('span');
+    dot.className = 'dot' + (i === 0 ? ' active' : '');
+    dot.dataset.page = i;
+    dot.addEventListener('click', () => goToPage(i));
+    dotsCont.appendChild(dot);
+  }
+}
+
+function goToPage(page) {
+  const ipp = getItemsPerPage();
+  const cardWidth = cards[0].offsetWidth + parseInt(getComputedStyle(slider).gap);
+  slider.scrollTo({
+    left: page * cardWidth * ipp,
+    behavior: 'smooth'
+  });
+  updateActiveDot(page);
+}
+
+function updateActiveDot(page) {
+  dotsCont.querySelectorAll('.dot').forEach((d, i) => {
+    d.classList.toggle('active', i === page);
+  });
+  currentPage = page;
+}
+
+// Prev/Next
+document.querySelector('.news-slider .prev')
+  .addEventListener('click', () => {
+    if (currentPage > 0) goToPage(currentPage - 1);
+  });
+document.querySelector('.news-slider .next')
+  .addEventListener('click', () => {
+    const maxPage = Math.ceil(cards.length / getItemsPerPage()) - 1;
+    if (currentPage < maxPage) goToPage(currentPage + 1);
+  });
+
+// Sync on manual scroll (throttled)
+let scrolling = false;
+slider.addEventListener('scroll', () => {
+  if (scrolling) return;
+  window.requestAnimationFrame(() => {
+    const ipp = getItemsPerPage();
+    const cardWidth = cards[0].offsetWidth + parseInt(getComputedStyle(slider).gap);
+    const page = Math.round(slider.scrollLeft / (cardWidth * ipp));
+    if (page !== currentPage) updateActiveDot(page);
+    scrolling = false;
+  });
+  scrolling = true;
+});
+
+// Rebuild dots / reset page on resize
+window.addEventListener('resize', () => {
+  buildDots();
+  goToPage(0);
+});
+
+// Initialize
+buildDots();

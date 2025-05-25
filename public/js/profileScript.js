@@ -147,7 +147,6 @@ document.getElementById('uploadedImage')
       showModal({ message: 'Error updating profile picture: ' + err });
     } else {
       showModal({ message: 'Profile picture updated successfully!' });
-      window.location.reload();
     }
   } catch (error) {
     hideLoading();
