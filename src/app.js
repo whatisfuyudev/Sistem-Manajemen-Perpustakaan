@@ -118,6 +118,10 @@ app.use('/api/reports', reportRoutes);
 const notificationRoutes = require('./api/notifications/notifications.routes');
 app.use('/api/notifications', notificationRoutes);
 
+// Mount news routes
+const newsRoutes = require('./api/news/news.routes');
+app.use('/api/news', newsRoutes);
+
 // Mount the new book page route
 const bookPageRoutes = require('./api/books/bookPage.routes');
 app.use('/', bookPageRoutes);
@@ -134,9 +138,13 @@ app.use('/', reservationPageRoutes);
 const checkoutPageRoutes = require('./api/checkouts/checkoutPage.routes');
 app.use('/', checkoutPageRoutes);
 
-// Mount the new checkout page route
+// Mount the new notification page route
 const notificationPageRoutes = require('./api/notifications/notificationPage.routes');
 app.use('/', notificationPageRoutes);
+
+// Mount the new news page route
+const newsPageRoutes = require('./api/news/newsPage.routes');
+app.use('/', newsPageRoutes);
 
 // Optionally, you can define a route for the homepage (if it’s static).
 // This example sends the static index.html from the public folder.

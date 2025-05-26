@@ -4,33 +4,41 @@ const router = express.Router();
 const NewsController = require('./news.controller');
 const authMiddleware = require('../../middleware/auth.middleware');
 
-// Public read routes
-router.get('/news/published', NewsController.listPublished);
-// new get individual news for public here
+// Public read route
+router.get('/published', NewsController.getAllPublished);
 
-// Librarian/Admin write routes
-router.get('/news',
+// Librarian/Admin route
+router.get('/search',
   authMiddleware.verifyToken,
-   NewsController.search
-  );
+  authMiddleware.isLibrarianOrAdmin,
+  NewsController.searchNews
+);
 
+// Librarian/Admin route
 router.post(
-  '/news',
+  '/create',
   authMiddleware.verifyToken,          // must be logged in
   authMiddleware.isLibrarianOrAdmin,   // and have Librarian or Admin role
-  NewsController.create
+  NewsController.createNews
 );
+
+// Librarian/Admin route
 router.put(
-  '/news/:id',
+  '/edit/:id',
   authMiddleware.verifyToken,
   authMiddleware.isLibrarianOrAdmin,
-  NewsController.update
+  NewsController.updateNews
 );
+
+// get individual news for public here
+router.get('/:id', NewsController.getByIdPublic);
+
+// Librarian/Admin route
 router.put(
-  '/news/:id/published',
+  '/:id/published',
   authMiddleware.verifyToken,
   authMiddleware.isLibrarianOrAdmin,
-  NewsController.setPublished
+  NewsController.markPublished
 );
 
 module.exports = router;

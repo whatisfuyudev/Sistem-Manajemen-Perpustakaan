@@ -1,6 +1,7 @@
 // src/services/news.service.js
 const { Op } = require('sequelize');
 const News     = require('../../models/news.model');
+const CustomError = require('../../utils/customError');
 
 /**
  * Create a new news item.
@@ -9,6 +10,20 @@ const News     = require('../../models/news.model');
  */
 async function create(data) {
   return await News.create(data);
+}
+
+/**
+ * Retrieve a single published news item by ID.
+ * @param {number|string} id
+ * @returns {Promise<News|null>}
+ */
+async function getPublishedById(id) {
+  return await News.findOne({
+    where: {
+      id,
+      published: true
+    }
+  });
 }
 
 /**
@@ -21,7 +36,7 @@ async function create(data) {
 async function update(id, data) {
   const [affected] = await News.update(data, { where: { id } });
   if (!affected) {
-    throw new Error(`News with id=${id} not found`);
+    throw new CustomError(`News with id=${id} not found`, 404);
   }
   return await News.findByPk(id);
 }
@@ -39,7 +54,7 @@ async function markPublished(id, published) {
     { where: { id } }
   );
   if (!affected) {
-    throw new Error(`News with id=${id} not found`);
+    throw new CustomError(`News with id=${id} not found`, 404);
   }
   return await News.findByPk(id);
 }
@@ -98,5 +113,6 @@ module.exports = {
   update,
   markPublished,
   getAllPublished,
-  search
+  search,
+  getPublishedById
 };

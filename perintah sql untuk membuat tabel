@@ -137,3 +137,22 @@ CREATE TABLE books (
   "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
+
+
+---------------------------------------------------------------------
+
+-- create news table
+CREATE TABLE news (
+  id SERIAL PRIMARY KEY,
+  title VARCHAR(75) NOT NULL,
+  image_url TEXT,
+  body TEXT NOT NULL,
+  published BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+
+---------------------------------------------------------------------
+
+-- create article table

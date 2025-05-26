@@ -4,8 +4,6 @@ const router = express.Router();
 const bookPageController = require('./bookPage.controller');
 const authMiddleware = require('../../middleware/auth.middleware');
 
-
-
 // New endpoint for rendering the add new book page; restricted to admin/librarian
 router.get(
   '/admin/books/add',

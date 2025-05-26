@@ -2,6 +2,21 @@
 const NewsService = require('./news.service');
 
 /**
+ * Get a single published news item by ID.
+ */
+exports.getByIdPublic = async (req, res, next) => {
+  try {
+    const item = await NewsService.getPublishedById(req.params.id);
+    if (!item) {
+      return res.status(404).json({ message: 'News not found' });
+    }
+    res.status(200).json(item);
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
  * Create a news item.
  */
 exports.createNews = async (req, res, next) => {
