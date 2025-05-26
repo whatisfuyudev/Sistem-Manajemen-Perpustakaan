@@ -37,6 +37,10 @@ const API = {
     send: '/api/notifications/send',
     schedule: '/api/notifications/schedule'
   },
+  news: {
+    root: '/api/news',
+    search: '/api/news/search'
+  },
   reports: {
     circulation: '/api/reports/circulation',
     reservations: '/api/reports/reservations',
@@ -98,6 +102,9 @@ async function loadModule(module) {
       break;
     case 'notifications':
       await loadNotificationsModule();
+      break;
+    case 'news':
+      await loadNewsModule();
       break;
     case 'reports':
       await loadReportsModule();
@@ -1273,24 +1280,202 @@ function renderNotifications(data, total, page) {
     });
 }
 
+/* ------------------------ NEWS MODULE ------------------------ */
+async function loadNewsModule() {
+  contentArea.innerHTML = `
+    <h2>News Management</h2>
+    <div class="search-container">
+      <form id="searchForm">
+        <!-- Basic filter -->
+        <input type="number" id="newsId" placeholder="News ID" />
 
-async function markNotificationRead(notificationId, read) {
-  try {
-    const res = await fetch(API.notifications.send + `/inapp/${notificationId}/read`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ read })
+        <!-- Advanced toggle -->
+        <button type="button" class="advanced-toggle" id="toggleAdvancedNews">
+          Show Advanced Search Options
+        </button>
+
+        <!-- Advanced filters -->
+        <div class="advanced-search" id="advancedSearchNews" style="display:none;">
+          <input type="text" id="title"       placeholder="Title" />
+          <input type="text" id="body"        placeholder="Body / Text" />
+          <select id="published">
+            <option value="">-- Published? --</option>
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+          </select>
+        </div>
+
+        <button type="submit">Search</button>
+      </form>
+    </div>
+
+    <div style="margin:10px 0; display:flex; gap:10px;">
+      <button id="bulkUnpublishBtn" 
+              style="background:#dc3545;color:#fff;border:none;
+                     padding:10px 15px;border-radius:4px;cursor:pointer;">
+        Unpublish
+      </button>
+      <button id="bulkPublishBtn" 
+              style="background:#28a745;color:#fff;border:none;
+                     padding:10px 15px;border-radius:4px;cursor:pointer;">
+        Publish
+      </button>
+      <button id="newNewsBtn" 
+              style="background:#007bff;color:#fff;border:none;
+                     padding:10px 15px;border-radius:4px;cursor:pointer;">
+        Add New News
+      </button>
+    </div>
+
+    <div id="newsList"></div>
+    <p id="newsTotal"></p>
+    <div id="newsPagination" class="pagination"></div>
+  `;
+
+  // Toggle advanced search
+  const toggle = document.getElementById('toggleAdvancedNews');
+  const adv   = document.getElementById('advancedSearchNews');
+  toggle.addEventListener('click', () => {
+    const shown = adv.style.display === 'flex';
+    adv.style.display = shown ? 'none' : 'flex';
+    toggle.textContent = shown
+      ? 'Show Advanced Search Options'
+      : 'Hide Advanced Search Options';
+  });
+
+  // Search form
+  document.getElementById('searchForm')
+    .addEventListener('submit', e => {
+      e.preventDefault();
+      currentPage = 1;
+      fetchNewsModule();
     });
-    if (res.ok) {
-      await showModal({ message: 'Notification updated successfully.' });
-      fetchNotificationsModule();
-    } else {
-      const err = await res.json();
-      await showModal({ message: 'Error: ' + err.message });
-    }
-  } catch (error) {
-    console.error(error);
-    await showModal({ message: 'An error occurred while updating notification.' });
+
+  // Bulk publish / unpublish
+  document.getElementById('bulkPublishBtn')
+    .addEventListener('click', () => bulkTogglePublished(true));
+  document.getElementById('bulkUnpublishBtn')
+    .addEventListener('click', () => bulkTogglePublished(false));
+
+  // Add new
+  document.getElementById('newNewsBtn')
+    .addEventListener('click', () => {
+      window.location.href = '/admin/news/add';
+    });
+
+  // Initial load
+  fetchNewsModule();
+}
+
+async function fetchNewsModule() {
+  const form = document.getElementById('searchForm');
+  const filters = {
+    id:        form.newsId.value.trim(),
+    title:     form.title.value.trim(),
+    body:      form.body.value.trim(),
+    published: form.published.value,
+    page:      currentPage,
+    limit:     10
+  };
+  // remove empty
+  Object.keys(filters).forEach(k => {
+    if (filters[k] === '' || filters[k] == null) delete filters[k];
+  });
+
+  const qs = new URLSearchParams(filters).toString();
+  try {
+    const res = await fetch(`${API.news.search}?${qs}`);
+    if (!res.ok) throw new Error(`Status ${res.status}`);
+    const data = await res.json();
+    renderNews(data, data.length, currentPage);
+    document.getElementById('newsTotal').textContent = `Total news: ${data.length}`;
+    renderPaginationControls(
+      data.length, currentPage, fetchNewsModule, 'newsPagination'
+    );
+  } catch (err) {
+    console.error(err);
+    contentArea.innerHTML +=
+      `<p style="color:red;">Error loading news.</p>`;
+  }
+}
+
+function renderNews(items, total, page) {
+  const container = document.getElementById('newsList');
+  if (!items || items.length === 0) {
+    container.innerHTML = '<p>No news found.</p>';
+    return;
+  }
+
+  let html = `
+    <table class="news-table">
+      <thead>
+        <tr>
+          <th><input type="checkbox" id="selectAllNews" /></th>
+          <th>ID</th>
+          <th>Title</th>
+          <th>Body</th>
+          <th>Published</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+  html += items.map(n => `
+    <tr data-id="${n.id}">
+      <td><input type="checkbox" /></td>
+      <td>${n.id}</td>
+      <td class="truncated-text">${n.title}</td>
+      <td class="truncated-text">${n.body}</td>
+      <td>${n.published ? 'Yes' : 'No'}</td>
+    </tr>
+  `).join('');
+
+  html += `</tbody></table>`;
+  container.innerHTML = html;
+
+  // select all
+  const selAll = document.getElementById('selectAllNews');
+  selAll.addEventListener('click', () => {
+    document
+      .querySelectorAll('.news-table tbody input[type="checkbox"]')
+      .forEach(cb => cb.checked = selAll.checked);
+  });
+}
+
+async function bulkTogglePublished(flag) {
+  // collect selected
+  const checks = document.querySelectorAll(
+    '.news-table tbody input[type="checkbox"]:checked'
+  );
+  if (checks.length === 0) {
+    await showModal({ message: 'Select at least one news item.' });
+    return;
+  }
+  const confirmed = await showModal({
+    message: `${flag? 'Publish':'Unpublish'} selected items?`,
+    showCancel: true
+  });
+  if (!confirmed) return;
+
+  // gather IDs
+  const ids = Array.from(checks).map(cb =>
+    cb.closest('tr').getAttribute('data-id')
+  );
+  try {
+    await Promise.all(ids.map(id =>
+      fetch(`${API.news.root}/${id}/published`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ published: flag })
+      })
+    ));
+    await showModal({ message: `${flag ? "Selected New(s) published succesfully" : "Selected New(s) unpublished succesfully"}` });
+    fetchNewsModule();
+  } catch (err) {
+    console.error(err);
+    showModal({ message: 'Error toggling published state.' });
   }
 }
 

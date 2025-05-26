@@ -4,11 +4,8 @@ const path = require('path');
 const fs = require('fs');
 
 const { v4: uuidv4 } = require('uuid');
-const { log } = require('winston');
 
 exports.deleteFile = (filename, callback) => {
-  
-
   // if no file to delete, don't delete anything
   if (!filename) {
     return null;

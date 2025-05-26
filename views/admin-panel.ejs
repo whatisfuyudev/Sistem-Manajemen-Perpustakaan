@@ -100,6 +100,19 @@
       border: 1px solid #ddd;
       text-align: left;
     }
+    /* Ensure the first column (checkbox column) is 40px wide */
+    .news-table th:first-child,
+    .news-table td:first-child,
+    .books-table th:first-child,
+    .books-table td:first-child,
+    .users-table th:first-child,
+    .users-table td:first-child {
+      width: 40px;
+      padding: 0;             /* remove extra cell padding */
+      text-align: center;     /* center the checkbox horizontally */
+      vertical-align: middle; /* center the checkbox vertically */
+    }
+
     table th {
       background: #007bff;
       color: #fff;
@@ -486,6 +499,8 @@
     <button data-tab="reservations">Reservations</button>
     <button data-tab="users">Users</button>
     <button data-tab="notifications">Notifications</button>
+    <button data-tab="news">News</button>
+    <button data-tab="articles">Articles</button>
     <button data-tab="reports">Reports</button>
   </div>
   

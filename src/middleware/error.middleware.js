@@ -4,7 +4,6 @@ const logger = require('../utils/logger');
 module.exports = (err, req, res, next) => {
     // Log the error details internally
     logger.error(err);
-    console.log('\n\n\n', err, '\n\n\n');
 
     // Set an appropriate HTTP status code (default to 500 for internal errors)
     const statusCode = err.status || 500;
