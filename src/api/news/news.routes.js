@@ -3,9 +3,19 @@ const express = require('express');
 const router = express.Router();
 const NewsController = require('./news.controller');
 const authMiddleware = require('../../middleware/auth.middleware');
+const dataHelper = require('../../utils/dataHelper');
 
 // Public read route
 router.get('/published', NewsController.getAllPublished);
+
+// public Route
+// Handle updating news picture
+router.post('/upload/news-picture', 
+  authMiddleware.verifyToken,
+  authMiddleware.isLibrarianOrAdmin, 
+  dataHelper.upload, 
+  NewsController.handleNewsPictureUpload
+);
 
 // Librarian/Admin route
 router.get('/search',

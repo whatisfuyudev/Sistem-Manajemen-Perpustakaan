@@ -118,3 +118,14 @@ exports.searchNews = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.handleNewsPictureUpload = async (req, res, next) => { 
+  try {
+    if(req.isImageUploadSuccesful) {
+      
+      res.json({ newsPicture: `/public/images/news-pictures/${req.file.filename}`});
+    }
+  } catch (error) {
+    next(error);
+  }
+}

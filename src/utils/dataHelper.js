@@ -47,6 +47,10 @@ const storage = multer.diskStorage({
     // else default to book-covers directory
     if (req.body._comesFrom === "profilePicture") {
       target += 'profile-pictures/';
+    } else if (req.body._comesFrom === "newsPicture") {
+      target += 'news-pictures';
+    } else if (req.body._comesFrom === "articleCovers") {
+      target += 'article-covers';
     } else {
       target += 'book-covers/';
     }
