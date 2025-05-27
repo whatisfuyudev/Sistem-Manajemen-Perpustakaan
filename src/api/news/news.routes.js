@@ -32,6 +32,17 @@ router.post(
   NewsController.createNews
 );
 
+// NEW: Bulk‐delete News
+router.delete(
+  '/delete',
+  authMiddleware.verifyToken,
+  authMiddleware.isLibrarianOrAdmin,
+  NewsController.bulkDeleteNews
+);
+
+// get individual news for public here
+router.get('/:id', NewsController.getByIdPublic);
+
 // Librarian/Admin route
 router.put(
   '/edit/:id',
@@ -39,9 +50,6 @@ router.put(
   authMiddleware.isLibrarianOrAdmin,
   NewsController.updateNews
 );
-
-// get individual news for public here
-router.get('/:id', NewsController.getByIdPublic);
 
 // Librarian/Admin route
 router.put(

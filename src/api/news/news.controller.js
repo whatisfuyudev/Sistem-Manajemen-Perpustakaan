@@ -129,3 +129,19 @@ exports.handleNewsPictureUpload = async (req, res, next) => {
     next(error);
   }
 }
+
+/**
+ * Bulk‐delete news items (Admin only).
+ * Expects a JSON body: { ids: [1,2,3] }
+ */
+exports.bulkDeleteNews = async (req, res, next) => {
+  try {
+    const { ids } = req.body;
+    const count = await NewsService.bulkDelete(ids);
+    res.status(200).json({
+      message: `Deleted ${count} news item${count !== 1 ? 's' : ''}.`
+    });
+  } catch (err) {
+    next(err);
+  }
+};

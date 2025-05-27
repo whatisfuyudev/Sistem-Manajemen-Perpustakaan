@@ -84,6 +84,7 @@ document.getElementById('saveBtn')
         msgDiv.style.color = 'green';
         form.reset();
         document.getElementById('previewImage').style.display = 'none';
+        document.getElementById('uploadedImage').value = '';
       } else {
         const err = await res.json();
         msgDiv.textContent = 'Error: ' + (err.message || res.statusText);

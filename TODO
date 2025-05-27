@@ -29,6 +29,11 @@
 
         - my checkout my reservations, better request renewal css ui
         - article section similar to ipusnas, front end side swiping card, back end manage
+        
+        - modify bulk deletion on books and users tab on admin panel so that
+          api endpoint can accept multiple id and delete multiple data and
+          not repeatedly call an api endpoint to delete a single data each time.
+          news publish and unpublish suffers the same fate, change them.
 
 ### General TODO
 - notification maybe batch send, new endpoint?
@@ -90,5 +95,7 @@ this app will have two sides, one for patron (book enjoyer) and one for libraria
   checkout record properly
 
 - user engagement, because it fetch two different api endpoint the data retrieved can be different. the difference in data mess up the front end. handle when there is a user with only reservation or checkouts
+
+- maybe replace back end console.error for logger.error
 
 - log only the important stuff

@@ -142,12 +142,13 @@ exports.deleteBook = async (isbn) => {
   
   if(book.coverImage) {
     // if yes, delete old picture
-  dataHelper.deleteFile(book.coverImage, (err) => {
-    if (err) {
-      console.error('Error deleting file:', err);
-      return null;
+    dataHelper.deleteFile(book.coverImage, (err) => {
+      if (err) {
+        console.error('Error deleting file:', err);
+        return null;
+        }
       }
-    });
+    );
   }
   
   const deletedCount = await Book.destroy({ where: { isbn } });

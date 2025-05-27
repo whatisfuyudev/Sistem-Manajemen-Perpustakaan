@@ -15,7 +15,7 @@ router.get('/single', authMiddleware.verifyToken, userController.getUserById);
 router.put('/update', authMiddleware.verifyToken, userController.updateUser);
 
 // Handle updating cover image
-router.post('/upload/profile-picture', dataHelper.upload, userController.handleProfilePictureUpload);
+router.post('/upload/profile-picture', authMiddleware.verifyToken, dataHelper.upload, userController.handleProfilePictureUpload);
 
 /*
 ENDPOINTS FOR ADMINS?

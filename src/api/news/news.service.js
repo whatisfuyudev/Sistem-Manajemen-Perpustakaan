@@ -2,6 +2,7 @@
 const { Op } = require('sequelize');
 const News     = require('../../models/news.model');
 const CustomError = require('../../utils/customError');
+const dataHelper = require('../../utils/dataHelper');
 
 /**
  * Create a new news item.
@@ -108,11 +109,54 @@ async function search(filters = {}) {
   });
 }
 
+/**
+ * Bulk‐delete news items by an array of IDs,
+ * removing their image files first.
+ * @param {Array<number>} ids
+ * @returns {Promise<number>}  the number of rows deleted
+ */
+async function bulkDelete(ids) {
+  if (!Array.isArray(ids) || ids.length === 0) {
+    throw new CustomError('No IDs provided for deletion', 400);
+  }
+
+  // 1) Fetch all matching news rows (only need imageUrl)
+  const rows = await News.findAll({
+    where: { id: { [Op.in]: ids } },
+    attributes: ['id','imageUrl']
+  });
+
+  // 2) For each row, delete its image file if present
+  await Promise.all(rows.map(n => {
+    if (n.imageUrl) {
+      // dataHelper.deleteFile(path, cb) → wrap in a promise
+      return new Promise(resolve => {
+        dataHelper.deleteFile(n.imageUrl, err => {
+          if (err) {
+            console.error(`Error deleting file for news ${n.id}:`, err);
+          }
+          // resolve no matter what so one failure doesn't abort all
+          resolve();
+        });
+      });
+    }
+    return Promise.resolve();
+  }));
+
+  // 3) Now destroy the DB rows
+  const destroyedCount = await News.destroy({
+    where: { id: { [Op.in]: ids } }
+  });
+
+  return destroyedCount;
+}
+
 module.exports = {
   create,
   update,
   markPublished,
   getAllPublished,
   search,
-  getPublishedById
+  getPublishedById,
+  bulkDelete
 };

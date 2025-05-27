@@ -4,63 +4,27 @@
   <meta charset="UTF-8" />
   <title>Add New Book</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/public/css/admin-add-common.css">
   <style>
-    /* Basic Reset */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f4f4f4;
-      color: #333;
-      padding: 20px;
-      line-height: 1.6;
-    }
+    /* Override shared container max-width */
     .container {
       max-width: 1000px;
-      margin: 0 auto;
-      background: #fff;
-      border-radius: 8px;
-      padding: 30px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
+
+    /* Title size (shared h1 only centered + margin; here we add font-size) */
     h1 {
       font-size: 2em;
-      margin-bottom: 20px;
-      text-align: center;
     }
-    .back-button-container {
-      margin-bottom: 20px;
-    }
-    .back-button {
-      background: #6c757d;
-      padding: 10px 20px;
-      border-radius: 4px;
-      color: #fff;
-      text-decoration: none;
-      display: inline-block;
-    }
-    .back-button:hover {
-      background-color: #5a6268;
-    }
-    .form-group {
-      margin-bottom: 15px;
-    }
-    label {
-      display: block;
-      font-weight: bold;
-      margin-bottom: 5px;
-    }
+
+    /* Inputs get slightly more padding & explicit font-size */
     input[type="text"],
     input[type="number"],
     textarea {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      font-size: 1rem;
+      padding: 10px;       /* shared uses 8px */
+      font-size: 1rem;     /* shared sets 1rem on buttons, not on inputs */
     }
-    textarea {
-      resize: vertical;
-    }
+
+    /* Button-group is unique to Book Add (shared file uses `.buttons`) */
     .button-group {
       display: flex;
       justify-content: space-between;
@@ -73,6 +37,8 @@
       cursor: pointer;
       font-size: 1rem;
     }
+
+    /* Save / Cancel buttons have unique hover colors */
     #saveButton {
       background-color: #28a745;
       color: #fff;
@@ -87,21 +53,18 @@
     #cancelButton:hover {
       background-color: #c82333;
     }
-    /* Modal Popup */
+
+    /* Modal Popup entirely unique to Book Add */
     .modal-overlay {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.5);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      padding: 20px;
+      display: flex; justify-content: center; align-items: center;
+      z-index: 1000; padding: 20px;
     }
-    .hidden { display: none; }
+    .hidden {
+      display: none;
+    }
     .modal {
       background: #fff;
       border-radius: 4px;
@@ -111,14 +74,40 @@
       text-align: center;
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
-    #modal-message { font-size: 16px; margin-bottom: 20px; }
-    .modal-buttons { margin-top: 16px; display: flex; justify-content: center; gap: 10px; }
-    .modal-buttons button { padding: 10px 20px; font-size: 14px; border: none; border-radius: 4px; cursor: pointer; transition: background 0.2s ease; }
-    #modal-ok { background: #28a745; color: #fff; }
-    #modal-cancel { background: #dc3545; color: #fff; }
-    @media (max-width: 600px) {
-      .cover-image img { max-width: 80%; }
+    #modal-message {
+      font-size: 16px;
+      margin-bottom: 20px;
     }
+    .modal-buttons {
+      margin-top: 16px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+    .modal-buttons button {
+      padding: 10px 20px;
+      font-size: 14px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    #modal-ok {
+      background: #28a745;
+      color: #fff;
+    }
+    #modal-cancel {
+      background: #dc3545;
+      color: #fff;
+    }
+
+    /* Mobile-only override for Book Add cover image */
+    @media (max-width: 600px) {
+      .cover-image img {
+        max-width: 80%;
+      }
+    }
+
   </style>
 </head>
 <body>

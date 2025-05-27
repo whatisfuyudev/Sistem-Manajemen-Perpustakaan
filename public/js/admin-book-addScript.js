@@ -42,7 +42,9 @@ document.getElementById('saveButton').addEventListener('click', async () => {
       body: JSON.stringify(dataObj)
     });
     if (res.ok) {
-      window.location.href = '/admin/panel';
+      showModal({ message: 'Book added.'});
+      form.reset();
+      document.getElementById('uploadedImage').value = '';
     } else {
       const err = await res.text();
       showModal({ message: 'Error creating book: ' + err });

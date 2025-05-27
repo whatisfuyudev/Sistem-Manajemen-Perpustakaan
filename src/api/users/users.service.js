@@ -126,6 +126,19 @@ exports.updateUser = async (id, updateData) => {
 
 // Delete user by ID
 exports.deleteUser = async (id) => {
+  const user = await User.findOne({ where: { id } });
+
+  if (user.profilePicture) {
+    // if yes, delete old picture
+    dataHelper.deleteFile(user.profilePicture, (err) => {
+      if (err) {
+        console.error('Error deleting file:', err);
+        return null;
+        }
+      }
+    );
+  }
+
   const deletedCount = await User.destroy({ where: { id } });
   return deletedCount > 0;
 };

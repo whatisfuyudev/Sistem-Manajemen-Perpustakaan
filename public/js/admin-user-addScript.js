@@ -23,6 +23,7 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
       msgDiv.textContent = 'User created successfully!';
       msgDiv.style.color = 'green';
       form.reset();
+      document.getElementById('uploadedImage').value = '';
     } else {
       const err = await res.json();
       msgDiv.textContent = 'Error: ' + (err.message || res.statusText);

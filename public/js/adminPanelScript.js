@@ -39,7 +39,8 @@ const API = {
   },
   news: {
     root: '/api/news',
-    search: '/api/news/search'
+    search: '/api/news/search',
+    delete: '/api/news/delete'
   },
   reports: {
     circulation: '/api/reports/circulation',
@@ -1310,8 +1311,13 @@ async function loadNewsModule() {
     </div>
 
     <div style="margin:10px 0; display:flex; gap:10px;">
+    <button id="bulkDeleteBtn"
+            style="background:#dc3545;color:#fff;border:none;
+                   padding:10px 15px;border-radius:4px;cursor:pointer;">
+      Delete Selected
+    </button>
       <button id="bulkUnpublishBtn" 
-              style="background:#dc3545;color:#fff;border:none;
+              style="background:#ffc107;color:#000;border:none;
                      padding:10px 15px;border-radius:4px;cursor:pointer;">
         Unpublish
       </button>
@@ -1351,6 +1357,10 @@ async function loadNewsModule() {
       fetchNewsModule();
     });
 
+  // Bulk delete
+  document.getElementById('bulkDeleteBtn')
+    .addEventListener('click', () => bulkDeleteSelected());
+  
   // Bulk publish / unpublish
   document.getElementById('bulkPublishBtn')
     .addEventListener('click', () => bulkTogglePublished(true));
@@ -1421,7 +1431,7 @@ function renderNews(items, total, page) {
   `;
 
   html += items.map(n => `
-    <tr data-id="${n.id}">
+    <tr class="clickable" data-id="${n.id}">
       <td><input type="checkbox" /></td>
       <td>${n.id}</td>
       <td class="truncated-text">${n.title}</td>
@@ -1476,6 +1486,48 @@ async function bulkTogglePublished(flag) {
   } catch (err) {
     console.error(err);
     showModal({ message: 'Error toggling published state.' });
+  }
+}
+
+/**
+ * Bulk-delete selected news items
+ */
+async function bulkDeleteSelected() {
+  // collect selected checkboxes
+  const checks = document.querySelectorAll(
+    '.news-table tbody input[type="checkbox"]:checked'
+  );
+  if (checks.length === 0) {
+    await showModal({ message: 'Select at least one news item to delete.' });
+    return;
+  }
+
+  const confirmed = await showModal({
+    message: 'Are you sure you want to delete the selected news?',
+    showCancel: true
+  });
+  if (!confirmed) return;
+
+  // gather IDs
+  const ids = Array.from(checks).map(cb =>
+    parseInt(cb.closest('tr').dataset.id, 10)
+  );
+
+  try {
+    const res = await fetch(`${API.news.delete}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ ids })
+    });
+    if (!res.ok) throw new Error(`Status ${res.status}`);
+
+    await showModal({ message: `Deleted ${ids.length} item(s) successfully.` });
+    fetchNewsModule();
+  } catch (err) {
+    console.error('Bulk delete error:', err);
+    showModal({ message: 'Error deleting selected news.' });
   }
 }
 

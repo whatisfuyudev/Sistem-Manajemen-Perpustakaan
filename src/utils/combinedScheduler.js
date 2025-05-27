@@ -9,24 +9,25 @@ const Reservation  = require('../models/reservation.model');
 const Book         = require('../models/book.model');
 const Notification = require('../models/notification.model');
 const News         = require('../models/news.model');
-const emailHelper = require('./emailHelper');
+const User         = require('../models/user.model')
+const emailHelper  = require('./emailHelper');
 
 // Folders to clean + which model + which attribute holds the URL
 const CLEANUP_TARGETS = [
   {
-    dir:     path.join(__dirname, '../public/images/news-pictures'),
+    dir:     path.join(__dirname, '../../public/images/news-pictures'),
     model:   News,
     attr:    'imageUrl',
     protect: new Set(['default.png'])
   },
   {
-    dir:     path.join(__dirname, '../public/images/book-covers'),
+    dir:     path.join(__dirname, '../../public/images/book-covers'),
     model:   Book,
     attr:    'coverImage',    // adjust to your actual field name
     protect: new Set(['default-cover.jpg'])
   },
   {
-    dir:     path.join(__dirname, '../public/images/profile-pictures'),
+    dir:     path.join(__dirname, '../../public/images/profile-pictures'),
     model:   User,
     attr:    'profilePicture', // adjust to your actual field name
     protect: new Set(['default.jpg'])
@@ -184,7 +185,15 @@ async function cleanupOrphanImages({ dir, model, attr, protect }) {
     });
     const used = new Set(
       rows
-        .map(r => filenameFromUrl(r[attr]))
+        .map(r => {
+          const raw = filenameFromUrl(r[attr]);             // e.g. "pride%20and%20prejudice.jpg"
+          if (!raw) return null;
+          try {
+            return decodeURIComponent(raw);                  // "pride and prejudice.jpg"
+          } catch {
+            return raw;                                      // fallback if something odd
+          }
+        })
         .filter(Boolean)
     );
 
@@ -195,10 +204,11 @@ async function cleanupOrphanImages({ dir, model, attr, protect }) {
         const fullPath = path.join(dir, file);
         const stat     = await fs.stat(fullPath);
         const ageMs    = now - stat.mtimeMs;
-
+        
         // only delete if older than 24h
         if (ageMs > (24 * 3600 * 1000)) {
           await fs.unlink(fullPath);
+          
           deletedCount++;
         }
       }
