@@ -8,7 +8,30 @@ const Checkout     = require('../models/checkout.model');
 const Reservation  = require('../models/reservation.model');
 const Book         = require('../models/book.model');
 const Notification = require('../models/notification.model');
+const News         = require('../models/news.model');
 const emailHelper = require('./emailHelper');
+
+// Folders to clean + which model + which attribute holds the URL
+const CLEANUP_TARGETS = [
+  {
+    dir:     path.join(__dirname, '../public/images/news-pictures'),
+    model:   News,
+    attr:    'imageUrl',
+    protect: new Set(['default.png'])
+  },
+  {
+    dir:     path.join(__dirname, '../public/images/book-covers'),
+    model:   Book,
+    attr:    'coverImage',    // adjust to your actual field name
+    protect: new Set(['default-cover.jpg'])
+  },
+  {
+    dir:     path.join(__dirname, '../public/images/profile-pictures'),
+    model:   User,
+    attr:    'profilePicture', // adjust to your actual field name
+    protect: new Set(['default.jpg'])
+  }
+];
 
 // Single plain-text stamp file
 const STAMP_FILE = path.join(__dirname, 'lastRun.txt');
@@ -29,11 +52,16 @@ async function writeLastRun() {
   await fs.writeFile(STAMP_FILE, new Date().toISOString(), 'utf8');
 }
 
-/** Run all three tasks in sequence */
+/** Run all tasks in sequence */
 async function runAll() {
   console.log('› Overdue checkouts:', await processOverdues());
   console.log('› Expire reservations:', await processExpiredReservations());
   console.log('› Scheduled notifications:', await processScheduledNotifications());
+  // Loop through each cleanup target
+  for (const t of CLEANUP_TARGETS) {
+    const count = await cleanupOrphanImages(t);
+    console.log(`› Cleaned orphans in ${path.basename(t.dir)}:`, count);
+  }
 }
 
 /** Initialize: startup check + cron */
@@ -125,6 +153,60 @@ async function processScheduledNotifications() {
   }
 
   return sentCount;
+}
+
+/** Helper: extract filename from stored URL */
+function filenameFromUrl(url) {
+  try {
+    //                     change it to domain name when hosting it in production
+    return path.basename(new URL(url, 'http://example.com').pathname);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Cleanup orphans in one directory/model/attr combo.
+ * @param {Object} target
+ * @param {string} target.dir     – directory path
+ * @param {Model}  target.model   – Sequelize model
+ * @param {string} target.attr    – attribute holding URL
+ * @param {Set}    target.protect – filenames to skip
+ */
+async function cleanupOrphanImages({ dir, model, attr, protect }) {
+  let deletedCount = 0;
+  try {
+    const files = await fs.readdir(dir);
+    // fetch all non-null attr values
+    const rows = await model.findAll({
+      attributes: [attr],
+      where: { [attr]: { [Op.ne]: null } }
+    });
+    const used = new Set(
+      rows
+        .map(r => filenameFromUrl(r[attr]))
+        .filter(Boolean)
+    );
+
+    const now = Date.now();
+    for (const file of files) {
+      if (file.startsWith('.') || protect.has(file)) continue;
+      if (!used.has(file)) {
+        const fullPath = path.join(dir, file);
+        const stat     = await fs.stat(fullPath);
+        const ageMs    = now - stat.mtimeMs;
+
+        // only delete if older than 24h
+        if (ageMs > (24 * 3600 * 1000)) {
+          await fs.unlink(fullPath);
+          deletedCount++;
+        }
+      }
+    }
+  } catch (err) {
+    console.error(`Error cleaning ${dir}:`, err);
+  }
+  return deletedCount;
 }
 
 // Kick off!

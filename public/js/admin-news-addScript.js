@@ -22,11 +22,12 @@ document.getElementById('uploadedImage')
 
     // Preview locally
     const preview = document.getElementById('previewImage');
-    preview.src = '/public/images/news-pictures/' + file;
+    preview.src = URL.createObjectURL(file);
     preview.style.display = 'block';
 
     // Upload to server
     const formData = new FormData();
+    formData.append('_comesFrom', 'newsPicture');
     formData.append('uploadedImage', file);
 
     try {
@@ -42,6 +43,7 @@ document.getElementById('uploadedImage')
       if (!res.ok) throw new Error(`Status ${res.status}`);
       const data = await res.json();
       // store returned URL in hidden field
+      console.log(data);
       document.getElementById('imageUrlInput').value = data.newsPicture;
     } catch (err) {
       console.error('Error uploading news picture:', err);

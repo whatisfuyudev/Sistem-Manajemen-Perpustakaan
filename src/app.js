@@ -57,7 +57,7 @@ app.use(
 
       // (optional) allow other origins as needed
       styleSrc: ["'unsafe-inline'", "'self'", 'https://fonts.googleapis.com'],
-      imgSrc:   ["'self'", 'data:'],
+      imgSrc:   ["'self'", 'data:', 'blob:'],
       connectSrc: ["'self'"],
       fontSrc: ["'self'", 'https://fonts.gstatic.com'],
       objectSrc: ["'none'"]
