@@ -3,7 +3,7 @@ const booksService = require('./books.service');
 
 exports.createBook = async (req, res, next) => {
   try {
-    // Normalize types ✨
+    // Normalize types 
     const data = req.body;
 
     // Remove any empty fields
