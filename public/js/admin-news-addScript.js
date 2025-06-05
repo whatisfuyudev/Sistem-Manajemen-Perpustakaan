@@ -6,14 +6,6 @@ document.getElementById('cancelBtn')
     window.location.href = '/admin/panel?tab=news';
   });
 
-// Helper to read the JWT cookie
-function getAuthToken() {
-  return document.cookie
-    .split('; ')
-    .find(r => r.startsWith('jwt_token='))
-    ?.split('=')[1] || '';
-}
-
 // When an image is selected: preview + upload
 document.getElementById('uploadedImage')
   .addEventListener('change', async function() {
@@ -33,17 +25,12 @@ document.getElementById('uploadedImage')
     try {
       const res = await fetch('/api/news/upload/news-picture', {
         method: 'POST',
-        headers: {
-          // send your JWT in cookie header
-          'Cookie': `jwt_token=${getAuthToken()}`
-        },
         body: formData
       });
 
       if (!res.ok) throw new Error(`Status ${res.status}`);
       const data = await res.json();
       // store returned URL in hidden field
-      console.log(data);
       document.getElementById('imageUrlInput').value = data.newsPicture;
     } catch (err) {
       console.error('Error uploading news picture:', err);
@@ -73,8 +60,7 @@ document.getElementById('saveBtn')
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Cookie': `jwt_token=${getAuthToken()}`
+          'Accept': 'application/json'
         },
         body: JSON.stringify(data)
       });

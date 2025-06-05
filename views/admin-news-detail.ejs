@@ -82,8 +82,7 @@
       color: #666;
       font-style: italic;
       text-align: right;
-      margin-top: -10px;
-      margin-bottom: 20px;
+      margin-top: 20px;
     }
 
     /* Footer actions */
@@ -114,10 +113,61 @@
       .container { padding: 15px; }
       .hero-image img { border-radius: 0; }
     }
+
+    /* Button styles */
+    .back-button-container {
+    margin-bottom: 20px;
+    }
+
+    .back-button {
+      background: #6c757d;
+      padding: 10px 20px;
+      border-radius: 4px;
+      border: none;
+      color: #fff;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .back-button:hover {
+      background-color: #5a6268;
+      cursor:pointer 
+    }
+
+    /* Button Group */
+    .button-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 1rem;
+      margin-bottom: 1rem;
+      justify-content: center;
+    }
+
+    /* Base button style */
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      display: inline-block;
+      transition: background-color 0.2s ease;
+    }
+
+    .btn-secondary {
+      background-color: #ffc107;
+      color: #000;
+    }
+    .btn-secondary:hover {
+      background-color: #e0a800;
+    }
   </style>
 </head>
 <body>
   <main class="container">
+    <div class="back-button-container">
+      <a href="/admin/panel?tab=news" class="back-button">Back</a>
+    </div>
+
     <!-- Hero Section -->
     <% if (news.imageUrl) { %>
       <div class="hero-image">
@@ -126,20 +176,33 @@
     <% } %>
     <h1 class="news-title"><%= news.title %></h1>
     <p class="published-date">
-      Published <%= news.createdAt.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' }) %>
+      Written <%= news.createdAt.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' }) %>
     </p>
 
     <!-- Body Content -->
     <article class="news-body">
       <%= news.body %>
     </article>
+
+    <!-- Action Buttons -->
+    <div class="button-group">
+      <button 
+      id="modifyBtn" 
+      class="btn btn-secondary" 
+      data-news-id="<%= news.id %>">
+        Edit
+      </button>
+
+    </div>
+
     <% if (news.updatedAt > news.createdAt) { %>
       <p class="updated-date">
         Last updated <%= news.updatedAt.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' }) %>
       </p>
     <% } %>
 
-
   </main>
+
+  <script src="/public/js/admin-news-detailScript.js"></script>
 </body>
 </html>

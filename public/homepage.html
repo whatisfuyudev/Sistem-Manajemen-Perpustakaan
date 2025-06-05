@@ -297,22 +297,25 @@
       <button id="searchButton">Search</button>
     </div>
 
-    <!-- news section -->
     <section class="news-slider">
-      <div class="slides">
-        <!-- repeat for each item -->
-         <article class="card">
-          <img src="/public/images/profile-pictures/6d041feb-de4f-4034-bbdb-852342a51b85-amogus.png" alt="">
-          <div class="card-text"> 
-            Item Title
-          </div>
-        </article>
-        <!-- … -->
+      <!-- We’ll conditionally hide ALL of this if there are 0 or 1 cards -->
+      <div class="slider‐wrapper">
+        <div class="slides"></div>
+
+        <button class="nav prev">
+          <img src="/public/images/arrow_back.svg" alt="left arrow">
+        </button>
+        <button class="nav next">
+          <img src="/public/images/arrow_forward.svg" alt="right arrow">
+        </button>
       </div>
-      <button class="nav prev"><img src="/public/images/arrow_back.svg" alt="left arrow"></button>
-      <button class="nav next"><img src="/public/images/arrow_forward.svg" alt="right arrow"></button>
-      <!-- dot pagination -->
+
       <div class="slider-dots" id="sliderDots"></div>
+
+      <!-- This <p> will show if there is “no news” -->
+      <p id="noNewsMessage" style="display: none; text-align: center; margin-top: 20px;">
+        No news available.
+      </p>
     </section>
 
     <!-- Featured Books Section -->

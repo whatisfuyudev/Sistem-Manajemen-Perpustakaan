@@ -229,30 +229,30 @@
 
     <!-- Book Details -->
     <% const bookExists = Boolean(book); %>
-<div class="section">
-  <div class="section-title">Book Information</div>
-  <div class="book-info">
-    <img
-      src="<%= bookExists && book.coverImage
-            ? book.coverImage
-            : '/public/images/book-covers/default-cover.jpg' %>"
-      alt="Book Cover"
-      class="book-cover"
-    >
-    <div class="info-grid" style="grid-template-columns: 50px 1fr;">
-      <div class="info-label">Title:</div>
-      <div class="info-value"><%= bookExists && book.title ? book.title : '–' %></div>
+    <div class="section">
+      <div class="section-title">Book Information</div>
+      <div class="book-info">
+        <img
+          src="<%= bookExists && book.coverImage
+                ? book.coverImage
+                : '/public/images/book-covers/default-cover.jpg' %>"
+          alt="Book Cover"
+          class="book-cover"
+        >
+        <div class="info-grid" style="grid-template-columns: 50px 1fr;">
+          <div class="info-label">Title:</div>
+          <div class="info-value"><%= bookExists && book.title ? book.title : '–' %></div>
 
-      <div class="info-label">Authors:</div>
-      <div class="info-value">
-        <%= bookExists && Array.isArray(book.authors) 
-              ? book.authors.join(', ') 
-              : '–' %>
+          <div class="info-label">Authors:</div>
+          <div class="info-value">
+            <%= bookExists && Array.isArray(book.authors) 
+                  ? book.authors.join(', ') 
+                  : '–' %>
+          </div>
+
+        </div>
       </div>
-
     </div>
-  </div>
-</div>
 
     <!-- Checkout Information -->
     <div class="section">

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Edit News: <%= news.title %></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    /* Basic Reset */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f4f4f4;
+      color: #333;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 8px;
+      padding: 30px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .news-picture {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .news-picture img {
+      width: 200px;
+      height: 150px;
+      object-fit: cover;
+      cursor: pointer;
+      border-radius: 4px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    input[type="text"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+    textarea { resize: vertical; height: 150px; }
+    .button-group {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+    .button-group button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    #saveButton {
+      background-color: #28a745;
+      color: #fff;
+    }
+    #saveButton:hover { background-color: #218838; }
+    #cancelButton {
+      background-color: #dc3545;
+      color: #fff;
+    }
+    #cancelButton:hover { background-color: #c82333; }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed; top:0; left:0; width:100%; height:100%;
+      background: rgba(0,0,0,0.5);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1000; padding: 20px;
+    }
+    .hidden { display: none; }
+    .modal {
+      background: #fff; border-radius: 4px; max-width: 400px;
+      width:100%; padding:20px; text-align:center;
+      box-shadow:0 4px 8px rgba(0,0,0,0.2);
+    }
+    .modal-buttons { margin-top:16px; display:flex; gap:10px; justify-content:center; }
+    .modal-buttons button {
+      padding:8px 16px; font-size:0.9rem; border:none; border-radius:4px; cursor:pointer;
+      transition: background 0.2s ease;
+    }
+    #modal-ok { background:#28a745; color:#fff; }
+    #modal-cancel { background:#dc3545; color:#fff; }
+
+    @media (max-width: 600px) {
+      .news-picture img {
+        width: 100%;
+        height: auto;
+      }
+      textarea { height: 120px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Edit News: <%= news.title %></h1>
+
+    <form id="editNewsForm" enctype="multipart/form-data">
+      <!-- News Picture -->
+      <div class="news-picture">
+        <input type="file" id="uploadedImage" name="uploadedImage" class="hidden" accept="image/*">
+        <label for="uploadedImage">
+          <% if (news.imageUrl) { %>
+            <img id="newsPic" src="<%= news.imageUrl %>" alt="News Image">
+          <% } else { %>
+            <img id="newsPic" src="/public/images/news-pictures/default.png" alt="News Image">
+          <% } %>
+        </label>
+        <input type="hidden" id="newsPicInput" name="imageUrl" value="">
+      </div>
+
+      <!-- News Fields -->
+      <div class="form-group">
+        <label for="id">News ID</label>
+        <input type="text" id="id" name="id" value="<%= news.id %>" readonly>
+      </div>
+      <div class="form-group">
+        <label for="title">Title *</label>
+        <input type="text" id="title" name="title" value="<%= news.title %>" maxlength="75" required>
+      </div>
+      <div class="form-group">
+        <label for="body">Body *</label>
+        <textarea id="body" name="body" required><%= news.body %></textarea>
+      </div>
+      <div class="form-group">
+        <label for="published">Published?</label>
+        <select id="published" name="published">
+          <option value="true"  <%= news.published ? 'selected' : '' %>>Yes</option>
+          <option value="false" <%= !news.published ? 'selected' : '' %>>No</option>
+        </select>
+      </div>
+
+      <!-- Save/Cancel -->
+      <div class="button-group">
+        <button type="button" id="cancelButton">Cancel</button>
+        <button type="button" id="saveButton">Save</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Modal -->
+  <div id="modal-overlay" class="modal-overlay hidden">
+    <div class="modal">
+      <p id="modal-message"></p>
+      <div class="modal-buttons">
+        <button id="modal-ok">OK</button>
+        <button id="modal-cancel" class="hidden">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/public/js/admin-news-editScript.js">
+
+  </script>
+</body>
+</html>

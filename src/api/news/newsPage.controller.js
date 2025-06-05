@@ -1,4 +1,4 @@
-const { getNewsById } = require('./news.service');
+const { getNewsById, getPublishedById } = require('./news.service');
 
 /**
  * Render the “Add New News” page.
@@ -15,6 +15,22 @@ exports.renderAddNewsPage = async (req, res, next) => {
 };
 
 /**
+ * Render the “New News” page.
+ */
+exports.renderNewsPage = async (req, res, next) => {
+  const { id } = req.params;
+  const news = await getPublishedById(id);
+  try {
+    res.render('news-details', {
+      news
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+/**
  * Render the “Admin News Detail” page.
  */
 exports.renderAdminNewsDetailPage = async (req, res, next) => {
@@ -23,6 +39,20 @@ exports.renderAdminNewsDetailPage = async (req, res, next) => {
 
   try {
     res.render('admin-news-detail', { news });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Render the “Admin News Edit” page.
+ */
+exports.renderAdminNewsEditPage = async (req, res, next) => {
+  const { id } = req.params;
+  const news = await getNewsById(id);
+
+  try {
+    res.render('admin-news-edit', { news });
   } catch (err) {
     next(err);
   }

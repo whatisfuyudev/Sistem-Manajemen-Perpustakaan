@@ -35,11 +35,30 @@ async function getPublishedById(id) {
  * @returns {Promise<News>}
  */
 async function update(id, data) {
-  const [affected] = await News.update(data, { where: { id } });
-  if (!affected) {
+  const news = await News.findOne({ where: { id } });
+
+  if (!news) {
     throw new CustomError(`News with id=${id} not found`, 404);
   }
-  return await News.findByPk(id);
+  
+  if (data.imageUrl) {
+      dataHelper.deleteFile(news.imageUrl, err => {
+        if (err) {
+          console.error(`Error deleting file for news ${data.id}:`, err);
+        }
+      });    
+    }
+
+  const [affectedCount, affectedRows] = await News.update(data, { 
+    where: { id }, 
+    returning: true, 
+  });
+
+  if (affectedCount === 0) {
+    return null;
+  }
+  
+  return affectedRows[0];
 }
 
 /**
