@@ -102,18 +102,30 @@ exports.getAllPublished = async (req, res, next) => {
  */
 exports.searchNews = async (req, res, next) => {
   try {
-    // Build a filters object directly from query
-    const filters = { ...req.query };
-    // Convert published flag if present
-    if (filters.published !== undefined) {
-      filters.published = filters.published === 'true';
-    }
-    // Convert date filters to Date objects if needed
-    if (filters.createdFrom) filters.createdFrom = new Date(filters.createdFrom);
-    if (filters.createdTo)   filters.createdTo   = new Date(filters.createdTo);
+    // 1) Extract pagination params (page & limit)
+    const page  = req.query.page  ? parseInt(req.query.page, 10)  : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit, 10) : 10;
 
-    const results = await NewsService.search(filters);
-    res.status(200).json(results);
+    // 2) Build filters exactly as before (excluding page/limit)
+    const filters = {
+      id: req.query.id,
+      title: req.query.title,
+      published: req.query.published !== undefined 
+                 ? req.query.published === 'true' 
+                 : undefined,
+      createdFrom: req.query.createdFrom ? new Date(req.query.createdFrom) : undefined,
+      createdTo:   req.query.createdTo   ? new Date(req.query.createdTo)   : undefined,
+    };
+
+    // 3) Call service with filters + pagination
+    const result = await NewsService.search({
+      ...filters,
+      page,
+      limit
+    });
+
+    // 4) Return paginated payload
+    res.status(200).json(result);
   } catch (err) {
     next(err);
   }

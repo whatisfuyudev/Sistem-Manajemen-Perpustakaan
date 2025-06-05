@@ -12,4 +12,9 @@ router.get(
   ctrl.renderAddNewsPage
 );
 
+router.get(
+  '/admin/news/:id',
+  ctrl.renderAdminNewsDetailPage
+);
+
 module.exports = router;

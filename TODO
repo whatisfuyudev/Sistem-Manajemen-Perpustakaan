@@ -35,6 +35,7 @@
           not repeatedly call an api endpoint to delete a single data each time.
           news publish and unpublish suffers the same fate, change them.
 
+
 ### General TODO
 - notification maybe batch send, new endpoint?
 - make sure the book service works properly, ensure data sanitization
@@ -99,3 +100,6 @@ this app will have two sides, one for patron (book enjoyer) and one for libraria
 - maybe replace back end console.error for logger.error
 
 - log only the important stuff
+
+- ganti default image on all images folder into something proper
+  news, article, user profile picture, 

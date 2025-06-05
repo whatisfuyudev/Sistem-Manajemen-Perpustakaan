@@ -1397,10 +1397,10 @@ async function fetchNewsModule() {
     const res = await fetch(`${API.news.search}?${qs}`);
     if (!res.ok) throw new Error(`Status ${res.status}`);
     const data = await res.json();
-    renderNews(data, data.length, currentPage);
-    document.getElementById('newsTotal').textContent = `Total news: ${data.length}`;
+    renderNews(data.news, data.total, currentPage);
+    document.getElementById('newsTotal').textContent = `Total news: ${data.total}`;
     renderPaginationControls(
-      data.length, currentPage, fetchNewsModule, 'newsPagination'
+      data.total, currentPage, fetchNewsModule, 'newsPagination'
     );
   } catch (err) {
     console.error(err);
@@ -1450,6 +1450,23 @@ function renderNews(items, total, page) {
       .querySelectorAll('.news-table tbody input[type="checkbox"]')
       .forEach(cb => cb.checked = selAll.checked);
   });
+
+  // Row-click navigation (ignoring clicks on the checkbox cell)
+  document
+    .querySelectorAll('.news-table tbody tr.clickable')
+    .forEach(row => {
+      row.style.cursor = 'pointer';
+      row.addEventListener('click', e => {
+        // If they clicked the first cell (checkbox), do nothing
+        const cell = e.target.closest('td');
+        if (cell && cell.cellIndex === 0) return;
+        const newsId = row.getAttribute('data-id');
+        if (newsId) {
+          const url = `/admin/news/${newsId}`;
+          window.open(url, '_blank');
+        }
+      });
+    });
 }
 
 async function bulkTogglePublished(flag) {

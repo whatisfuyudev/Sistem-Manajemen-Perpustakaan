@@ -72,42 +72,76 @@ async function getAllPublished() {
 }
 
 /**
- * Search news items by various filters.
- * @param {Object} filters
- * @param {number|string} [filters.id]
- * @param {string} [filters.title]
- * @param {boolean} [filters.published]
- * @param {Date|string} [filters.createdFrom]
- * @param {Date|string} [filters.createdTo]
- * @returns {Promise<News[]>}
+ * Search news items by various filters and return paginated results.
+ *
+ * @param {Object} params
+ * @param {number|string} [params.id]            - Exact news ID to match.
+ * @param {string} [params.title]                - Partial match on title (ILIKE).
+ * @param {boolean} [params.published]           - Filter by published status.
+ * @param {Date|string} [params.createdFrom]      - Include news created at or after this date.
+ * @param {Date|string} [params.createdTo]        - Include news created at or before this date.
+ * @param {number|string} [params.page=1]        - Page number (1-based).
+ * @param {number|string} [params.limit=10]      - Number of items per page.
+ * @returns {Promise<Object>}                    - Resolves to an object:
+ *    {
+ *      total: <number>,   // total matching rows
+ *      news:  <News[]>,   // array of News instances for this page
+ *      page:  <number>,   // current page number
+ *      limit: <number>    // page size
+ *    }
  */
-async function search(filters = {}) {
+async function search(params = {}) {
+  // 1) Destructure pagination & filters
+  const page  = params.page  ? parseInt(params.page, 10)  : 1;
+  const limit = params.limit ? parseInt(params.limit, 10) : 10;
+  const offset = (page - 1) * limit;
+
+  // 2) Build dynamic WHERE clause
   const where = {};
-
-  if (filters.id) {
-    where.id = filters.id;
+  if (params.id) {
+    // ensure numeric
+    where.id = parseInt(params.id, 10);
   }
-  if (filters.title) {
-    where.title = { [Op.iLike]: `%${filters.title}%` };
+  if (params.title) {
+    where.title = { [Op.iLike]: `%${params.title}%` };
   }
-  if (filters.published !== undefined) {
-    where.published = filters.published;
+  if (params.published !== undefined) {
+    where.published = params.published;
   }
-  if (filters.createdFrom || filters.createdTo) {
+  if (params.createdFrom || params.createdTo) {
     where.createdAt = {};
-    if (filters.createdFrom) {
-      where.createdAt[Op.gte] = filters.createdFrom;
+    if (params.createdFrom) {
+      where.createdAt[Op.gte] = params.createdFrom;
     }
-    if (filters.createdTo) {
-      where.createdAt[Op.lte] = filters.createdTo;
+    if (params.createdTo) {
+      where.createdAt[Op.lte] = params.createdTo;
     }
   }
 
-  return await News.findAll({
+  // 3) Perform paginated query with count
+  const { count, rows } = await News.findAndCountAll({
     where,
-    order: [['createdAt', 'DESC']]
+    order: [['createdAt', 'DESC']],
+    offset,
+    limit
   });
+
+  // 4) Return total, page, limit, and the rows
+  return {
+    total: count,
+    news: rows,
+    page,
+    limit
+  };
 }
+
+/**
+ * Retrieve a single news by id. for internal use
+ */
+async function getNewsById (id) {
+  const news = await News.findOne({ where: { id } });
+  return news;
+};
 
 /**
  * Bulk‐delete news items by an array of IDs,
@@ -158,5 +192,6 @@ module.exports = {
   getAllPublished,
   search,
   getPublishedById,
-  bulkDelete
+  bulkDelete,
+  getNewsById
 };

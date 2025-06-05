@@ -8,7 +8,7 @@ const dataHelper = require('../../utils/dataHelper');
 // Public read route
 router.get('/published', NewsController.getAllPublished);
 
-// public Route
+// Librarian/Admin route
 // Handle updating news picture
 router.post('/upload/news-picture', 
   authMiddleware.verifyToken,
@@ -32,6 +32,7 @@ router.post(
   NewsController.createNews
 );
 
+// Librarian/Admin route
 // NEW: Bulk‐delete News
 router.delete(
   '/delete',
