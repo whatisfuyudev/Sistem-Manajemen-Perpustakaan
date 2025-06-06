@@ -1,4 +1,5 @@
 // config/db.config.js
+// should be a .env instead
 
 module.exports = {
   HOST: "localhost",

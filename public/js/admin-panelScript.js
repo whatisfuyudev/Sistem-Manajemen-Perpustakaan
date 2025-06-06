@@ -42,6 +42,11 @@ const API = {
     search: '/api/news/search',
     delete: '/api/news/delete'
   },
+  articles: {
+    root: '/api/articles',
+    search: '/api/articles/search',
+    delete: '/api/articles/delete'
+  },
   reports: {
     circulation: '/api/reports/circulation',
     reservations: '/api/reports/reservations',
@@ -106,6 +111,9 @@ async function loadModule(module) {
       break;
     case 'news':
       await loadNewsModule();
+      break;
+    case 'articles':
+      await loadArticlesModule();
       break;
     case 'reports':
       await loadReportsModule();
@@ -1545,6 +1553,262 @@ async function bulkDeleteSelected() {
   } catch (err) {
     console.error('Bulk delete error:', err);
     showModal({ message: 'Error deleting selected news.' });
+  }
+}
+
+/* ------------------------ ARTICLES MODULE ------------------------ */
+async function loadArticlesModule() {
+  contentArea.innerHTML = `
+    <h2>Articles Management</h2>
+    <div class="search-container">
+      <form id="searchForm">
+        <!-- Basic filter -->
+        <input type="number" id="articleId" placeholder="Article ID" />
+
+        <!-- Advanced toggle -->
+        <button type="button" class="advanced-toggle" id="toggleAdvancedArticles">
+          Show Advanced Search Options
+        </button>
+
+        <!-- Advanced filters -->
+        <div class="advanced-search" id="advancedSearchArticles" style="display:none; gap:10px; flex-wrap:wrap;">
+          <input type="text" id="title"       placeholder="Title" />
+          <input type="text" id="authorName"  placeholder="Author Name" />
+          <select id="published">
+            <option value="">-- Published? --</option>
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+          </select>
+        </div>
+
+        <button type="submit">Search</button>
+      </form>
+    </div>
+
+    <div style="margin:10px 0; display:flex; gap:10px; flex-wrap:wrap;">
+      <button id="bulkDeleteBtn"
+              style="background:#dc3545;color:#fff;border:none;
+                     padding:10px 15px;border-radius:4px;cursor:pointer;">
+        Delete Selected
+      </button>
+      <button id="bulkUnpublishBtn" 
+              style="background:#ffc107;color:#000;border:none;
+                     padding:10px 15px;border-radius:4px;cursor:pointer;">
+        Unpublish
+      </button>
+      <button id="bulkPublishBtn" 
+              style="background:#28a745;color:#fff;border:none;
+                     padding:10px 15px;border-radius:4px;cursor:pointer;">
+        Publish
+      </button>
+      <button id="newArticleBtn" 
+              style="background:#007bff;color:#fff;border:none;
+                     padding:10px 15px;border-radius:4px;cursor:pointer;">
+        Add New Article
+      </button>
+    </div>
+
+    <div id="articlesList"></div>
+    <p id="articlesTotal"></p>
+    <div id="articlesPagination" class="pagination"></div>
+  `;
+
+  // Toggle advanced search
+  const toggle = document.getElementById('toggleAdvancedArticles');
+  const adv   = document.getElementById('advancedSearchArticles');
+  toggle.addEventListener('click', () => {
+    const shown = adv.style.display === 'flex';
+    adv.style.display = shown ? 'none' : 'flex';
+    toggle.textContent = shown
+      ? 'Show Advanced Search Options'
+      : 'Hide Advanced Search Options';
+  });
+
+  // Search form submit
+  document.getElementById('searchForm')
+    .addEventListener('submit', e => {
+      e.preventDefault();
+      currentPage = 1;
+      fetchArticlesModule();
+    });
+
+  // Bulk delete
+  document.getElementById('bulkDeleteBtn')
+    .addEventListener('click', () => bulkDeleteSelected());
+
+  // Bulk publish / unpublish
+  document.getElementById('bulkPublishBtn')
+    .addEventListener('click', () => bulkTogglePublished(true));
+  document.getElementById('bulkUnpublishBtn')
+    .addEventListener('click', () => bulkTogglePublished(false));
+
+  // Add new
+  document.getElementById('newArticleBtn')
+    .addEventListener('click', () => {
+      window.location.href = '/admin/articles/add';
+    });
+
+  // Initial load
+  fetchArticlesModule();
+}
+
+async function fetchArticlesModule() {
+  const form = document.getElementById('searchForm');
+  const filters = {
+    id:         form.articleId.value.trim(),
+    title:      form.title.value.trim(),
+    authorName: form.authorName.value.trim(),
+    published:  form.published.value,
+    page:       currentPage,
+    limit:      10
+  };
+  // remove empty
+  Object.keys(filters).forEach(k => {
+    if (filters[k] === '' || filters[k] == null) delete filters[k];
+  });
+
+  const qs = new URLSearchParams(filters).toString();
+  try {
+    const res = await fetch(`${API.articles.search}?${qs}`);
+    if (!res.ok) throw new Error(`Status ${res.status}`);
+    const data = await res.json();
+    
+    renderArticles(data.articles, data.total, currentPage);
+    document.getElementById('articlesTotal').textContent = `Total articles: ${data.total}`;
+    renderPaginationControls(
+      data.total, currentPage, fetchArticlesModule, 'articlesPagination'
+    );
+  } catch (err) {
+    console.error(err);
+    contentArea.innerHTML +=
+      `<p style="color:red;">Error loading articles.</p>`;
+  }
+}
+
+function renderArticles(items, total, page) {
+  const container = document.getElementById('articlesList');
+  if (!items || items.length === 0) {
+    container.innerHTML = '<p>No articles found.</p>';
+    return;
+  }
+
+  let html = `
+    <table class="articles-table">
+      <thead>
+        <tr>
+          <th style="width: 40px;"><input type="checkbox" id="selectAllArticles" /></th>
+          <th>ID</th>
+          <th>Title</th>
+          <th>Author</th>
+          <th>Published</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+  html += items.map(a => `
+    <tr class="clickable" data-id="${a.id}">
+      <td><input type="checkbox" /></td>
+      <td>${a.id}</td>
+      <td class="truncated-text">${a.title}</td>
+      <td class="truncated-text">${a.authorName}</td>
+      <td>${a.published ? 'Yes' : 'No'}</td>
+    </tr>
+  `).join('');
+
+  html += `</tbody></table>`;
+  container.innerHTML = html;
+
+  // select all
+  const selAll = document.getElementById('selectAllArticles');
+  selAll.addEventListener('click', () => {
+    document
+      .querySelectorAll('.articles-table tbody input[type="checkbox"]')
+      .forEach(cb => cb.checked = selAll.checked);
+  });
+
+  // Row-click navigation (ignore checkbox cell)
+  document
+    .querySelectorAll('.articles-table tbody tr.clickable')
+    .forEach(row => {
+      row.style.cursor = 'pointer';
+      row.addEventListener('click', e => {
+        const cell = e.target.closest('td');
+        if (cell && cell.cellIndex === 0) return;
+        const articleId = row.getAttribute('data-id');
+        if (articleId) {
+          const url = `/admin/articles/${articleId}`;
+          window.open(url, '_blank');
+        }
+      });
+    });
+}
+
+async function bulkTogglePublished(flag) {
+  const checks = document.querySelectorAll(
+    '.articles-table tbody input[type="checkbox"]:checked'
+  );
+  if (checks.length === 0) {
+    await showModal({ message: 'Select at least one article.' });
+    return;
+  }
+  const confirmed = await showModal({
+    message: `${flag ? 'Publish' : 'Unpublish'} selected articles?`,
+    showCancel: true
+  });
+  if (!confirmed) return;
+
+  const ids = Array.from(checks).map(cb =>
+    cb.closest('tr').dataset.id
+  );
+  try {
+    await Promise.all(ids.map(id =>
+      fetch(`${API.articles.root}/${id}/published`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ published: flag })
+      })
+    ));
+    await showModal({ message: `${flag ? "Selected article(s) published" : "Selected article(s) unpublished"}` });
+    fetchArticlesModule();
+  } catch (err) {
+    console.error(err);
+    showModal({ message: 'Error toggling published state.' });
+  }
+}
+
+async function bulkDeleteSelected() {
+  const checks = document.querySelectorAll(
+    '.articles-table tbody input[type="checkbox"]:checked'
+  );
+  if (checks.length === 0) {
+    await showModal({ message: 'Select at least one article to delete.' });
+    return;
+  }
+
+  const confirmed = await showModal({
+    message: 'Are you sure you want to delete the selected articles?',
+    showCancel: true
+  });
+  if (!confirmed) return;
+
+  const ids = Array.from(checks).map(cb =>
+    parseInt(cb.closest('tr').dataset.id, 10)
+  );
+
+  try {
+    const res = await fetch(`${API.articles.delete}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids })
+    });
+    if (!res.ok) throw new Error(`Status ${res.status}`);
+
+    await showModal({ message: `Deleted ${ids.length} article(s) successfully.` });
+    fetchArticlesModule();
+  } catch (err) {
+    console.error('Bulk delete error:', err);
+    showModal({ message: 'Error deleting selected articles.' });
   }
 }
 

@@ -10,6 +10,7 @@ const Book         = require('../models/book.model');
 const Notification = require('../models/notification.model');
 const News         = require('../models/news.model');
 const User         = require('../models/user.model')
+const Article      = require('../models/article.model')
 const emailHelper  = require('./emailHelper');
 
 // Folders to clean + which model + which attribute holds the URL
@@ -31,6 +32,12 @@ const CLEANUP_TARGETS = [
     model:   User,
     attr:    'profilePicture', // adjust to your actual field name
     protect: new Set(['default.jpg'])
+  },
+  {
+    dir:     path.join(__dirname, '../../public/images/article-covers'),
+    model:   Article,
+    attr:    'coverImage', // adjust to your actual field name
+    protect: new Set(['default.png'])
   }
 ];
 

@@ -122,6 +122,10 @@ app.use('/api/notifications', notificationRoutes);
 const newsRoutes = require('./api/news/news.routes');
 app.use('/api/news', newsRoutes);
 
+// Mount articles routes
+const articlesRoutes = require('./api/articles/articles.routes');
+app.use('/api/articles', articlesRoutes);
+
 // Mount the new book page route
 const bookPageRoutes = require('./api/books/bookPage.routes');
 app.use('/', bookPageRoutes);

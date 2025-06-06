@@ -20,6 +20,11 @@ exports.renderAddNewsPage = async (req, res, next) => {
 exports.renderNewsPage = async (req, res, next) => {
   const { id } = req.params;
   const news = await getPublishedById(id);
+
+  if (!news) {
+    return res.status(404).json({ message: 'News not found' });
+  }
+
   try {
     res.render('news-details', {
       news
