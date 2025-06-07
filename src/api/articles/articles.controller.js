@@ -1,6 +1,17 @@
 // controllers/article.controller.js
 const ArticleService = require('./articles.service');
 
+exports.handleArticlePictureUpload = async (req, res, next) => { 
+  try {
+    if(req.isImageUploadSuccesful) {
+      
+      res.json({ articlesPicture: `/public/images/articles-pictures/${req.file.filename}`});
+    }
+  } catch (error) {
+    next(error);
+  }
+}
+
 /**
  * Create a new article.
  */

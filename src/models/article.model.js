@@ -23,7 +23,7 @@ const Article = sequelize.define('Article', {
     allowNull: true,
   },
   body: {
-    type: DataTypes.TEXT,
+    type: DataTypes.JSONB,    // for quilljs
     allowNull: false
   },
   authorName: {

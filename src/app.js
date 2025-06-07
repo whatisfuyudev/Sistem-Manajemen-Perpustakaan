@@ -56,7 +56,12 @@ app.use(
       ],
 
       // (optional) allow other origins as needed
-      styleSrc: ["'unsafe-inline'", "'self'", 'https://fonts.googleapis.com'],
+      styleSrc: [
+        "'unsafe-inline'", 
+        "'self'", 
+        'https://fonts.googleapis.com',
+        'https://cdn.jsdelivr.net'
+      ],
       imgSrc:   ["'self'", 'data:', 'blob:'],
       connectSrc: ["'self'"],
       fontSrc: ["'self'", 'https://fonts.gstatic.com'],
@@ -150,6 +155,11 @@ app.use('/', notificationPageRoutes);
 const newsPageRoutes = require('./api/news/newsPage.routes');
 app.use('/', newsPageRoutes);
 
+// Mount the new articles page route
+const articlesPageRoutes = require('./api/articles/articlesPage.routes');
+app.use('/', articlesPageRoutes);
+
+
 // Optionally, you can define a route for the homepage (if it’s static).
 // This example sends the static index.html from the public folder.
 app.get(
@@ -179,6 +189,10 @@ app.get('/test/search', (req, res) => {
   res.sendFile(path.join(__dirname, '../public', 'testSearchbar.html'));
 });
 
+// testing, move elsewhere after finishing it
+app.get('/test/writing', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public', 'writing.html'));
+});
 
 // // --------------------
 // // Global Error Handling

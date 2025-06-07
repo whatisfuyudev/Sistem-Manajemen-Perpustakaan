@@ -1696,7 +1696,7 @@ function renderArticles(items, total, page) {
     <table class="articles-table">
       <thead>
         <tr>
-          <th style="width: 40px;"><input type="checkbox" id="selectAllArticles" /></th>
+          <th><input type="checkbox" id="selectAllArticles" /></th>
           <th>ID</th>
           <th>Title</th>
           <th>Author</th>

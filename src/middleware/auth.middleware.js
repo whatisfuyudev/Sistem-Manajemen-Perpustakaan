@@ -10,7 +10,7 @@ exports.verifyToken = (req, res, next) => {
   
   jwt.verify(token, authConfig.secret, (err, decoded) => {
     if (err) {
-      return res.status(401).json({ message: 'Failed to authenticate token.' });
+      return res.status(401).json({ message: 'Failed to authenticate token. Try logging in again' });
     }
     // Save decoded user id and role for use in other middleware/controllers
     req.user = { id: decoded.id, role: decoded.role };

@@ -3,11 +3,21 @@ const express = require('express');
 const router  = express.Router();
 const ArticleController = require('./articles.controller');
 const authMiddleware   = require('../../middleware/auth.middleware');
+const dataHelper = require('../../utils/dataHelper');
 
 // Public: fetch all published articles (with optional title filter, sorted oldest→newest)
 router.get(
   '/published',
   ArticleController.listPublished
+);
+
+// Librarian/Admin route
+// Handle updating articles picture
+router.post('/upload/articles-picture', 
+  authMiddleware.verifyToken,
+  authMiddleware.isLibrarianOrAdmin, 
+  dataHelper.upload, 
+  ArticleController.handleArticlePictureUpload
 );
 
 // Admin: search any articles by id/title/authorName

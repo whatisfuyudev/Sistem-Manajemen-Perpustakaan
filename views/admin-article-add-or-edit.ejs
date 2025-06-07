@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title><%= article ? 'Edit' : 'Add' %> Article</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/public/css/admin-add-common.css">
+  <!-- Quill Snow Theme -->
+  <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
+  <style>
+    /* override container width */
+    .container {
+      max-width: 1000px;
+    }
+
+    .ql-editor > h1 {
+      text-align: left;
+    }
+
+    /* Save/Cancel buttons */
+    #saveBtn { background: #28a745; color: #fff; }
+    #cancelBtn { background: #dc3545; color: #fff; }
+
+    /* Message text */
+    #message { margin-top: 15px; text-align: center; }
+
+    /* Cover preview */
+    #previewCover {
+      display: block; max-width: 100%; margin-top: 8px; border-radius: 4px;
+    }
+
+    /* Quill toolbar & editor */
+    #toolbar {
+      background: #f3f3f3;
+      border-bottom: 1px solid #ccc;
+      padding: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-bottom: 0;
+    }
+    #editor {
+      height: 300px;
+      background: #fff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="back-button-container">
+      <a href="/admin/panel?tab=articles" class="back-button">Back</a>
+    </div>
+
+    <h1><%= article ? 'Edit' : 'Add New' %> Article</h1>
+
+    <!-- Cover Image upload -->
+    <div class="form-group">
+      <label for="uploadedImage">Cover Image</label>
+      <input type="file" id="uploadedImage" name="uploadedImage" accept="image/*">
+      <% if (article && article.coverImage) { %>
+        <img id="previewCover" src="<%= article.coverImage %>" alt="Cover Preview">
+      <% } else { %>
+        <img id="previewCover" src="" alt="Cover Preview" style="display:none;">
+      <% } %>
+    </div>
+
+    <form id="addArticleForm">
+      <!-- Title -->
+      <div class="form-group">
+        <label for="title">Title *</label>
+        <input
+          type="text"
+          id="title"
+          name="title"
+          maxlength="75"
+          required
+          value="<%= article ? article.title : '' %>"
+        >
+      </div>
+
+      <!-- Author Name -->
+      <div class="form-group">
+        <label for="authorName">Author Name *</label>
+        <input
+          type="text"
+          id="authorName"
+          name="authorName"
+          maxlength="125"
+          required
+          value="<%= article ? article.authorName : '' %>"
+        >
+      </div>
+
+      <!-- Quill Toolbar -->
+      <div id="toolbar">
+        <select class="ql-header">
+          <option selected></option>
+          <option value="1">Heading 1</option>
+          <option value="2">Heading 2</option>
+          <option value="3">Heading 3</option>
+        </select>
+        <!-- align dropdown -->
+        <select class="ql-align">
+          <option selected></option>       <!-- left -->
+          <option value="center"></option> <!-- center -->
+          <option value="right"></option>  <!-- right -->
+          <option value="justify"></option><!-- justify -->
+        </select>
+        <button class="ql-bold"></button>
+        <button class="ql-italic"></button>
+        <button class="ql-underline"></button>
+        <button class="ql-list" value="ordered"></button>
+        <button class="ql-list" value="bullet"></button>
+        <button class="ql-link"></button>
+
+      </div>
+
+      <!-- Quill Editor -->
+      <div id="editor"><% if (article && article.body) { %><%- /* render existing body HTML for fallback */ article.body %><% } %></div>
+
+      <!-- Hidden inputs -->
+      <input type="hidden" id="coverImageInput"  name="coverImage" value="<%= article ? article.coverImage : '' %>">
+      <input type="hidden" id="bodyInput"        name="body">
+      <input type="hidden" id="readingTimeInput" name="readingTime">
+
+      <!-- Reading Time -->
+      <div class="form-group">
+        <label for="readingTime">Reading Time (minutes)</label>
+        <input
+          type="number"
+          id="readingTime"
+          min="1"
+          value="<%= article && article.readingTime ? article.readingTime : '' %>"
+        >
+      </div>
+
+      <!-- Published? -->
+      <div class="form-group">
+        <label for="published">Published?</label>
+        <select id="published" name="published">
+          <option value="false" <%= !article || !article.published ? 'selected' : '' %>>No</option>
+          <option value="true"  <%= article && article.published ? 'selected' : '' %>>Yes</option>
+        </select>
+      </div>
+
+      <div class="buttons">
+        <button type="button" id="cancelBtn">Cancel</button>
+        <button type="button" id="saveBtn"><%= article ? 'Update' : 'Save' %></button>
+      </div>
+      <div id="message"></div>
+    </form>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+  <script src="/public/js/admin-article-add-or-editScript.js">
+
+  </script>
+</body>
+</html>

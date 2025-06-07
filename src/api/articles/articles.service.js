@@ -2,6 +2,7 @@
 const { Op } = require('sequelize');
 const Article = require('../../models/article.model');
 const CustomError = require('../../utils/customError');
+const dataHelper = require('../../utils/dataHelper');
 
 /**
  * Create a new article.
