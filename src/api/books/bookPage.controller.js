@@ -6,7 +6,7 @@ exports.getAdminBookDetailsPage = async (req, res, next) => {
     const { isbn } = req.params;
     const book = await booksService.getBookByISBN(isbn);
     if (!book) {
-      return res.status(404).send('<h1>Book not found</h1>');
+      next();
     }
     // Render the EJS template "admin-book-detail" with the book data.
     // (You can use the same template as the public version if preferred.)
@@ -21,7 +21,7 @@ exports.getAdminEditBookPage = async (req, res, next) => {
     const { isbn } = req.params;
     const book = await booksService.getBookByISBN(isbn);
     if (!book) {
-      return res.status(404).send('<h1>Book not found</h1>');
+      next();
     }
     // Render the EJS template "admin-book-edit" with the book data
     res.render('admin-book-edit', { book });
@@ -44,7 +44,7 @@ exports.getBookDetailsPage = async (req, res, next) => {
     const { isbn } = req.params;
     const book = await booksService.getBookByISBN(isbn);
     if (!book) {
-      return res.status(404).send('<h1>Book not found</h1>');
+      next();
     }
     // Render the EJS template "book-details" with the book data
     res.render('book-details', { book });

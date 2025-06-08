@@ -6,7 +6,16 @@ nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: relative;      /* for the dropdown positioning */
+  position: fixed;    /* ← change from relative to fixed */
+  top: 0;             /* ← pin to the top */
+  left: 0;            /* ← stretch from the left edge… */
+  right: 0;           /* ← …to the right edge */
+  z-index: 1000;      /* ← ensure it floats above other content */
+}
+
+/* add a small spacer so your page’s content doesn’t jump up underneath the nav */
+body {
+  margin-top: 52px;   /* ← adjust this to roughly match your nav’s height */
 }
 
 /* Logo */
@@ -35,7 +44,7 @@ nav .logo a {
 
 /* The dropdown panel (hidden by default) */
 .dropdown-content {
-  display: none; /* hide by default */
+  display: none;
   position: absolute;
   right: 0;
   top: 100%;
@@ -44,7 +53,7 @@ nav .logo a {
   border-radius: 4px;
   margin-top: 4px;
   min-width: 160px;
-  z-index: 100;
+  z-index: 1001; /* above the nav itself */
 }
 
 /* When .show is added, display block */
@@ -65,7 +74,7 @@ nav .logo a {
 }
 
 @media (max-width: 600px) {
-.dropdown-content {
+  .dropdown-content {
     right: 0;
     border-radius: 0;
   }

@@ -18,3 +18,38 @@ exports.renderEditForm = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.viewArticle = async (req, res, next) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const article = await Article.findOne({
+      where: {
+        id
+      }
+    });
+    if (!article) {
+      next();
+    }
+    res.render('admin-article-detail', { article });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.viewPublishedArticle = async (req, res, next) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const article = await Article.findOne({
+      where: {
+        id,
+        published: true
+      }
+    });
+    if (!article) {
+      next();
+    }
+    res.render('article-details', { article });
+  } catch (err) {
+    next(err);
+  }
+};

@@ -101,10 +101,7 @@ exports.handleCoverImageUpload = async (req, res, next) => {
     if(req.isImageUploadSuccesful) { 
       res.json({ coverImage: `/public/images/book-covers/${req.file.filename}`});
     }
-     console.log('\n\n\n poopoo \n', '', '\n\n\n');
   } catch (error) {
-    console.log('\n\n\n poopoo \n', error, '\n\n\n');
-    
     next(error);
   }
 }

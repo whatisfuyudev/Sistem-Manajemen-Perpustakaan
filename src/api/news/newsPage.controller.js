@@ -22,7 +22,7 @@ exports.renderNewsPage = async (req, res, next) => {
   const news = await getPublishedById(id);
 
   if (!news) {
-    return res.status(404).json({ message: 'News not found' });
+    next();
   }
 
   try {
@@ -42,6 +42,10 @@ exports.renderAdminNewsDetailPage = async (req, res, next) => {
   const { id } = req.params;
   const news = await getNewsById(id);
 
+  if (!news) {
+    next();
+  }
+
   try {
     res.render('admin-news-detail', { news });
   } catch (err) {
@@ -55,6 +59,10 @@ exports.renderAdminNewsDetailPage = async (req, res, next) => {
 exports.renderAdminNewsEditPage = async (req, res, next) => {
   const { id } = req.params;
   const news = await getNewsById(id);
+
+  if (!news) {
+    next();
+  }
 
   try {
     res.render('admin-news-edit', { news });

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title><%= article.title %></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Quill Snow CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0; padding: 20px; background: #f8f9fa;
+      color: #333;
+    }
+    .wrapper {
+      max-width: 800px;
+      margin: auto; padding: 16px;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .cover {
+      width: 100%; height: auto;
+      border-radius: 6px;
+      margin-bottom: 16px;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.8rem;
+    }
+    .meta {
+      color: #666;
+      font-size: 0.9rem;
+      margin-bottom: 16px;
+    }
+    #editor {
+      /* prevent user editing */
+      pointer-events: none;
+      border: none;
+    }
+    @media (max-width: 600px) {
+      .wrapper { padding: 12px; }
+      h1 { font-size: 1.5rem; }
+    }
+    .ql-editor {
+      padding: 0;
+    }
+
+    .ql-editor > h1 {
+      font-size: 1.3rem;
+    }
+
+    .ql-editor > h2 {
+      font-size: 1.2rem;
+    }
+
+    .ql-editor > h3 {
+      font-size: 1.1rem;
+    }
+
+    /* Button styles */
+    .back-button-container {
+    margin-bottom: 20px;
+    }
+
+    .back-button {
+      background: #6c757d;
+      padding: 10px 20px;
+      border-radius: 4px;
+      border: none;
+      color: #fff;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .back-button:hover {
+      background-color: #5a6268;
+      cursor:pointer 
+    }
+
+    /* Button Group */
+    .button-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 1rem;
+      margin-bottom: 1rem;
+      justify-content: center;
+    }
+
+    /* Base button style */
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      display: inline-block;
+      transition: background-color 0.2s ease;
+    }
+
+    .btn-secondary {
+      background-color: #ffc107;
+      color: #000;
+    }
+    .btn-secondary:hover {
+      background-color: #e0a800;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="back-button-container">
+      <a href="/admin/panel?tab=articles" class="back-button">Back</a>
+    </div>
+    
+    <img src="<%= article.coverImage ? article.coverImage : '/public/images/articles-pictures/default.png' %>" alt="Cover" class="cover">
+
+    <div class="meta">
+      <!-- Format date -->
+      <%= article.createdAt.toLocaleDateString('en-US', {
+         day:'numeric', month:'long', year:'numeric'
+      }) %>
+      &mdash;
+      <%= article.readingTime
+          ? article.readingTime + ' min read'
+          : '' %>
+    </div>
+
+    <h1><%= article.title %></h1>
+
+    <div class="meta">
+      By <strong><%= article.authorName %></strong>
+    </div>
+
+    <!-- Quill editor container -->
+    <!-- pass the JSON in a data attribute -->
+    <div id="editor"
+        data-body='<%- JSON.stringify(article.body) %>'>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="button-group">
+      <button 
+      id="modifyBtn" 
+      class="btn btn-secondary" 
+      data-article-id="<%= article.id %>">
+        Edit
+      </button>
+
+    </div>
+  </div>
+
+  
+
+  <!-- Quill JS -->
+  <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+  <script src="/public/js/admin-article-detailScript.js"></script>
+</body>
+</html>

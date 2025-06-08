@@ -12,7 +12,7 @@ exports.renderProfilePage = async (req, res, next) => {
     // Fetch full user details from the database using the service
     const user = await userService.getUserById(req.user.id);
     if (!user) {
-      return res.status(404).render('error', { message: 'User not found.' });
+      next();
     }
     
     // Render the profile page (profile.ejs) with the full user data
@@ -29,7 +29,7 @@ exports.renderAdminUserDetail = async (req, res, next) => {
 
     if (!user) {
       // If user not found, render a friendly error page
-      return res.status(404).render('error', { message: 'User not found.' });
+      next();
     }
 
     // Render the admin-user-detail.ejs template with full user data
@@ -46,7 +46,7 @@ exports.renderAdminUserEdit = async (req, res, next) => {
 
     if (!user) {
       // no such user → 404 error page
-      return res.status(404).render('error', { message: 'User not found.' });
+      next();
     }
 
     // Render the EJS template "admin-user-edit.ejs"

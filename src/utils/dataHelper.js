@@ -14,7 +14,9 @@ exports.deleteFile = (filename, callback) => {
   // Don’t delete the shared default images
   const protectedFiles = [
     '/public/images/profile-pictures/default.jpg',
-    '/public/images/book-covers/default-cover.jpg'
+    '/public/images/book-covers/default-cover.jpg',
+    '/public/images/articles-pictures/default.png',
+    '/public/images/news-pictures/default.png'
   ];
   if (protectedFiles.includes(filename)) {
     
@@ -50,7 +52,7 @@ const storage = multer.diskStorage({
     } else if (req.body._comesFrom === "newsPicture") {
       target += 'news-pictures';
     } else if (req.body._comesFrom === "articleCovers") {
-      target += 'article-covers';
+      target += 'articles-pictures';
     } else {
       target += 'book-covers/';
     }

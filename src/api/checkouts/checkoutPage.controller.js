@@ -17,7 +17,7 @@ exports.renderAdminCheckoutEdit = async (req, res, next) => {
     // Fetch existing record
     const checkout = await checkoutService.getById(checkoutId);
     if (!checkout) {
-      return res.status(404).send('<h1>Checkout not found</h1>');
+      next();
     }
 
     // Render the edit form, passing the existing data
@@ -38,7 +38,7 @@ exports.renderAdminCheckoutDetail = async (req, res, next) => {
     const checkoutDetail = await checkoutService.getCheckoutDetail(parseInt(checkoutId));
 
     if (!checkoutDetail) {
-      return res.status(404).send('<h1>Checkout not found</h1>');
+      next();
     }
     
     // Render the admin-checkout-detail EJS template with the checkout detail data.

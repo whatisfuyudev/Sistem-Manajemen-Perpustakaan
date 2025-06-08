@@ -20,4 +20,19 @@ router.get(
   ArticlePageController.renderEditForm
 );
 
+router.get(
+  '/admin/articles/:id', 
+  authMiddleware.verifyToken,
+  authMiddleware.isLibrarianOrAdmin,
+  ArticlePageController.viewArticle
+);
+
+router.get(
+  '/articles/:id', 
+  ArticlePageController.viewPublishedArticle
+);
+
+
+
 module.exports = router;
+

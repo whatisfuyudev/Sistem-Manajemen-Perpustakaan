@@ -7,13 +7,28 @@ const quill = new Quill('#editor', {
   theme: 'snow'
 });
 
-// If editing, load the existing Delta (if you store it)
-// e.g. window.savedDelta = <%= JSON.stringify(article?.bodyDelta || null) %>;
-// if (window.savedDelta) quill.setContents(window.savedDelta);
+// If there's an existing value in #bodyInput, load it:
+const bodyInput = document.getElementById('bodyInput');
+if (bodyInput && bodyInput.value) {
+  try {
+    // parse the stored JSON delta
+    const delta = JSON.parse(JSON.parse(bodyInput.value));
+    quill.setContents(delta);
+  } catch (err) {
+    console.error('Failed to parse saved Delta:', err);
+  }
+}
+
+// determine whether we're on "edit" vs "add" by inspecting the path
+const path        = window.location.pathname; 
+const editMatch   = path.match(/^\/admin\/articles\/edit\/(\d+)$/);
+const cancelHref  = editMatch
+  ? `/admin/articles/${editMatch[1]}`
+  : '/admin/panel?tab=articles';
 
 // Redirect on Cancel
 document.getElementById('cancelBtn').addEventListener('click', () => {
-  window.location.href = '/admin/panel?tab=articles';
+  window.location.href = cancelHref;
 });
 
 // Cover upload & preview
@@ -72,11 +87,6 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
   msg.style.color = 'black';
 
   // 5) Choose endpoint
-  // Parse the current path
-  const path = window.location.pathname; 
-  // e.g. "/admin/articles/add" or "/admin/articles/edit/42"
-  const editMatch = path.match(/^\/admin\/articles\/edit\/(\d+)$/);
-
   let isEdit = false;
   let apiUrl;
   let httpMethod;

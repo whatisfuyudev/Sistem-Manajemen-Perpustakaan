@@ -20,7 +20,7 @@
     h1 {
       text-align: center;
       margin-bottom: 20px;
-      margin-top: 40px;
+      margin-top: 92px;
     }
     /* Search Bar Container */
     .search-container {
@@ -66,7 +66,10 @@
       border: 1px solid #ddd;
       border-radius: 6px;
       padding: 10px;
-      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
       transition: transform 0.2s;
       width: 200px;
       overflow: hidden;
@@ -102,6 +105,14 @@
     }
     .view-details:hover {
       background-color: #0056b3;
+    }
+    .book-title,
+    .book-authors {
+      overflow: hidden;           /* hide anything past the box */
+      white-space: nowrap;        /* force a single line */
+      text-overflow: ellipsis;    /* display “…” when text is cut */
+      display: block;             /* ensure width can apply */
+      max-width: 25ch;            /* truncate after ~30 characters (≅30 “0”s) */
     }
     /* Pagination Controls */
     .pagination {

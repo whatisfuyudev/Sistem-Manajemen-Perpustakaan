@@ -43,13 +43,32 @@
       height: 300px;
       background: #fff;
     }
+    .ql-editor > h1 {
+      font-size: 1.3rem;
+    }
+
+    .ql-editor > h2 {
+      font-size: 1.2rem;
+    }
+
+    .ql-editor > h3 {
+      font-size: 1.1rem;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="back-button-container">
-      <a href="/admin/panel?tab=articles" class="back-button">Back</a>
+      <a
+        href="<%= article
+                ? `/admin/articles/${article.id}`
+                : '/admin/panel?tab=articles' %>"
+        class="back-button"
+      >
+        Back
+      </a>
     </div>
+
 
     <h1><%= article ? 'Edit' : 'Add New' %> Article</h1>
 
@@ -120,7 +139,12 @@
 
       <!-- Hidden inputs -->
       <input type="hidden" id="coverImageInput"  name="coverImage" value="<%= article ? article.coverImage : '' %>">
-      <input type="hidden" id="bodyInput"        name="body">
+      <input
+        type="hidden"
+        id="bodyInput"
+        name="body"
+        value='<%- JSON.stringify(article?.body || []) %>'  
+      >
       <input type="hidden" id="readingTimeInput" name="readingTime">
 
       <!-- Reading Time -->

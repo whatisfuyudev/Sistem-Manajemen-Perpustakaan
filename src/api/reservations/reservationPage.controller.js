@@ -34,7 +34,7 @@ exports.renderReservationDetail = async (req, res, next) => {
     const reservation = result.reservations[0];
     
     if (!reservation) {
-      return res.status(404).send('<h1>Reservation not found</h1>');
+      next();
     }
 
     // Load related Book and User
@@ -59,7 +59,7 @@ exports.renderAdminReservationEdit = async (req, res, next) => {
     // 2) Fetch the reservation record
     const reservation = await reservationService.getReservationById(id);
     if (!reservation) {
-      return res.status(404).send('<h1>Reservation not found</h1>');
+      next();
     }
 
     // 3) Render the EJS form, passing the reservation into the template

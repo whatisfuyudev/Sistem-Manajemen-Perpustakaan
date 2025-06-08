@@ -10,7 +10,7 @@ exports.renderAdminNotificationDetail = async (req, res, next) => {
     // Fetch the notification and any related data (if needed)
     const result = await notificationService.getNotificationHistory({id});
     if (!result.total) {
-      return res.status(404).send('<h1>Notification not found</h1>');
+      next();
     }
     
     const notification = result.notifications[0].dataValues;
@@ -33,7 +33,7 @@ exports.renderAdminNotificationEdit = async (req, res, next) => {
     // Fetch single notification record
     const result = await notificationService.getNotificationHistory({id});
     if (!result.total) {
-      return res.status(404).send('<h1>Notification not found</h1>');
+      next();
     }
     
     const notification = result.notifications[0].dataValues;
