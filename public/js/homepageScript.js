@@ -271,4 +271,33 @@ document.addEventListener('DOMContentLoaded', async () => {
     // (Optional) show a “No news available” message if needed
   }
 
+  (async function() {
+    const gridEl = document.getElementById('articlesGrid');
+    const noMsg   = document.getElementById('noArticlesMessage');
+
+    let articles = [];
+    try {
+      const res = await fetch('/api/articles/published?order=desc');
+      if (!res.ok) throw new Error(res.status);
+      articles = await res.json();
+    } catch (e) {
+      console.error('Failed to fetch articles:', e);
+      noMsg.textContent = 'Gagal memuat artikel.';
+      noMsg.style.display = '';
+      return;
+    }
+
+    if (!articles.length) {
+      noMsg.style.display = '';
+      return;
+    }
+
+    // Render each article as a card
+    gridEl.innerHTML = articles.map(a => `
+      <a href="/articles/${a.id}" class="card">
+        <img src="${a.coverImage || '/public/images/default.png'}" alt="">
+        <div class="card-text">${a.title}</div>
+      </a>
+    `).join('');
+  })();
 }); // end DOMContentLoaded

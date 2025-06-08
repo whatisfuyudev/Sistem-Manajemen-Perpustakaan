@@ -4,10 +4,46 @@ const Article = require('../../models/article.model');
 const CustomError = require('../../utils/customError');
 const dataHelper = require('../../utils/dataHelper');
 
+const WORDS_PER_MINUTE = 150;
+
+function countWordsInDelta(delta) {
+  let text = '';
+  // Delta.ops is an array of { insert: string|object, attributes?... }
+  for (const op of delta.ops || []) {
+    if (typeof op.insert === 'string') {
+      text += op.insert;
+    }
+  }
+  // simple split on whitespace
+  const words = text
+    .trim()
+    .split(/\s+/)
+    .filter(w => w.length > 0);
+  return words.length;
+}
+
 /**
- * Create a new article.
+ * Create a new article, auto‑computing readingTime if omitted.
  */
 async function create(data) {
+  // If no readingTime provided, but there is a body delta
+  if (data.body && data.readingTime == null) {
+    let delta;
+    try {
+      // body may already be a JS object if parsed upstream,
+      // or a JSON string
+      delta = typeof data.body === 'string'
+        ? JSON.parse(data.body)
+        : data.body;
+    } catch (e) {
+      delta = { ops: [] };
+    }
+    const wordCount = countWordsInDelta(delta);
+    // compute minutes, minimum 1
+    data.readingTime = Math.max(1, Math.ceil(wordCount / WORDS_PER_MINUTE));
+  }
+
+  // now create
   return await Article.create(data);
 }
 
@@ -15,11 +51,33 @@ async function create(data) {
  * Update an existing article by ID.
  */
 async function update(id, data) {
-  const [affected] = await Article.update(data, { where: { id } });
-  if (!affected) {
+  // 1) Fetch existing record
+  const article = await Article.findByPk(id);
+  if (!article) {
     throw new CustomError(`Article with id=${id} not found`, 404);
   }
-  return await Article.findByPk(id);
+
+  // 2) If a new coverImage URL was provided, delete the old file
+  //    (we assume data.coverImage holds the new URL/path)
+  if (data.coverImage && article.coverImage) {
+    dataHelper.deleteFile(article.coverImage, err => {
+      if (err) {
+        console.error(`Error deleting old cover for article ${id}:`, err);
+      }
+    });
+  }
+
+  // 3) Perform the update, requesting the new row back
+  const [affectedRows] = await Article.update(
+    data,
+    {
+      where: { id },
+      returning: true
+    }
+  );
+
+  // 4) Return the updated instance
+  return affectedRows[0];
 }
 
 /**

@@ -26,4 +26,20 @@ INSERT INTO books (
 ('978-0547928227', 'The Hobbit', ARRAY['J.R.R. Tolkien'], ARRAY['Fantasy','Adventure'], 'George Allen & Unwin', 1937, 'A fantasy adventure following Bilbo Baggins on his quest.', '/public/images/book-covers/the hobbit.png', 20, 18, ARRAY['Hardcover','Paperback','eBook','Audiobook'], 310, NOW(), NOW()),
 ('978-0451524935', '1984', ARRAY['George Orwell'], ARRAY['Dystopian','Political Fiction'], 'Signet Classics', 1949, 'A dystopian novel set in a totalitarian society ruled by Big Brother.', '/public/images/book-covers/9eca12e2-b640-4bd1-a17f-a67ad77343c6-1984.jpg', 10, 8, ARRAY['Hardcover','Paperback','eBook'], 328, NOW(), NOW()),
 ('978-0525536291', 'The Vanishing Half', ARRAY['Brit Bennett','her mother'], ARRAY['Historical Fiction','Literary'], 'Riverhead Books', 2020, 'Twin sisters—one Black, one passing for white—live vastly different lives, each reckoning with the weight of their past and identity.', '/public/images/book-covers/00f5ae7d-cdaf-4445-b8ec-371fc9f7a414-vanishing.jpg', 4, 4, ARRAY['Paperback','Softcover'], 4, NOW(), NOW()),
-('978-0061120084', 'Mockingbird', ARRAY['Harper Lee'], ARRAY['Classic','Historical Fiction'], 'J.B. Lippincott & Co.', 1960, 'A novel dealing with racial injustice in the American South.', '/public/images/book-covers/mockingbird.png', 18, 14, ARRAY['Hardcover','Paperback','eBook','Audiobook'], 324, NOW(), NOW());
+('978-0061120084', 'Mockingbird', ARRAY['Harper Lee'], ARRAY['Classic','Historical Fiction'], 'J.B. Lippincott & Co.', 1960, 'A novel dealing with racial injustice in the American South.', '/public/images/book-covers/mockingbird.png', 18, 14, ARRAY['Hardcover','Paperback','eBook','Audiobook'], 324, NOW(), NOW()),
+(
+  '0-7475-3269-9',
+  'Harry Potter and the Philosopher''s Stone',
+  ARRAY['J. K. Rowling'],
+  ARRAY['Fantasy','Adventure','Children’s literature'],
+  'Bloomsbury (UK); Scholastic (US)',
+  1997,
+  'Harry Potter, an orphan raised by his cruel aunt and uncle, discovers on his eleventh birthday that he’s the heir of a powerful wizarding legacy—and has been accepted to Hogwarts School of Witchcraft and Wizardry. Thrown into a world of magic, friendship, and danger, he makes two lifelong friends and uncovers the mystery of the Philosopher’s Stone, an object of immortality hidden within the school’s walls.',
+  '/public/images/book-covers/c57b3d21-8d2c-47f8-913e-cb2d5284f605-harrypotter.jpg',
+  3,
+  3,
+  ARRAY['Hardcover','Paperback'],
+  223,
+  '2025-06-08T07:39:59.212Z'::timestamptz,
+  '2025-06-08T07:43:29.493Z'::timestamptz
+);

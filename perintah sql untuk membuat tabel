@@ -156,3 +156,15 @@ CREATE TABLE news (
 ---------------------------------------------------------------------
 
 -- create article table
+
+CREATE TABLE public.articles (
+  id              SERIAL PRIMARY KEY,
+  title           VARCHAR(75)        NOT NULL,
+  "coverImage"    TEXT,
+  body            JSONB              NOT NULL,
+  author_name     VARCHAR(125)       NOT NULL,
+  "readingTime"   INTEGER,
+  published       BOOLEAN            NOT NULL DEFAULT FALSE,
+  "createdAt"     TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  "updatedAt"     TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+);

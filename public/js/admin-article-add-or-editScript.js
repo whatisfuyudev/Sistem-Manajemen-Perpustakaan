@@ -124,6 +124,7 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
       form.reset();
       quill.setContents([]);   // clear editor
       document.getElementById('previewCover').style.display = 'none';
+      document.getElementById('uploadedImage').value = '';
     } else {
       const articleId = editMatch[1];
       window.location.href = `/admin/articles/${articleId}`;
