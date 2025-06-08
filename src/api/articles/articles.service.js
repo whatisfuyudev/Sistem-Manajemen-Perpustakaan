@@ -62,11 +62,6 @@ async function bulkDelete(ids) {
   return destroyedCount;
 }
 
-module.exports = {
-  // …other exports…
-  bulkDelete
-};
-
 /**
  * Set published/unpublished for an article.
  */

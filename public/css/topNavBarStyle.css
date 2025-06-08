@@ -11,6 +11,7 @@ nav {
   left: 0;            /* ← stretch from the left edge… */
   right: 0;           /* ← …to the right edge */
   z-index: 1000;      /* ← ensure it floats above other content */
+  box-shadow: 0 2px 8px rgba(0,0,0,.2),0 2px 8px rgba(0,0,0,.19);
 }
 
 /* add a small spacer so your page’s content doesn’t jump up underneath the nav */

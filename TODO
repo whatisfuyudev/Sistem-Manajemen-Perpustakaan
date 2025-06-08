@@ -30,7 +30,6 @@
         - login and register add library icon and name,  new logo on header nav bar 
 
         - my checkout my reservations, better request renewal css ui
-        - article section similar to ipusnas, front end side swiping card, back end manage
         
         - modify bulk deletion on books and users tab on admin panel so that
           api endpoint can accept multiple id and delete multiple data and
