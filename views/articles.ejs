@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Published Articles</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    /* Make the wrapper full width, with some side padding */
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fa;
+      margin: 0; padding: 0;
+    }
+    .wrapper {
+      width: 100%;
+      padding: 20px;
+      margin-top: 72px;
+      box-sizing: border-box;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .header > h1 {
+      font-size: 1.5rem;
+    }
+    .filter-bar {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .filter-bar input,
+    .filter-bar select {
+      padding: 8px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .filter-bar button {
+      padding: 8px 16px;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .filter-bar button:hover { background: #0056b3; }
+
+    .articles-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .article-item {
+      background: #fff;
+      border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      padding: 16px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .article-thumb {
+      flex-shrink: 0;
+      width: 120px;
+      height: 80px;
+      overflow: hidden;
+      border-radius: 4px;
+      background: #eee;
+    }
+    .article-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .article-info {
+      flex: 1;
+    }
+    .article-info h2 {
+      margin: 0 0 8px;
+      font-size: 1.2rem;
+    }
+    .article-meta {
+      color: #666;
+      font-size: 0.9rem;
+    }
+  </style>
+  <link rel="stylesheet" href="/public/css/topNavBarStyle.css">
+</head>
+<body>
+  <!-- Navigation Bar -->
+  <nav>
+    <div class="logo">
+      <a href="/">Library</a>
+    </div>
+
+    <div class="dropdown" id="navDropdown">
+      <button class="dropbtn" id="menuBtn">☰ Menu</button>
+      <div class="dropdown-content" id="dropdownContent">
+        <a href="/">Home</a>
+        <a href="/profile">Profile</a>
+        <a href="/user/reservations">Reservations</a>
+        <a href="/user/checkouts">Checkouts</a>
+        <a href="/auth/login">Login</a>
+        <a href="/auth/register">Register</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="wrapper">
+    <div class="header">
+      <h1>Published Articles</h1>
+      <form id="filterForm" class="filter-bar">
+        <input
+          type="text"
+          id="titleFilter"
+          placeholder="Filter by title…"
+          value="<%= titleFilter || '' %>"
+        >
+        <select id="orderSelect">
+          <option value="desc" <%= order==='desc'? 'selected':'' %>>
+            Newest First
+          </option>
+          <option value="asc" <%= order==='asc'? 'selected':'' %>>
+            Oldest First
+          </option>
+        </select>
+        <button type="submit">Filter</button>
+      </form>
+    </div>
+
+    <ul id="articlesList" class="articles-list">
+      <% articles.forEach(article => { %>
+        <li class="article-item">
+          <div class="article-thumb">
+            <% if (article.coverImage) { %>
+              <img src="<%= article.coverImage %>" alt="Cover for <%= article.title %>">
+            <% } %>
+          </div>
+          <div class="article-info">
+            <h2><%= article.title %></h2>
+            <div class="article-meta">
+              By <%= article.authorName %>
+            </div>
+          </div>
+        </li>
+      <% }) %>
+    </ul>
+  </div>
+
+  <script src="/public/js/articlesScript.js">
+
+  </script>
+  <script src="/public/js/topNavBarScript.js"></script>
+</body>
+</html>
+

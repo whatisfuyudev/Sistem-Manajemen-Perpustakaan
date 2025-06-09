@@ -270,58 +270,80 @@
       background: #007bff;
     }
 
-    /* -------- ARTICLES GRID -------- */
-    .articles-grid {
+    /* ------------ ARTICLES SLIDER ------------ */
+    .articles-slider {
       margin-top: 40px;
     }
-    .articles-grid .section-header {
+    .articles-slider .section-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 16px;
     }
-    .articles-grid .section-header h2 { margin: 0; }
-    .articles-grid .section-header .view-all {
-      font-size: 0.9rem; color: #4a4aff;
+    .articles-slider .section-header h2 {
+      margin: 0;
     }
-    .articles-grid .grid {
+    .articles-slider .section-header .view-all {
+      font-size: 0.9rem;
+      color: #4a4aff;
+    }
+
+    /* Slides container (horizontal scroll) */
+    .articles-slider .slides {
       display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
       gap: 16px;
+      padding-bottom: 8px;        /* space for scrollbar if visible */
+      scrollbar-width: none;      /* Firefox */
+      -ms-overflow-style: none;   /* IE 10+ */
     }
-    .articles-grid .card {
-      flex: 1 1 calc(50% - 16px);
-      max-width: calc(50% - 16px);
+    .articles-slider .slides::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Card */
+    .articles-slider .card {
+      flex: 0 0 calc((100% - 16px) / 2);
+      height: 180px;
+      scroll-snap-align: start;
       position: relative;
       border-radius: 8px;
       overflow: hidden;
-      cursor: pointer;
-      transition: transform 0.2s;
     }
-    .articles-grid .card:hover {
-      transform: translateY(-4px);
-    }
-    .articles-grid .card img {
+    .articles-slider .card img {
       width: 100%;
-      height: 180px;
+      height: 100%;
       object-fit: cover;
     }
-    .articles-grid .card-text {
+    .articles-slider .card::after {
+      content:'';
+      position:absolute; left:0; bottom:0;
+      width:100%; height:100%;
+      background: linear-gradient(
+        to top,
+        rgba(0,0,0,0.6) 20%,
+        rgba(0,0,0,0.4) 50%,
+        transparent 90%
+      );
+      pointer-events:none;
+    }
+    .articles-slider .card-text {
       position: absolute;
       bottom: 12px;
       left: 12px;
+      z-index: 1;
       color: #fff;
       font-size: 0.95rem;
       font-weight: bold;
-      text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+      line-height: 1.2;
     }
 
-    /* Mobile: 1 card per row */
+    /* Mobile: one card per view */
     @media (max-width: 600px) {
-      .articles-grid .card {
-        flex: 1 1 100%;      /* take full width */
-        max-width: 100%;
+      .articles-slider .card {
+        flex: 0 0 100%;
+        height: 220px;
       }
     }
   </style>
@@ -385,18 +407,18 @@
     </section>
 
     <!-- Articles Section -->
-    <section class="articles-grid">
+    <section class="articles-slider">
       <div class="section-header">
         <h2>Articles</h2>
-        <a href="/articles/published?order=desc" class="view-all">More</a>
+        <a href="/articles" class="view-all">More</a>
       </div>
 
-      <div class="grid" id="articlesGrid">
-        <!-- JS will inject .card elements here -->
+      <div class="slides" id="articlesSlides">
+        <!-- JS will inject <a class="card">…</a> here -->
       </div>
 
       <p id="noArticlesMessage" style="display:none; text-align:center; margin-top:20px;">
-        No available Articles.
+        No available articles.
       </p>
     </section>
 

@@ -1,5 +1,6 @@
 // controllers/admin/articlePage.controller.js
 const Article = require('../../models/article.model');
+const ArticleService = require('./articles.service');
 
 exports.renderAddForm = (req, res, next) => {
   // No article => blank form
@@ -49,6 +50,24 @@ exports.viewPublishedArticle = async (req, res, next) => {
       next();
     }
     res.render('article-details', { article });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.renderPublishedPage = async (req, res, next) => {
+  try {
+    const titleFilter = req.query.title || null;
+    let order = (req.query.order || 'desc').toLowerCase();
+    if (order !== 'asc' && order !== 'desc') order = 'desc';
+    
+    const articles = await ArticleService.getAllPublished(titleFilter, order);
+    // Pass current filters so the form can be pre-filled
+    res.render('articles', { 
+      articles,
+      titleFilter,
+      order
+    });
   } catch (err) {
     next(err);
   }

@@ -23,6 +23,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // 3) Render it
   quill.setContents(delta);
 
+  // 4) Remove the attribute so it isn’t accidentally re-parsed later
+  editorEl.removeAttribute('data-body');
+
   const editButton = document.getElementById('modifyBtn');
   if (editButton) {
     editButton.addEventListener('click', function () {

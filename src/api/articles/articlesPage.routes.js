@@ -27,6 +27,8 @@ router.get(
   ArticlePageController.viewArticle
 );
 
+router.get('/articles', ArticlePageController.renderPublishedPage);
+
 router.get(
   '/articles/:id', 
   ArticlePageController.viewPublishedArticle

@@ -23,15 +23,30 @@ function countWordsInDelta(delta) {
 }
 
 /**
- * Create a new article, auto‑computing readingTime if omitted.
+ * Create a new article, validating presence of required data
+ * and auto-computing readingTime if omitted.
+ *
+ * @param {Object} data
+ * @returns {Promise<Article>}
+ * @throws CustomError(…,400) if required data is missing
  */
 async function create(data) {
-  // If no readingTime provided, but there is a body delta
-  if (data.body && data.readingTime == null) {
+  // 1) Validate required fields
+  if (!data.title) {
+    throw new CustomError('Title is required', 400);
+  }
+  if (!data.body) {
+    throw new CustomError('Body (quill Delta) is required', 400);
+  }
+  if (!data.authorName) {
+    throw new CustomError('Author name is required', 400);
+  }
+
+  // 2) Auto-compute readingTime if not provided
+  if (data.readingTime == null) {
     let delta;
     try {
-      // body may already be a JS object if parsed upstream,
-      // or a JSON string
+      // Our controller may have stringified JSON or actual object
       delta = typeof data.body === 'string'
         ? JSON.parse(data.body)
         : data.body;
@@ -39,11 +54,11 @@ async function create(data) {
       delta = { ops: [] };
     }
     const wordCount = countWordsInDelta(delta);
-    // compute minutes, minimum 1
+    // at least one minute
     data.readingTime = Math.max(1, Math.ceil(wordCount / WORDS_PER_MINUTE));
   }
 
-  // now create
+  // 3) Finally, persist
   return await Article.create(data);
 }
 

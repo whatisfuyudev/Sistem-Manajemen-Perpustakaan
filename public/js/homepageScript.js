@@ -272,9 +272,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   (async function() {
-    const gridEl = document.getElementById('articlesGrid');
-    const noMsg   = document.getElementById('noArticlesMessage');
+    const slidesEl = document.getElementById('articlesSlides');
+    const noMsg    = document.getElementById('noArticlesMessage');
 
+    // Fetch published articles
     let articles = [];
     try {
       const res = await fetch('/api/articles/published?order=desc');
@@ -287,17 +288,18 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
 
-    if (!articles.length) {
+    if (articles.length === 0) {
       noMsg.style.display = '';
       return;
     }
 
-    // Render each article as a card
-    gridEl.innerHTML = articles.map(a => `
+    // Render cards
+    slidesEl.innerHTML = articles.map(a => `
       <a href="/articles/${a.id}" class="card">
-        <img src="${a.coverImage || '/public/images/default.png'}" alt="">
+        <img src="${a.coverImage || '/public/images/default.png'}" alt="${a.title}">
         <div class="card-text">${a.title}</div>
       </a>
     `).join('');
   })();
+  
 }); // end DOMContentLoaded
