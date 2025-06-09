@@ -17,21 +17,24 @@
       if (!res.ok) throw new Error(`Status ${res.status}`);
       const articles = await res.json();
 
-      // Re-render list with coverImage and authorName
+      // Re-render list with coverImage, authorName, and clickable link
       listEl.innerHTML = articles.map(a => `
         <li class="article-item">
-          <div class="article-thumb">
-            ${a.coverImage
-              ? `<img src="${a.coverImage}" alt="Cover for ${a.title}">`
-              : ``
-            }
-          </div>
-          <div class="article-info">
-            <h2>${a.title}</h2>
-            <div class="article-meta">
-              By ${a.authorName}
+          <a href="/articles/${a.id}"
+             style="display: flex; align-items: center; text-decoration: none; color: inherit; width:100%; gap:16px">
+            <div class="article-thumb">
+              ${a.coverImage
+                ? `<img src="${a.coverImage}" alt="Cover for ${a.title}">`
+                : ``
+              }
             </div>
-          </div>
+            <div class="article-info">
+              <h2>${a.title}</h2>
+              <div class="article-meta">
+                By ${a.authorName}
+              </div>
+            </div>
+          </a>
         </li>
       `).join('');
     } catch (err) {

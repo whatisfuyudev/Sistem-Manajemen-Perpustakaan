@@ -136,14 +136,6 @@
     .view-details:hover {
       background-color: #0056b3;
     }
-    /* Footer */
-    footer {
-      background: #007bff;
-      color: #fff;
-      text-align: center;
-      padding: 15px 20px;
-      margin-top: 20px;
-    }
     /* Responsive Adjustments */
     @media (max-width: 600px) {
       .search-container {
@@ -339,6 +331,16 @@
       line-height: 1.2;
     }
 
+    /* on your .slides container */
+    .articles-slider .slides {
+      cursor: grab;               /* indicate it’s draggable */
+      scroll-behavior: smooth;
+    }
+    .articles-slider .slides:active {
+      cursor: grabbing;           /* while dragging */
+       scroll-behavior: smooth;
+    }
+
     /* Mobile: one card per view */
     @media (max-width: 600px) {
       .articles-slider .card {
@@ -348,6 +350,7 @@
     }
   </style>
   <link rel="stylesheet" href="/public/css/topNavBarStyle.css">
+  <link rel="stylesheet" href="/public/css/footerStyle.css">
 </head>
 <body>
   <!-- Navigation Bar -->

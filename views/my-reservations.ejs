@@ -7,7 +7,7 @@
   <style>
     /* Base Reset */
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; color: #333; padding-bottom: 20px;}
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; color: #333;}
     h1 { text-align: center; margin-bottom: 20px; margin-top: 92px; }
 
     /* Filters */
@@ -190,9 +190,11 @@
 
     #outerContainer {
       padding: 0 20px;
+      margin-bottom: 40px;
     }
   </style>
   <link rel="stylesheet" href="/public/css/topNavBarStyle.css">
+  <link rel="stylesheet" href="/public/css/footerStyle.css">
 </head>
 <body>
   <!-- Navigation Bar -->
@@ -237,6 +239,11 @@
       <button id="nextButton" disabled>Next</button>
     </div>
   </div>
+
+   <!-- Footer -->
+  <footer>
+    <p>&copy; 2025 Library Management System. All rights reserved.</p>
+  </footer>
   
   <!-- Modal Popup -->
   <div id="modal-overlay" class="modal-overlay hidden">

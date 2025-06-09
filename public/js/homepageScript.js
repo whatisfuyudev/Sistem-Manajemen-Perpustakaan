@@ -295,11 +295,41 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Render cards
     slidesEl.innerHTML = articles.map(a => `
-      <a href="/articles/${a.id}" class="card">
+      <a href="/articles/${a.id}" class="card" >
         <img src="${a.coverImage || '/public/images/default.png'}" alt="${a.title}">
         <div class="card-text">${a.title}</div>
       </a>
     `).join('');
   })();
   
+  // grab the container
+  const slider = document.querySelector('.articles-slider .slides');
+  let isDown = false;
+  let startX;
+  let scrollStart;
+
+  // on mouse down, begin drag
+  slider.addEventListener('mousedown', e => {
+    isDown = true;
+    slider.classList.add('active');      // optional: for styling
+    startX = e.pageX - slider.offsetLeft;
+    scrollStart = slider.scrollLeft;
+  });
+
+  // on mouse leave or up, end drag
+  ['mouseleave','mouseup'].forEach(evt =>
+    slider.addEventListener(evt, () => {
+      isDown = false;
+      slider.classList.remove('active');
+    })
+  );
+
+  // on mouse move, if dragging, scroll
+  slider.addEventListener('mousemove', e => {
+    if (!isDown) return;
+    e.preventDefault();
+    const x = e.pageX - slider.offsetLeft;
+    const walk = (x - startX) * 1;        // multiplier for speed
+    slider.scrollLeft = scrollStart - walk;
+  });
 }); // end DOMContentLoaded

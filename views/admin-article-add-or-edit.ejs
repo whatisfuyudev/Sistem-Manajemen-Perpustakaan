@@ -138,7 +138,7 @@
       <div id="editor"><% if (article && article.body) { %><%- /* render existing body HTML for fallback */ article.body %><% } %></div>
 
       <!-- Hidden inputs -->
-      <input type="hidden" id="coverImageInput"  name="coverImage" value="<%= article ? article.coverImage : '' %>">
+      <input type="hidden" id="coverImageInput"  name="coverImage" value="">
       <input
         type="hidden"
         id="bodyInput"

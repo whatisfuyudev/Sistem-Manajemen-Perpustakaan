@@ -12,8 +12,9 @@
       margin: 0; padding: 0;
     }
     .wrapper {
-      width: 100%;
+      max-width: 800px;
       padding: 20px;
+      margin: 0 auto;
       margin-top: 72px;
       box-sizing: border-box;
     }
@@ -81,14 +82,42 @@
     }
     .article-info h2 {
       margin: 0 0 8px;
-      font-size: 1.2rem;
+      font-size: 1.1rem;
     }
     .article-meta {
       color: #666;
       font-size: 0.9rem;
     }
+    /* Mobile Responsive Adjustments */
+    @media (max-width: 720px) {
+      .header,
+      .filter-bar {
+        flex-direction: column;
+      }
+
+      .filter-bar {
+        width: 100%;
+      }
+
+      .filter-bar input,
+      .filter-bar select,
+      .filter-bar button {
+        max-width: 100%;
+      }
+    }
+
+    footer {
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+
+    footer > p {
+      margin: 0;
+    }
   </style>
   <link rel="stylesheet" href="/public/css/topNavBarStyle.css">
+  <link rel="stylesheet" href="/public/css/footerStyle.css">
 </head>
 <body>
   <!-- Navigation Bar -->
@@ -135,21 +164,28 @@
     <ul id="articlesList" class="articles-list">
       <% articles.forEach(article => { %>
         <li class="article-item">
-          <div class="article-thumb">
-            <% if (article.coverImage) { %>
-              <img src="<%= article.coverImage %>" alt="Cover for <%= article.title %>">
-            <% } %>
-          </div>
-          <div class="article-info">
-            <h2><%= article.title %></h2>
-            <div class="article-meta">
-              By <%= article.authorName %>
+          <a href="/articles/<%= article.id %>" style="display: flex; align-items: center; text-decoration: none; color: inherit; gap:16px">
+            <div class="article-thumb">
+              <% if (article.coverImage) { %>
+                <img src="<%= article.coverImage %>" alt="Cover for <%= article.title %>">
+              <% } %>
             </div>
-          </div>
+            <div class="article-info">
+              <h2><%= article.title %></h2>
+              <div class="article-meta">
+                By <%= article.authorName %>
+              </div>
+            </div>
+          </a>
         </li>
       <% }) %>
     </ul>
   </div>
+
+   <!-- Footer -->
+  <footer>
+    <p>&copy; 2025 Library Management System. All rights reserved.</p>
+  </footer>
 
   <script src="/public/js/articlesScript.js">
 
