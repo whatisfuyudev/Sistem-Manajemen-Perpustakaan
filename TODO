@@ -16,20 +16,8 @@
   - make the user/client side first
     - make it similiar to IPUSNAS (have article section and news/pengumuman section)
       - there will be homepage, individual book page, profile page, my reservations page, my checkouts page, register page, login page
-
-        - probably add more things on the homepage example would be book based by author, genre, or even a new section about article and dedicated article page, also news section that is related to book news or book things or library news.
-          - article section on homepage
-            - di homepage, bagian atas news, tengah rekomendasi buku, bawah article section
-          - articles page
-          - individual article page
-
-          - homepage featured books, change behaviour when mobile/tablet to scroll left and right instead of going down
-
-          - ganti news gibran, prabowo, jokowi jadi random person
-
-        - login and register add library icon and name,  new logo on header nav bar 
-
-        - my checkout my reservations, better request renewal css ui
+      
+        - my checkout my reservations, better request renewal css ui, when no items pagination should show something else rather than page 1 of 0 ask gpt
         
         - modify bulk deletion on books and users tab on admin panel so that
           api endpoint can accept multiple id and delete multiple data and

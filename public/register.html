@@ -2,59 +2,124 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>User Registration</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Library System — Register</title>
   <style>
-    body {
+    /* ------------------ Reset & Base ------------------ */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body, html {
+      width: 100%;
+      height: 100%;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 2rem;
-      background-color: #f4f4f4;
+      background-color: #f1f3f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
     }
-    .container {
-      background-color: #fff;
-      padding: 2rem;
-      border-radius: 8px;
-      max-width: 500px;
-      margin: auto;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+    /* ------------- Background Accents ------------- */
+    body::before,
+    body::after {
+      content: "";
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      background: rgba(255,255,255,0.3);
+      transform: rotate(45deg);
     }
-    h1 {
+    body::before {
+      top: -200px;
+      left: -200px;
+    }
+    body::after {
+      bottom: -200px;
+      right: -200px;
+    }
+
+    /* ------------------ Card ------------------ */
+    .register-card {
+      position: relative;
+      background: #ffffff;
+      width: 100%;
+      max-width: 400px;
+      padding: 2.5rem 2rem;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      z-index: 1;
       text-align: center;
     }
+    .brand-logo {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #0066ff;
+      margin-bottom: 0.5rem;
+      text-decoration: none;
+    }
+    .register-card .brand-logo-container {
+      margin-bottom: 0.5rem;
+    }
+    .register-card h1 {
+      font-size: 1.75rem;
+      margin-bottom: 1rem;
+      color: #1e2a38;
+    }
+
+    /* ------------------ Form ------------------ */
     form {
       display: flex;
       flex-direction: column;
       gap: 1rem;
+      margin-top: 1rem;
     }
     label {
-      font-weight: bold;
-      margin-bottom: 0.3rem;
+      font-size: 0.9rem;
+      color: #5a6a78;
+      text-align: left;
+      display: block;
     }
     input[type="text"],
     input[type="email"],
-    input[type="password"],
-    input[type="url"],
-    select {
+    input[type="password"] {
       width: 100%;
-      padding: 0.5rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+      padding: 0.75rem 1rem;
+      border: 1px solid #d1d9e6;
+      border-radius: 6px;
+      font-size: 1rem;
+      color: #1e2a38;
     }
+    input:focus {
+      outline: none;
+      border-color: #0066ff;
+      box-shadow: 0 0 0 3px rgba(0,102,255,0.2);
+    }
+
+    /* ------------------ Button ------------------ */
     button {
-      padding: 0.7rem;
+      width: 100%;
+      padding: 0.85rem;
       background-color: #28a745;
-      color: white;
       border: none;
-      border-radius: 4px;
+      border-radius: 6px;
+      color: white;
       font-size: 1rem;
       cursor: pointer;
+      transition: background-color 0.2s ease;
+      margin-top: 0.5rem;
     }
     button:hover {
       background-color: #218838;
     }
+
+    /* ------------------ Messages ------------------ */
     .message {
       margin-top: 1rem;
       text-align: center;
-      font-size: 1.1rem;
+      font-size: 1.05rem;
     }
     .error {
       color: #d9534f;
@@ -62,31 +127,70 @@
     .success {
       color: #28a745;
     }
+
+    /* ------------------ Footer Link ------------------ */
+    .signin {
+      margin-top: 1.5rem;
+      font-size: 0.9rem;
+      color: #5a6a78;
+    }
+    .signin a {
+      color: #0066ff;
+      text-decoration: none;
+    }
+    .signin a:hover {
+      text-decoration: underline;
+    }
+
+    /* ------------------ Responsive ------------------ */
+    @media (max-width: 420px) {
+      .register-card {
+        margin: 0 1rem;
+        padding: 2rem 1.5rem;
+      }
+      body::before,
+      body::after {
+        display: none;
+      }
+      input, button {
+        font-size: 0.95rem;
+        padding: 0.65rem 0.9rem;
+      }
+      .register-card h1 {
+        font-size: 1.5rem;
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Register</h1>
+
+  <div class="register-card">
+    <div class="brand-logo-container"><a href="/" class="brand-logo">Library System</a></div>
+    <h1>Create Account</h1>
+
     <form id="registerForm">
       <div>
         <label for="name">Name *</label>
-        <input type="text" id="name" required>
+        <input type="text" id="name" placeholder="Your full name" required>
       </div>
       <div>
         <label for="email">Email *</label>
-        <input type="email" id="email" required>
+        <input type="email" id="email" placeholder="you@domain.com" required>
       </div>
       <div>
         <label for="password">Password *</label>
-        <input type="password" id="password" required>
+        <input type="password" id="password" placeholder="••••••••" required>
       </div>
-
       <button type="submit">Register</button>
     </form>
+
     <div id="registerMessage" class="message"></div>
+
+    <div class="signin">
+      Already have an account? <a href="/auth/login">Sign in</a>
+    </div>
   </div>
 
-  <script src="/public/js/registerScript.js">
-  </script>
+  <script src="/public/js/registerScript.js"></script>
 </body>
 </html>

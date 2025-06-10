@@ -5,17 +5,26 @@
   <title>Published Articles</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
+    /* Make html/body fill the viewport */
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
     /* Make the wrapper full width, with some side padding */
     body {
       font-family: Arial, sans-serif;
       background: #f5f7fa;
       margin: 0; padding: 0;
+      display: flex;
+      flex-direction: column;
     }
     .wrapper {
+      flex: 1;
+      width: 100%;
       max-width: 800px;
       padding: 20px;
       margin: 0 auto;
-      margin-top: 72px;
+      margin-top: 32px;
       box-sizing: border-box;
     }
     .header {
