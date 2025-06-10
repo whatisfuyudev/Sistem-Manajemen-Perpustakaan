@@ -50,7 +50,7 @@ CREATE TABLE reservations (
   "queuePosition" INTEGER NOT NULL DEFAULT 1,
   status enum_reservations_status NOT NULL DEFAULT 'pending',
   "expirationDate" TIMESTAMP WITH TIME ZONE,
-  notes TEXT,
+  notes VARCHAR(75),
   "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );

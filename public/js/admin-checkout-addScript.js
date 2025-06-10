@@ -34,6 +34,10 @@ document.getElementById('checkoutForm').addEventListener('submit', async functio
       const data = await res.json();
       const due  = new Date(data.dueDate).toLocaleDateString();
       msg.innerHTML = `<div class="alert alert-success">Checkout successful! Due on ${due}.</div>`;
+
+      // reset the form
+      document.getElementById('checkoutForm').reset();
+
     } else {
       const err = await res.text();
       msg.innerHTML = `<div class="alert alert-danger">Failed: ${err}</div>`;

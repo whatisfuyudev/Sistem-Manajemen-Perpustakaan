@@ -11,23 +11,21 @@
    make it mobile responsive and modern and minimalist in style.
    "
    
-
-2. make user interface, reponsive html pages
-  - make the user/client side first
-    - make it similiar to IPUSNAS (have article section and news/pengumuman section)
-      - there will be homepage, individual book page, profile page, my reservations page, my checkouts page, register page, login page
-      
-        - my checkout my reservations, better request renewal css ui, when no items pagination should show something else rather than page 1 of 0 ask gpt
-        
-        - modify bulk deletion on books and users tab on admin panel so that
-          api endpoint can accept multiple id and delete multiple data and
-          not repeatedly call an api endpoint to delete a single data each time.
-          news publish and unpublish suffers the same fate, change them.
-
-
 ### General TODO
+- modify bulk deletion 
+  - on books 
+  - and users tab on admin panel so that
+  
+  api endpoint can accept multiple id and delete multiple data and
+  not repeatedly call an api endpoint to delete a single data each time.
+  
+  - news publish 
+  - and unpublish suffers the same fate, change them.
+
 - notification maybe batch send, new endpoint?
+
 - make sure the book service works properly, ensure data sanitization
+
 - checkout model no negative number on renewalCount or other number based column
 
 - send email notification if checkout is overdue 

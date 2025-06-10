@@ -71,7 +71,7 @@
       width: 100%;
       height: auto;
       border-radius: 4px;
-      margin-bottom: 10px;
+      margin: 10px 0;
     }
     .book-title {
       font-size: 16px;
@@ -219,52 +219,24 @@
       }
     }
 
-    /* Cancel and Modify Buttons */
-    .cancel-button, .modify-button {
-      padding: 8px 12px;
-      font-size: 14px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      margin-top: 10px;
-      transition: background-color 0.2s ease, transform 0.2s ease;
-      min-width: 100px;
-    }
-
-    /* Cancel Button Styling */
-    .cancel-button {
-      background-color: #dc3545;
-      color: #fff;
-    }
-    .cancel-button:hover {
-      background-color: #c82333;
-      transform: translateY(-2px);
-    }
-
-    /* Modify Button Styling */
-    .modify-button {
-      background-color: #ffc107;
-      color: #333;
-      margin-left: 5px;
-    }
-    .modify-button:hover {
-      background-color: #e0a800;
-      transform: translateY(-2px);
-    }
-
-    /* Mobile Responsive Adjustments */
-    @media (max-width: 480px) {
-      .cancel-button, .modify-button {
-        font-size: 13px;
-        padding: 6px 10px;
-        min-width: auto;
-      }
-    }
-
     #outerContainer {
       padding: 0 20px;
       margin-bottom: 40px;
       flex: 1;
+    }
+
+    #checkoutDuration,
+    #modalInput {
+      padding: 8px 10px;
+      font-size: 0.9rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+    #checkoutDuration {
+      margin-bottom: 4px;
+      margin-right: 4px;
     }
   </style>
   <link rel="stylesheet" href="/public/css/topNavBarStyle.css">

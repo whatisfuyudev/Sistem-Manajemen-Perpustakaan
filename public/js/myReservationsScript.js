@@ -53,7 +53,7 @@ async function fetchReservations(page = 1, filter = 'all') {
 async function renderReservations(data) {
   reservationsGrid.innerHTML = '';
   if (data.length === 0) {
-    reservationsGrid.innerHTML = '<p>No reservations found.</p>';
+    reservationsGrid.innerHTML = '<p style="text-align:center;">No reservations found.</p>';
     return;
   }
   for (const reservation of data) {
@@ -153,10 +153,26 @@ async function renderReservations(data) {
 // Pagination: update controls based on current page and total results
 function updatePagination() {
   const totalPages = Math.ceil(totalResults / limit);
+
+  // If there are no results at all, hide all pagination controls
+  if (totalResults === 0) {
+    prevButton.style.display      = 'none';
+    nextButton.style.display      = 'none';
+    pageIndicator.style.display   = 'none';
+    return;
+  }
+
+  // Otherwise ensure they’re visible again (in case you navigated back from a non-empty page)
+  prevButton.style.display      = '';
+  nextButton.style.display      = '';
+  pageIndicator.style.display   = '';
+
+  // Update their enabled/disabled state and text
   pageIndicator.textContent = `Page ${currentPage} of ${totalPages}`;
-  prevButton.disabled = currentPage === 1;
-  nextButton.disabled = currentPage >= totalPages;
+  prevButton.disabled       = currentPage === 1;
+  nextButton.disabled       = currentPage >= totalPages;
 }
+
 
 // Setup event listeners for pagination buttons
 prevButton.addEventListener('click', () => {
@@ -332,14 +348,6 @@ async function modifyReservation(reservationId, currentNotes, card) {
     });
 
     if (response.ok) {
-      // Update UI: if there is a notes element, update it; otherwise, add one
-      let notesDiv = card.querySelector('.notes');
-      if (!notesDiv) {
-        notesDiv = document.createElement('div');
-        notesDiv.className = 'notes';
-        card.appendChild(notesDiv);
-      }
-      notesDiv.textContent = 'Notes: ' + newNotes;
       await showModal({ message: 'Notes updated successfully!', showCancel: false });
 
       window.location.reload();

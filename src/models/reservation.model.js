@@ -36,7 +36,7 @@ const Reservation = sequelize.define('Reservation', {
     allowNull: true
   },
   notes: {
-    type: DataTypes.TEXT,
+    type: DataTypes.STRING(75),
     allowNull: true
   }
 }, {

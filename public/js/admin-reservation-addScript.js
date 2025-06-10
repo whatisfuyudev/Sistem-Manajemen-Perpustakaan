@@ -28,6 +28,9 @@ document.getElementById('reservationForm').addEventListener('submit', async func
       const reservation = await response.json();
       messageDiv.textContent = 'Reservation created successfully! Your position in the queue is ' + reservation.queuePosition;
       messageDiv.style.color = 'green';
+
+      // reset the form
+      document.getElementById('reservationForm').reset();
     } else {
       const errorText = await response.text();
       messageDiv.textContent = 'Reservation failed: ' + errorText;

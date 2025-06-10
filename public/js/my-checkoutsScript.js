@@ -60,7 +60,7 @@ async function fetchCheckouts(page = 1, filter = 'all') {
 async function renderCheckouts(data) {
   checkoutsGrid.innerHTML = '';
   if (data.length === 0) {
-    checkoutsGrid.innerHTML = '<p>No checkouts found.</p>';
+    checkoutsGrid.innerHTML = '<p style="text-align: center;">No checkouts found.</p>';
     return;
   }
   for (const checkout of data) {
@@ -153,7 +153,7 @@ async function renderCheckouts(data) {
 
 async function requestRenewal(checkoutId, card) {
   // Show the renewal prompt modal
-  const result = await showPromptModal({ message: 'Choose your renewal option:' });
+  const result = await showPromptModal({ message: 'Choose your renewal option (days):' });
   
   if (!result) {
     // User canceled the prompt
@@ -189,9 +189,24 @@ async function requestRenewal(checkoutId, card) {
 // Pagination: update controls based on current page and total results
 function updatePagination() {
   const totalPages = Math.ceil(totalResults / limit);
+
+  // If there are no results at all, hide all pagination controls
+  if (totalResults === 0) {
+    prevButton.style.display      = 'none';
+    nextButton.style.display      = 'none';
+    pageIndicator.style.display   = 'none';
+    return;
+  }
+
+  // Otherwise ensure they’re visible again (in case you navigated back from a non-empty page)
+  prevButton.style.display      = '';
+  nextButton.style.display      = '';
+  pageIndicator.style.display   = '';
+
+  // Update their enabled/disabled state and text
   pageIndicator.textContent = `Page ${currentPage} of ${totalPages}`;
-  prevButton.disabled = currentPage === 1;
-  nextButton.disabled = currentPage >= totalPages;
+  prevButton.disabled       = currentPage === 1;
+  nextButton.disabled       = currentPage >= totalPages;
 }
 
 // Event listeners for pagination buttons
@@ -227,7 +242,7 @@ document.addEventListener('DOMContentLoaded', fetchUserData);
 // Utility to reset the modal to its default state.
 function resetModal() {
   // Remove any custom input field if present.
-  const inputField = document.getElementById('modal-input');
+  const inputField = document.getElementById('modalInput');
   if (inputField) {
     inputField.remove();
   }
@@ -264,7 +279,7 @@ function showModal({ message, showCancel = false }) {
     }
 
     // Hide any input field if present
-    const inputField = document.getElementById('modal-input');
+    const inputField = document.getElementById('modalInput');
     if (inputField) {
       inputField.classList.add('hidden');
     }
@@ -314,7 +329,7 @@ function showPromptModal({ message, defaultValue = '14', showCancel = true }) {
     checkoutDuration.classList.remove('hidden');
 
     // Remove any previous custom input if it exists.
-    let inputField = document.getElementById('modal-input');
+    let inputField = document.getElementById('modalInput');
     if (inputField) {
       inputField.remove();
     }
@@ -332,10 +347,10 @@ function showPromptModal({ message, defaultValue = '14', showCancel = true }) {
     const onSelectChange = () => {
       if (checkoutDuration.value === 'custom') {
         // Create the input field if not already present.
-        if (!document.getElementById('modal-input')) {
+        if (!document.getElementById('modalInput')) {
           inputField = document.createElement('input');
           inputField.type = 'text';
-          inputField.id = 'modal-input';
+          inputField.id = 'modalInput';
           inputField.placeholder = 'Enter custom value';
           inputField.value = defaultValue;
           // Insert the input field after the select element.
@@ -364,7 +379,7 @@ function showPromptModal({ message, defaultValue = '14', showCancel = true }) {
       const renewalOption = checkoutDuration.value;
       let customDays = null;
       if (renewalOption === 'custom') {
-        const inputElem = document.getElementById('modal-input');
+        const inputElem = document.getElementById('modalInput');
         customDays = inputElem ? inputElem.value.trim() : '';
       }
       cleanUp();
