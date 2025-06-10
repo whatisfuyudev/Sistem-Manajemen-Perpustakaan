@@ -36,6 +36,14 @@ router.get(
   userController.getAllUsers
 );
 
+// Bulk‐delete users (Admin only)
+router.delete(
+  '/delete',
+  authMiddleware.verifyToken,
+  authMiddleware.isAdmin,
+  userController.bulkDeleteUsers
+);
+
 // New Endpoint to get single user by their id (admin only)
 router.get(
   '/:id', 
@@ -49,13 +57,6 @@ router.put('/:id',
   authMiddleware.verifyToken,
   authMiddleware.isAdmin,
   userController.updateUserAdmin
-);
-
-// Delete a user by id (admin only)
-router.delete('/:id',
-  authMiddleware.verifyToken,
-  authMiddleware.isAdmin,
-  userController.deleteUser
 );
 
 module.exports = router;

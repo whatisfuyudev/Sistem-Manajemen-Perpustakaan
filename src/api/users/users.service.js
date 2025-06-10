@@ -124,21 +124,40 @@ exports.updateUser = async (id, updateData) => {
   return affectedRows[0];
 };
 
-// Delete user by ID
-exports.deleteUser = async (id) => {
-  const user = await User.findOne({ where: { id } });
-
-  if (user.profilePicture) {
-    // if yes, delete old picture
-    dataHelper.deleteFile(user.profilePicture, (err) => {
-      if (err) {
-        console.error('Error deleting file:', err);
-        return null;
-        }
-      }
-    );
+/**
+ * Bulk‐delete users by an array of IDs.
+ * Also deletes their profile pictures if present.
+ * @param {number[]} ids
+ * @returns {Promise<number>}  the number of deleted rows
+ */
+exports.bulkDelete = async (ids) => {
+  if (!Array.isArray(ids) || ids.length === 0) {
+    throw new CustomError('No IDs provided for deletion', 400);
   }
 
-  const deletedCount = await User.destroy({ where: { id } });
-  return deletedCount > 0;
-};
+  // 1) Fetch matching users so we can delete their pictures
+  const users = await User.findAll({
+    where: { id: { [Op.in]: ids } },
+    attributes: ['id','profilePicture']
+  });
+
+  // 2) Delete each profilePicture file
+  await Promise.all(users.map(u => {
+    if (u.profilePicture) {
+      return new Promise(resolve => {
+        dataHelper.deleteFile(u.profilePicture, err => {
+          if (err) console.error(`Failed to delete picture for user ${u.id}:`, err);
+          resolve();
+        });
+      });
+    }
+    return Promise.resolve();
+  }));
+
+  // 3) Delete the DB rows
+  const deletedCount = await User.destroy({
+    where: { id: { [Op.in]: ids } }
+  });
+
+  return deletedCount;
+}

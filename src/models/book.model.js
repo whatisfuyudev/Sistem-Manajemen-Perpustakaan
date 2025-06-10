@@ -50,7 +50,7 @@ const Book = sequelize.define('Book', {
     defaultValue: 0
   },
   formats: {
-    // Store multiple formats (e.g., "eBook", "audiobook") as an array of strings
+    // Store multiple formats (e.g., "Hardcover", "Paperback") as an array of strings
     type: DataTypes.ARRAY(DataTypes.STRING),
     allowNull: true
   },

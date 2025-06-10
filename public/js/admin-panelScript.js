@@ -3,13 +3,6 @@ let currentPage = 1, totalPages = 1;
 
 // Base API endpoints for each module (modify as necessary)
 const API = {
-  books: {
-    list: '/api/books',
-    create: '/api/books',
-    update: (isbn) => `/api/books/update/${isbn}`,
-    delete: (isbn) => `/api/books/${isbn}`,
-    search: '/api/books/search'
-  },
   checkouts: {
     list: '/api/checkouts/history',
     checkout: '/api/checkouts/checkout',
@@ -29,8 +22,7 @@ const API = {
     list: '/api/users/',
     create: '/api/users/',
     update: (id) => `/api/users/${id}`,
-    single: '/api/users/single',
-    delete: (id) => `/api/users/${id}`
+    single: '/api/users/single'
   },
   notifications: {
     list: '/api/notifications/history',
@@ -329,45 +321,26 @@ function renderBooks(books, total, page) {
 }
 
 async function deleteBook(isbnOrArray) {
-  // If an array of ISBNs is passed, process them one by one
-  if (Array.isArray(isbnOrArray)) {
-    for (const isbn of isbnOrArray) {
-      try {
-        // Send DELETE request for each book; no modal confirmation here
-        const res = await fetch(API.books.delete(isbn), { method: 'DELETE' });
-        if (!res.ok) {
-          const err = await res.json();
-          console.error('Failed to delete book with ISBN ' + isbn + ': ' + err.message);
-        }
-      } catch (error) {
-        console.error('Error deleting book with ISBN ' + isbn, error);
-      }
-    }
-    // After processing all deletion requests, show a confirmation and refresh
-    await showModal({ message: 'Selected book(s) deleted successfully.' });
-    fetchBooks();
-    return;
-  }
-
-  // Single ISBN deletion flow: Ask for confirmation before deletion.
-  const confirmed = await showModal({ message: 'Are you sure you want to delete this book?', showCancel: true });
-  if (!confirmed) return;
-
+  const isbns = Array.isArray(isbnOrArray) ? isbnOrArray : [isbnOrArray];
   try {
-    const res = await fetch(API.books.delete(isbnOrArray), { method: 'DELETE' });
-    if (res.ok) {
-      await showModal({ message: 'Book deleted successfully.' });
-      fetchBooks();
-    } else {
+    const res = await fetch('/api/books/delete', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ isbns })
+    });
+
+    if (!res.ok) {
       const err = await res.json();
-      await showModal({ message: 'Error: ' + err.message });
+      throw new Error(err.message || res.statusText);
     }
-  } catch (error) {
-    console.error(error);
-    await showModal({ message: 'An error occurred while deleting the book.' });
+
+    await showModal({ message: `${isbns.length} book${isbns.length>1?'s':''} deleted.` });
+    fetchBooks();
+  } catch (err) {
+    console.error(err);
+    showModal({ message: 'Deletion failed: ' + err.message });
   }
 }
-
 
 /* ------------------------ CHECKOUTS MODULE ------------------------ */
 async function loadCheckoutsModule() {
@@ -1044,52 +1017,28 @@ function renderUsers(users, total, page) {
 
 /**
  * Delete one or more users.
- * @param {number|number[]} userIds  A single user ID or an array of IDs.
+ * @param {number|number[]} userIds 
  */
 async function deleteUser(userIds) {
-  // 1. Bulk‐delete branch
-  if (Array.isArray(userIds)) {                                   // Array.isArray checks if the value is an Array 
-    // You might skip per‐item confirmation for bulk actions
-    for (const id of userIds) {                                   // for…of to iterate over arrays 
-      try {
-        const res = await fetch(API.users.delete(id), {           // fetch() returns a Promise 
-          method: 'DELETE'
-        });
-        if (!res.ok) {
-          const err = await res.json();
-          console.error(`Failed to delete user ${id}: ${err.message}`);
-        }
-      } catch (error) {
-        console.error(`Error deleting user ${id}:`, error);
-      }
-    }
-    // 2. Show overall success & refresh
-    await showModal({ message: 'Selected user(s) deleted successfully.' });
-    fetchUsersModule();                                           // your existing refresh call
-    return;
-  }
-
-  // 3. Single‐delete branch with user confirmation
-  const confirmed = await showModal({                             // showModal returns a Promise 
-    message: 'Are you sure you want to delete this user?',
-    showCancel: true
-  });
-  if (!confirmed) return;
+  const ids = Array.isArray(userIds) ? userIds : [userIds];
 
   try {
-    const res = await fetch(API.users.delete(userIds), {          // delete single user
-      method: 'DELETE'
+    const res = await fetch('/api/users/delete', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids })
     });
-    if (res.ok) {
-      await showModal({ message: 'User deleted successfully.' });
-      fetchUsersModule();
-    } else {
+
+    if (!res.ok) {
       const err = await res.json();
-      await showModal({ message: 'Error: ' + err.message });
+      throw new Error(err.message || res.statusText);
     }
-  } catch (error) {
-    console.error(error);
-    await showModal({ message: 'An error occurred while deleting user.' });
+
+    await showModal({ message: `Deleted ${ids.length} user${ids.length>1?'s':''}.` });
+    fetchUsersModule();
+  } catch (err) {
+    console.error('Bulk-delete error:', err);
+    await showModal({ message: 'Error deleting user(s): ' + err.message });
   }
 }
 

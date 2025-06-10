@@ -120,15 +120,21 @@ exports.handleProfilePictureUpload = async (req, res, next) => {
   }
 }
 
-exports.deleteUser = async (req, res, next) => {
+/**
+ * Bulk‐delete users.
+ * Expects JSON body: { ids: [1,2,3] }
+ */
+exports.bulkDeleteUsers = async (req, res, next) => {
   try {
-    const deleted = await userService.deleteUser(req.params.id);
-    if (deleted) {
-      res.status(204).end();
-    } else {
-      res.status(404).json({ message: 'User not found or deletion not permitted' });
+    const { ids } = req.body;
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ message: 'No user IDs provided' });
     }
-  } catch (error) {
-    next(error);
+    const deletedCount = await userService.bulkDelete(ids);
+    res.status(200).json({
+      message: `Deleted ${deletedCount} user${deletedCount !== 1 ? 's' : ''}`
+    });
+  } catch (err) {
+    next(err);
   }
 };

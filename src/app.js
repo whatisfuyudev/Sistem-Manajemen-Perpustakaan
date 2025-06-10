@@ -184,16 +184,6 @@ app.get('/admin/panel',
     res.render('admin-panel');
 });
 
-// testing, move elsewhere after finishing it
-app.get('/test/search', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public', 'testSearchbar.html'));
-});
-
-// testing, move elsewhere after finishing it
-app.get('/test/writing', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public', 'writing.html'));
-});
-
 // // --------------------
 // // Global Error Handling
 // // --------------------

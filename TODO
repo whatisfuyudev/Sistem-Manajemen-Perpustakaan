@@ -13,20 +13,20 @@
    
 ### General TODO
 - modify bulk deletion 
-  - on books 
-  - and users tab on admin panel so that
-  
   api endpoint can accept multiple id and delete multiple data and
   not repeatedly call an api endpoint to delete a single data each time.
-  
   - news publish 
+
   - and unpublish suffers the same fate, change them.
+
+- checkout model or any other model, 
+  no negative number on renewalCount or other number based column
+
+- strech whole screen so footer does not move place on book-details page, profile, news-details, article-details
 
 - notification maybe batch send, new endpoint?
 
 - make sure the book service works properly, ensure data sanitization
-
-- checkout model no negative number on renewalCount or other number based column
 
 - send email notification if checkout is overdue 
 
@@ -35,10 +35,6 @@
   - refresh tokens last for a long time, like 1 week or 1 month
 - no return jwt token from login controller because bad practice?
 
-this app will have two sides, one for patron (book enjoyer) and one for librarians (book manager)
-- patron can only make reservation to borrow books, see their profile, and see all books, search books with ui
-- librarian can add books, see all books, see all patrons, see all borrowed books, see all reservations, see all fines, see all reports, manage borrowing
-
 - rate limiting on apis
 - on homepage script, when the it loads and randomly picks five books, 
   limit into only picking at most 100 books for performance reason while
@@ -46,18 +42,12 @@ this app will have two sides, one for patron (book enjoyer) and one for libraria
   randomize seaching thing directly with sequilize. 
 
 - code cleanup, 
-  - move test search page html file into a new temporary folder or delete it
-  - delete unused/test pages
   - css cleanup, no duplicate style
   - js cleanup, no duplicate code
   - delete any console.log/console.error on front end
   - move custom pop up into its own file so it is reuseable accross the whole app
     - change alert or prompt to custom pop up
   - user controller and books controller redundant code when removing empty input 
-
-
-- new ui on my reservations and my checkouts page, modern
-  - fix margin/gap between text and things inside reservation card on myreservations page
 
 - implement accountStatus on user data/model, look at docs
 
@@ -75,3 +65,5 @@ this app will have two sides, one for patron (book enjoyer) and one for libraria
 - log only the important stuff
 
 - inapp notification? consider deleting or implementing it.
+
+- github repo readme, do it properly

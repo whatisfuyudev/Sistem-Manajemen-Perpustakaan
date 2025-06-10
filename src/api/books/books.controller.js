@@ -106,17 +106,24 @@ exports.handleCoverImageUpload = async (req, res, next) => {
   }
 }
 
-exports.deleteBook = async (req, res, next) => {
+/**
+ * Bulk-delete books.
+ * Expects JSON body: { isbns: ['123', '456', ...] }
+ */
+exports.bulkDeleteBooks = async (req, res, next) => {
   try {
-    const { isbn } = req.params;
-    const deleted = await booksService.deleteBook(isbn);
-    if (deleted) {
-      return res.status(204).end();
-    } else {
-      return res.status(404).json({ message: 'Book not found or deletion not permitted' });
+    const { isbns } = req.body;
+    if (!Array.isArray(isbns) || isbns.length === 0) {
+      return res.status(400).json({ message: 'No ISBNs provided for deletion' });
     }
-  } catch (error) {
-    next(error);
+
+    const deletedCount = await booksService.bulkDelete(isbns);
+
+    res.status(200).json({
+      message: `Deleted ${deletedCount} book${deletedCount !== 1 ? 's' : ''}.`
+    });
+  } catch (err) {
+    next(err);
   }
 };
 

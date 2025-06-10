@@ -135,25 +135,38 @@ exports.updateBook = async (isbn, updateData) => {
 };
 
 /**
- * Delete a book record by ISBN.
+ * Bulk-delete books by their ISBNs.
+ * Also deletes any coverImage files on disk.
+ * @param {string[]} isbns
+ * @returns {Promise<number>} how many rows were deleted
  */
-exports.deleteBook = async (isbn) => {
-  const book = await Book.findOne({ where: { isbn } });
-  
-  if(book.coverImage) {
-    // if yes, delete old picture
-    dataHelper.deleteFile(book.coverImage, (err) => {
-      if (err) {
-        console.error('Error deleting file:', err);
-        return null;
-        }
-      }
-    );
-  }
-  
-  const deletedCount = await Book.destroy({ where: { isbn } });
-  return deletedCount > 0;
-};
+exports.bulkDelete = async (isbns) => {
+  // 1) Fetch the matching books so we can delete any cover images
+  const books = await Book.findAll({
+    where: { isbn: { [Op.in]: isbns } },
+    attributes: ['isbn','coverImage']
+  });
+
+  // 2) Delete each coverImage if present
+  await Promise.all(books.map(b => {
+    if (b.coverImage) {
+      return new Promise(resolve => {
+        dataHelper.deleteFile(b.coverImage, err => {
+          if (err) console.error(`Error deleting cover for ISBN ${b.isbn}:`, err);
+          resolve();
+        });
+      });
+    }
+    return Promise.resolve();
+  }));
+
+  // 3) Delete the database rows
+  const deletedCount = await Book.destroy({
+    where: { isbn: { [Op.in]: isbns } }
+  });
+
+  return deletedCount;
+}
 
 /**
  * Search and filter books.

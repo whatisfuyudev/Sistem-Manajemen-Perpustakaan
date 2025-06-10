@@ -31,20 +31,18 @@ router.get('/', booksController.listBooks);
 router.put('/update/:isbn',
   authMiddleware.verifyToken,
   authMiddleware.isLibrarianOrAdmin,
-  booksController.updateBook);
-
-// Retrieve a single book by ISBN
-router.get('/:isbn', booksController.getBook);
-
-
-// Delete a book by ISBN [admin/librarian only]
-router.delete('/:isbn',
-  authMiddleware.verifyToken,
-  authMiddleware.isLibrarianOrAdmin,
-  booksController.deleteBook
-
+  booksController.updateBook
 );
 
 
+router.delete(
+  '/delete',
+  authMiddleware.verifyToken,
+  authMiddleware.isLibrarianOrAdmin,
+  booksController.bulkDeleteBooks
+);
+
+// Retrieve a single book by ISBN
+router.get('/:isbn', booksController.getBook);
 
 module.exports = router;

@@ -40,7 +40,13 @@ const Article = sequelize.define('Article', {
   readingTime: {
     type: DataTypes.INTEGER,
     allowNull: true,
-    comment: 'Estimated reading time in minutes'
+    comment: 'Estimated reading time in minutes',
+    validate: {
+      min: {
+        args: [1],
+        msg: 'Reading time must be at least 1 minute'
+      }
+    }
   },
   published: {
     type: DataTypes.BOOLEAN,
