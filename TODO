@@ -12,8 +12,6 @@
    "
    
 ### General TODO
-- do it for articles too, have gpt write an article that is copy paste-able to quill js editor
-
 - checkout model or any other model, 
   no negative number on renewalCount or other number based column
 

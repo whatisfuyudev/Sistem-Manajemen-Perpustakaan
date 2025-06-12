@@ -2833,43 +2833,6 @@ async function renderInventoryHealthDetails(books, totalCount, page) {
         renderInventoryHealthDetails(result.books, result.totalCount, result.page);
       }
     });
-
-    // maybe latter
-    // // Wire Repair button
-    // document.getElementById('repairBookBtn').addEventListener('click', async () => {
-    //   const modalResult = await showRepairReplaceModal();
-    //   if (!modalResult) return;
-    //   const { checkoutId, action } = modalResult;  // action will be "repair"
-    //   try {
-    //     const res = await fetch(`/api/checkouts/${checkoutId}/repair`, { method: 'POST' });
-    //     const body = await res.json();
-    //     if (!res.ok) throw new Error(body.message || res.statusText);
-    //     alert('Success: ' + (body.message || 'Book repaired.'));
-    //     // optionally refresh table
-    //     const updated = await fetchInventoryHealth(inputEl.value.trim());
-    //     renderInventoryHealthDetails(updated.books, updated.totalCount, updated.page);
-    //   } catch (err) {
-    //     alert('Error: ' + err.message);
-    //   }
-    // });
-
-    // // Wire Replace button
-    // document.getElementById('replaceBookBtn').addEventListener('click', async () => {
-    //   const modalResult = await showRepairReplaceModal();
-    //   if (!modalResult) return;
-    //   const { checkoutId, action } = modalResult;  // action will be "replace"
-    //   try {
-    //     const res = await fetch(`/api/checkouts/${checkoutId}/replace`, { method: 'POST' });
-    //     const body = await res.json();
-    //     if (!res.ok) throw new Error(body.message || res.statusText);
-    //     alert('Success: ' + (body.message || 'Book replaced.'));
-    //     // optionally refresh table
-    //     const updated = await fetchInventoryHealth(inputEl.value.trim());
-    //     renderInventoryHealthDetails(updated.books, updated.totalCount, updated.page);
-    //   } catch (err) {
-    //     alert('Error: ' + err.message);
-    //   }
-    // });
   }
 
   let html = '';

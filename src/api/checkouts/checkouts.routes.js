@@ -27,19 +27,5 @@ router.post('/request-renewal/:id', authMiddleware.verifyToken, checkoutsControl
 // Renew an active checkout
 router.put('/renew/:id', authMiddleware.verifyToken, authMiddleware.isLibrarianOrAdmin,  checkoutsController.renewCheckout);
 
-// maybe latter
-// router.post(
-//   '/:id/repair',
-//   authMiddleware.verifyToken,
-//   authMiddleware.isLibrarianOrAdmin,
-//   checkoutsController.markDamagedRepaired
-// );
-
-// router.post(
-//   '/:id/replace',
-//   authMiddleware.verifyToken,
-//   authMiddleware.isLibrarianOrAdmin,
-//   checkoutsController.markLostReplaced
-// );
 
 module.exports = router;
