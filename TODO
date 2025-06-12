@@ -12,7 +12,6 @@
    "
    
 ### General TODO
-- make sure all of the news example is an actual news, ask gpt for some ideas (short quick library related news)
 - do it for articles too, have gpt write an article that is copy paste-able to quill js editor
 
 - checkout model or any other model, 
@@ -50,9 +49,6 @@
 - stress test, 1 million data is too big, test for 100k, 10k, 1k
 
 - sequilize association between table/model
-
-- maybe add replace lost book and repair damaged book functionality that handle
-  checkout record properly (just delete lmao)
 
 - user engagement, because it fetch two different api endpoint the data retrieved can be different. the difference in data mess up the front end. handle when there is a user with only reservation or checkouts
 
