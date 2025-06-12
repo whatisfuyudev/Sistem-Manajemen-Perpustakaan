@@ -69,24 +69,28 @@ exports.bulkDeleteArticles = async (req, res, next) => {
 };
 
 /**
- * Publish or unpublish.
- * Expects boolean `published` in body or query.
+ * Bulk‐publish/unpublish articles.
+ * Expects JSON body: { ids: [1,2,3], published: true|false }
  */
-exports.setPublished = async (req, res, next) => {
+exports.bulkSetPublished = async (req, res, next) => {
   try {
-    const published = req.body.published ?? req.query.published;
-    if (published == null) {
-      return res.status(400).json({ message: 'Missing `published` flag' });
+    const { ids, published } = req.body;
+    if (!Array.isArray(ids) || ids.length === 0 || typeof published !== 'boolean') {
+      return res.status(400).json({
+        message: 'Must provide `ids` array and boolean `published` flag'
+      });
     }
-    const result = await ArticleService.setPublished(
-      req.params.id,
-      published === 'true' || published === true
-    );
-    res.status(200).json(result);
+    const count = await ArticleService.bulkSetPublished(ids, published);
+    res.status(200).json({
+      message: `${count} article${count !== 1 ? 's' : ''} ${
+        published ? 'published' : 'unpublished'
+      }`
+    });
   } catch (err) {
     next(err);
   }
 };
+
 
 /**
  * List all published articles, with optional `title` filter

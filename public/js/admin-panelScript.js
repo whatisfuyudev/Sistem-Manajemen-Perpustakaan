@@ -1316,13 +1316,13 @@ async function loadNewsModule() {
 
   // Bulk delete
   document.getElementById('bulkDeleteBtn')
-    .addEventListener('click', () => bulkDeleteSelected());
+    .addEventListener('click', () => bulkDeleteSelectedNews());
   
   // Bulk publish / unpublish
   document.getElementById('bulkPublishBtn')
-    .addEventListener('click', () => bulkTogglePublished(true));
+    .addEventListener('click', () => bulkTogglePublishedNews(true));
   document.getElementById('bulkUnpublishBtn')
-    .addEventListener('click', () => bulkTogglePublished(false));
+    .addEventListener('click', () => bulkTogglePublishedNews(false));
 
   // Add new
   document.getElementById('newNewsBtn')
@@ -1426,47 +1426,54 @@ function renderNews(items, total, page) {
     });
 }
 
-async function bulkTogglePublished(flag) {
-  // collect selected
+async function bulkTogglePublishedNews(flag) {
+  // 1) Gather selected IDs
   const checks = document.querySelectorAll(
     '.news-table tbody input[type="checkbox"]:checked'
   );
+
   if (checks.length === 0) {
     await showModal({ message: 'Select at least one news item.' });
     return;
   }
   const confirmed = await showModal({
-    message: `${flag? 'Publish':'Unpublish'} selected items?`,
+    message: `${flag ? 'Publish' : 'Unpublish'} selected items?`,
     showCancel: true
   });
   if (!confirmed) return;
 
-  // gather IDs
   const ids = Array.from(checks).map(cb =>
-    cb.closest('tr').getAttribute('data-id')
+    parseInt(cb.closest('tr').dataset.id, 10)
   );
+
+  // 2) Single request with all IDs + flag
   try {
-    await Promise.all(ids.map(id =>
-      fetch(`${API.news.root}/${id}/published`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ published: flag })
-      })
-    ));
-    await showModal({ message: `${flag ? "Selected New(s) published succesfully" : "Selected New(s) unpublished succesfully"}` });
+    const res = await fetch(`${API.news.root}/published/bulk`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids, published: flag })
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.message || res.statusText);
+    }
+
+    await showModal({
+      message: flag
+        ? 'Selected news published successfully!'
+        : 'Selected news unpublished successfully!'
+    });
     fetchNewsModule();
   } catch (err) {
-    console.error(err);
-    showModal({ message: 'Error toggling published state.' });
+    console.error('Bulk publish error:', err);
+    await showModal({ message: 'Error toggling published state.' });
   }
 }
 
 /**
  * Bulk-delete selected news items
  */
-async function bulkDeleteSelected() {
+async function bulkDeleteSelectedNews() {
   // collect selected checkboxes
   const checks = document.querySelectorAll(
     '.news-table tbody input[type="checkbox"]:checked'
@@ -1583,13 +1590,13 @@ async function loadArticlesModule() {
 
   // Bulk delete
   document.getElementById('bulkDeleteBtn')
-    .addEventListener('click', () => bulkDeleteSelected());
+    .addEventListener('click', () => bulkDeleteSelectedArticles());
 
   // Bulk publish / unpublish
   document.getElementById('bulkPublishBtn')
-    .addEventListener('click', () => bulkTogglePublished(true));
+    .addEventListener('click', () => bulkTogglePublishedArticles(true));
   document.getElementById('bulkUnpublishBtn')
-    .addEventListener('click', () => bulkTogglePublished(false));
+    .addEventListener('click', () => bulkTogglePublishedArticles(false));
 
   // Add new
   document.getElementById('newArticleBtn')
@@ -1693,11 +1700,12 @@ function renderArticles(items, total, page) {
     });
 }
 
-async function bulkTogglePublished(flag) {
+async function bulkTogglePublishedArticles(flag) {
+  // 1) Gather selected IDs
   const checks = document.querySelectorAll(
     '.articles-table tbody input[type="checkbox"]:checked'
   );
-  if (checks.length === 0) {
+  if (!checks.length) {
     await showModal({ message: 'Select at least one article.' });
     return;
   }
@@ -1708,25 +1716,34 @@ async function bulkTogglePublished(flag) {
   if (!confirmed) return;
 
   const ids = Array.from(checks).map(cb =>
-    cb.closest('tr').dataset.id
+    parseInt(cb.closest('tr').dataset.id, 10)
   );
+
+  // 2) Single request, pass all IDs + flag
   try {
-    await Promise.all(ids.map(id =>
-      fetch(`${API.articles.root}/${id}/published`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ published: flag })
-      })
-    ));
-    await showModal({ message: `${flag ? "Selected article(s) published" : "Selected article(s) unpublished"}` });
-    fetchArticlesModule();
+    const res = await fetch(`${API.articles.root}/published/bulk`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids, published: flag })
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.message || res.statusText);
+    }
+
+    await showModal({
+      message: flag
+        ? 'Selected articles published!'
+        : 'Selected articles unpublished!'
+    });
+    fetchArticlesModule();  // your reload function
   } catch (err) {
-    console.error(err);
-    showModal({ message: 'Error toggling published state.' });
+    console.error('Bulk publish error:', err);
+    await showModal({ message: 'Error toggling published state.' });
   }
 }
 
-async function bulkDeleteSelected() {
+async function bulkDeleteSelectedArticles() {
   const checks = document.querySelectorAll(
     '.articles-table tbody input[type="checkbox"]:checked'
   );

@@ -136,17 +136,22 @@ async function bulkDelete(ids) {
 }
 
 /**
- * Set published/unpublished for an article.
+ * Bulk‐set published/unpublished.
+ * @param {number[]} ids
+ * @param {boolean} published
+ * @returns {Promise<number>} number of rows updated
  */
-async function setPublished(id, published) {
+async function bulkSetPublished(ids, published) {
   const [affected] = await Article.update(
     { published },
-    { where: { id } }
+    { where: { id: { [Op.in]: ids } } }
   );
-  if (!affected) {
-    throw new CustomError(`Article with id=${id} not found`, 404);
+
+  if (affected === 0) {
+    throw new CustomError('No matching articles found to update', 404);
   }
-  return await Article.findByPk(id);
+
+  return affected;
 }
 
 /**
@@ -219,7 +224,7 @@ module.exports = {
   create,
   update,
   bulkDelete,
-  setPublished,
+  bulkSetPublished,
   getAllPublished,
   searchAdmin
 };

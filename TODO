@@ -12,12 +12,8 @@
    "
    
 ### General TODO
-- modify bulk deletion 
-  api endpoint can accept multiple id and delete multiple data and
-  not repeatedly call an api endpoint to delete a single data each time.
-  - news publish 
-
-  - and unpublish suffers the same fate, change them.
+- make sure all of the news example is an actual news, ask gpt for some ideas (short quick library related news)
+- do it for articles too, have gpt write an article that is copy paste-able to quill js editor
 
 - checkout model or any other model, 
   no negative number on renewalCount or other number based column
@@ -56,7 +52,7 @@
 - sequilize association between table/model
 
 - maybe add replace lost book and repair damaged book functionality that handle
-  checkout record properly
+  checkout record properly (just delete lmao)
 
 - user engagement, because it fetch two different api endpoint the data retrieved can be different. the difference in data mess up the front end. handle when there is a user with only reservation or checkouts
 

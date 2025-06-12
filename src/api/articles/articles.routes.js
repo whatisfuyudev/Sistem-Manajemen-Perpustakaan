@@ -36,6 +36,14 @@ router.post(
   ArticleController.createArticle
 );
 
+// Admin: Bulk‐toggle published status
+router.put(
+  '/published/bulk',
+  authMiddleware.verifyToken,
+  authMiddleware.isLibrarianOrAdmin,
+  ArticleController.bulkSetPublished
+);
+
 // Admin: edit an existing article
 router.put(
   '/edit/:id',
@@ -52,12 +60,5 @@ router.delete(
   ArticleController.bulkDeleteArticles
 );
 
-// Admin: publish/unpublish
-router.put(
-  '/:id/published',
-  authMiddleware.verifyToken,
-  authMiddleware.isLibrarianOrAdmin,
-  ArticleController.setPublished
-);
 
 module.exports = router;

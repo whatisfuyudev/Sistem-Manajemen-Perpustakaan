@@ -296,7 +296,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Render cards
     slidesEl.innerHTML = articles.map(a => `
       <a href="/articles/${a.id}" class="card" >
-        <img src="${a.coverImage || '/public/images/default.png'}" alt="${a.title}">
+        <img src="${a.coverImage || '/public/images/articles-pictures/default.png'}" alt="${a.title}">
         <div class="card-text">${a.title}</div>
       </a>
     `).join('');

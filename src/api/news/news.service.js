@@ -62,21 +62,24 @@ async function update(id, data) {
 }
 
 /**
- * Mark a news item published or unpublished.
- * @param {number|string} id
+ * Bulk‐mark published/unpublished for multiple news items.
+ * @param {number[]} ids
  * @param {boolean} published
- * @throws {Error} if no row was affected
- * @returns {Promise<News>}
+ * @returns {Promise<number>} number of rows affected
  */
-async function markPublished(id, published) {
+async function bulkMarkPublished(ids, published) {
+  // 1) Update all in one query
   const [affected] = await News.update(
     { published },
-    { where: { id } }
+    { where: { id: { [Op.in]: ids } } }
   );
-  if (!affected) {
-    throw new CustomError(`News with id=${id} not found`, 404);
+
+  // 2) If none were updated, it might be invalid IDs
+  if (affected === 0) {
+    throw new CustomError('No matching news items found', 404);
   }
-  return await News.findByPk(id);
+
+  return affected;
 }
 
 /**
@@ -207,7 +210,7 @@ async function bulkDelete(ids) {
 module.exports = {
   create,
   update,
-  markPublished,
+  bulkMarkPublished,
   getAllPublished,
   search,
   getPublishedById,

@@ -52,12 +52,13 @@ router.put(
   NewsController.updateNews
 );
 
-// Librarian/Admin route
+// NEW: Bulk‐toggle published
 router.put(
-  '/:id/published',
+  '/published/bulk',
   authMiddleware.verifyToken,
   authMiddleware.isLibrarianOrAdmin,
-  NewsController.markPublished
+  NewsController.bulkMarkPublished
 );
+
 
 module.exports = router;

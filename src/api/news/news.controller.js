@@ -65,21 +65,19 @@ exports.updateNews = async (req, res, next) => {
 };
 
 /**
- * Mark a news item published/unpublished.
+ * Bulk‐mark published/unpublished.
+ * Expects JSON body: { ids: [1,2,3], published: true|false }
  */
-exports.markPublished = async (req, res, next) => {
+exports.bulkMarkPublished = async (req, res, next) => {
   try {
-    // Expect a boolean query or body parameter `published`
-    const published = req.body.published ?? req.query.published;
-    if (published == null) {
-      return res.status(400).json({ message: 'Missing `published` flag' });
+    const { ids, published } = req.body;
+    if (!Array.isArray(ids) || ids.length === 0 || typeof published !== 'boolean') {
+      return res.status(400).json({ message: 'Must provide `ids` array and boolean `published`' });
     }
-
-    const result = await NewsService.markPublished(
-      req.params.id,
-      published === 'true' || published === true
-    );
-    res.status(200).json(result);
+    const count = await NewsService.bulkMarkPublished(ids, published);
+    res.status(200).json({
+      message: `${count} item${count!==1?'s':''} ${published?'published':'unpublished'}`
+    });
   } catch (err) {
     next(err);
   }
