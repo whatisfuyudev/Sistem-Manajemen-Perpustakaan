@@ -246,8 +246,7 @@ exports.processReturn = async (data) => {
   const updated = await checkout.update({
     returnDate:      actualReturnDate,
     status:          finalStatus,
-    fine:            totalFine,   // historical assessed
-    outstandingFine: totalFine    // current owed
+    fine:            totalFine
   });
 
   // 5) If truly returned (not lost/damaged), put the copy back

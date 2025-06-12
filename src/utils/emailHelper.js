@@ -38,7 +38,7 @@ exports.sendEmail = async ({ to, subject, html }) => {
     return resp;
   } catch (err) {
     // Log the full error stack, but do not throw
-    logger.error("sendEmail failed", err);
+    logger.error("sendEmail failed\n"+ JSON.stringify(err.body) );
     return null;
   }
 };

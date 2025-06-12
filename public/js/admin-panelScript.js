@@ -1069,7 +1069,6 @@ async function loadNotificationsModule() {
             <option value="">-- Channel --</option>
             <option value="email">Email</option>
             <option value="sms">SMS</option>
-            <option value="inapp">In-App</option>
           </select>
           <select id="searchStatus" name="status">
             <option value="">-- Status --</option>

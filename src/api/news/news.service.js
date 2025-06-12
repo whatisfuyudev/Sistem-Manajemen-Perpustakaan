@@ -3,6 +3,7 @@ const { Op } = require('sequelize');
 const News     = require('../../models/news.model');
 const CustomError = require('../../utils/customError');
 const dataHelper = require('../../utils/dataHelper');
+const logger = require('../../utils/logger');
 
 /**
  * Create a new news item.
@@ -44,7 +45,7 @@ async function update(id, data) {
   if (data.imageUrl) {
       dataHelper.deleteFile(news.imageUrl, err => {
         if (err) {
-          console.error(`Error deleting file for news ${data.id}:`, err);
+          logger.error(`Error deleting file for news ${data.id}:\n` + JSON.stringify(err));
         }
       });    
     }
@@ -189,7 +190,7 @@ async function bulkDelete(ids) {
       return new Promise(resolve => {
         dataHelper.deleteFile(n.imageUrl, err => {
           if (err) {
-            console.error(`Error deleting file for news ${n.id}:`, err);
+            logger.error(`Error deleting file for news ${n.id}:\n` + JSON.stringify(err));
           }
           // resolve no matter what so one failure doesn't abort all
           resolve();

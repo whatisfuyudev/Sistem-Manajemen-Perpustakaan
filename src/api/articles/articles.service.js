@@ -3,6 +3,7 @@ const { Op } = require('sequelize');
 const Article = require('../../models/article.model');
 const CustomError = require('../../utils/customError');
 const dataHelper = require('../../utils/dataHelper');
+const logger = require('../../utils/logger');
 
 const WORDS_PER_MINUTE = 150;
 
@@ -77,7 +78,7 @@ async function update(id, data) {
   if (data.coverImage && article.coverImage) {
     dataHelper.deleteFile(article.coverImage, err => {
       if (err) {
-        console.error(`Error deleting old cover for article ${id}:`, err);
+        logger.error(`Error deleting old cover for article ${id}:\n`+ JSON.stringify(err));
       }
     });
   }
@@ -115,7 +116,7 @@ async function bulkDelete(ids) {
       if (a.coverImage) {
         return new Promise(resolve => {
           dataHelper.deleteFile(a.coverImage, err => {
-            if (err) console.error(`Error deleting cover for article ${a.id}:`, err);
+            if (err) logger.error(`Error deleting cover for article ${a.id}:\n`+ JSON.stringify(err));
             resolve();
           });
         });

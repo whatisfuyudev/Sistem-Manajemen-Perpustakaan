@@ -12,6 +12,7 @@ const News         = require('../models/news.model');
 const User         = require('../models/user.model')
 const Article      = require('../models/article.model')
 const emailHelper  = require('./emailHelper');
+const logger = require('./logger');
 
 // Folders to clean + which model + which attribute holds the URL
 const CLEANUP_TARGETS = [
@@ -150,9 +151,9 @@ async function processScheduledNotifications() {
 
       sentCount++;
     } catch (err) {
-      console.error(
-        `Error sending notification #${notification.id}:`,
-        err
+      logger.error(
+        `Error sending notification #${notification.id}:\n` +
+        JSON.stringify(err)
       );
       // mark failed:
       notification.status = 'failed';
@@ -221,10 +222,10 @@ async function cleanupOrphanImages({ dir, model, attr, protect }) {
       }
     }
   } catch (err) {
-    console.error(`Error cleaning ${dir}:`, err);
+    logger.error(`Error cleaning ${dir}:\n`+ JSON.stringify(err));
   }
   return deletedCount;
 }
 
 // Kick off!
-initScheduler().catch(err => console.error('Scheduler failed:', err));
+initScheduler().catch(err => logger.error('Scheduler failed:\n' + JSON.stringify(err)));

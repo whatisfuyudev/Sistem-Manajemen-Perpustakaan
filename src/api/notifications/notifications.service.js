@@ -33,9 +33,6 @@ exports.sendNotification = async (data) => {
       // Feature not implemented yet
       throw new CustomError('SMS notifications are coming soon.', 501);
       // result = await smsHelper.sendSMS({ to: recipient, message });
-    } else if (channel === 'inapp') {
-      // For in-app notifications, only a record is saved.
-      result = { message: 'In-app notification logged.' };
     } else {
       throw new CustomError('Unsupported notification channel.', 400);
     }
@@ -66,9 +63,6 @@ exports.scheduleNotification = async (data) => {
   if (channel === 'sms') {
     throw new CustomError('SMS scheduling is coming soon.', 501);
   }
-  if (channel === 'inapp') {
-    throw new CustomError('In-App scheduling is coming soon.', 501);
-  }
 
   const notificationRecord = await Notification.create({
     channel,
@@ -79,22 +73,6 @@ exports.scheduleNotification = async (data) => {
     status: 'pending'
   });
   return { success: true, scheduledNotification: notificationRecord };
-};
-
-/**
- * Marks an in-app notification as read or unread.
- */
-exports.markInAppNotificationRead = async (notificationId, read) => {
-  const notification = await Notification.findOne({ where: { id: notificationId } });
-  if (!notification) {
-    throw new CustomError('Notification not found.', 404);
-  }
-  if (notification.channel !== 'inapp') {
-    throw new CustomError('Only in-app notifications can be marked read.', 400);
-  }
-  notification.read = read;
-  await notification.save();
-  return notification;
 };
 
 /**

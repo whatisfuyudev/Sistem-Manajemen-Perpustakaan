@@ -12,21 +12,15 @@
    "
    
 ### General TODO
-- checkout model or any other model, 
-  no negative number on renewalCount or other number based column
-
 - strech whole screen so footer does not move place on book-details page, profile, news-details, article-details
 
 - notification maybe batch send, new endpoint?
-
-- make sure the book service works properly, ensure data sanitization
 
 - send email notification if checkout is overdue 
 
 - check whether the jwt token is expired or not
 - implement refresh tokens and expiration checking for main auth jwt_token (1 hour expiration time)
   - refresh tokens last for a long time, like 1 week or 1 month
-- no return jwt token from login controller because bad practice?
 
 - rate limiting on apis
 - on homepage script, when the it loads and randomly picks five books, 
@@ -50,10 +44,6 @@
 
 - user engagement, because it fetch two different api endpoint the data retrieved can be different. the difference in data mess up the front end. handle when there is a user with only reservation or checkouts
 
-- maybe replace back end console.error for logger.error
-
 - log only the important stuff
-
-- inapp notification? consider deleting or implementing it.
 
 - github repo readme, do it properly

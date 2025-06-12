@@ -13,44 +13,6 @@ editBtn.addEventListener('click', function () {
   window.location.href = `/admin/notifications/edit/${notificationId}`;
 });
 
-toggleReadBtn.addEventListener('click', async () => {
-  const id   = toggleReadBtn.dataset.notificationId;
-  // dataset.read is string “true” or “false”
-  const currentlyRead = toggleReadBtn.dataset.read === 'true';
-  const newReadState  = !currentlyRead;
-
-  try {
-    const response = await fetch(`/api/notifications/inapp/${id}/read`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ read: newReadState })
-    });
-
-    if (!response.ok) {
-      const err = await response.text();
-      throw new Error(err || `Error ${response.status}`);
-    }
-
-    // Update button label and data-read attr
-    toggleReadBtn.dataset.read = String(newReadState);
-    toggleReadBtn.textContent  = newReadState
-      ? 'Mark as Unread'
-      : 'Mark as Read';
-
-    // Optionally update the badge text to reflect read status
-    const badge = document.querySelector('.badge');
-    badge.textContent = newReadState ? 'read' : 'unread';
-    // (and adjust badge class/style if you have separate read/unread styles)
-
-  } catch (error) {
-    console.error('Failed to toggle read state:', error);
-    await showModal({ message: 'Could not update read status: ' + error.message });
-  }
-});
-
-
 /* ------------------------ MODAL POPUP FUNCTIONS ------------------------ */
 // Show a generic modal popup; returns a Promise that resolves with true (OK) or false (Cancel)
 function showModal({ message, showCancel = false }) {

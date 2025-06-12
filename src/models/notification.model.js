@@ -9,7 +9,7 @@ const Notification = sequelize.define('Notification', {
     autoIncrement: true
   },
   channel: {
-    type: DataTypes.ENUM('email', 'sms', 'inapp'),
+    type: DataTypes.ENUM('email', 'sms'),
     allowNull: false
   },
   recipient: {

@@ -3,6 +3,7 @@ const { Op, fn, col, where } = require('sequelize');
 const Book = require('../../models/book.model'); // Adjust path as needed
 const dataHelper = require('../../utils/dataHelper');
 const CustomError = require('../../utils/customError');
+const logger = require('../../utils/logger');
 
 /**
  * Create a new book.
@@ -117,7 +118,7 @@ exports.updateBook = async (isbn, updateData) => {
     // if yes, delete old picture
     dataHelper.deleteFile(book.coverImage, (err) => {
       if (err) {
-        console.error('Error deleting file:', err);
+        logger.error('Error deleting file:\n' + JSON.stringify(err));
         return null;
       }
     });
@@ -152,7 +153,7 @@ exports.bulkDelete = async (isbns) => {
     if (b.coverImage) {
       return new Promise(resolve => {
         dataHelper.deleteFile(b.coverImage, err => {
-          if (err) console.error(`Error deleting cover for ISBN ${b.isbn}:`, err);
+          if (err) logger.error(`Error deleting cover for ISBN ${b.isbn}:\n` + JSON.stringify(err));
           resolve();
         });
       });

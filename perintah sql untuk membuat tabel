@@ -58,7 +58,7 @@ CREATE TABLE reservations (
 ---------------------------------------------------------------------
 
 -- Notifications: Create ENUM types for channel and status
-CREATE TYPE enum_notifications_channel AS ENUM ('email', 'sms', 'inapp');
+CREATE TYPE enum_notifications_channel AS ENUM ('email', 'sms');
 CREATE TYPE enum_notifications_status AS ENUM ('pending', 'sent', 'failed');
 
 -- Create the notifications table
@@ -106,7 +106,6 @@ CREATE TABLE public.checkouts (
   status               public.enum_checkouts_status NOT NULL DEFAULT 'active',
   "renewalCount"       INTEGER      NOT NULL DEFAULT 0,
   fine                 DECIMAL(10,2) NULL DEFAULT 0.00,
-  outstandingFine      DECIMAL(10,2) NULL DEFAULT 0.00,
   "reservationId"      INTEGER,
   "renewalRequested"   BOOLEAN      NOT NULL DEFAULT FALSE,
   "requestedRenewalDays" INTEGER,

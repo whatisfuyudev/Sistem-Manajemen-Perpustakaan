@@ -138,10 +138,6 @@
     #modifyBtn {
       color: #000;
     }
-
-    #toggleReadBtn {
-      background-color: #28a745;
-    }
     
     /* Modal Popup */
     .modal-overlay {
@@ -233,16 +229,6 @@
       class="btn btn-secondary" 
       data-notification-id="<%= notification.id %>">
         Edit
-      </button>
-
-      <!-- Toggle Read/Unread button -->
-      <button
-      id="toggleReadBtn"
-      class="btn btn-secondary"
-      data-notification-id="<%= notification.id %>"
-      data-read="<%= notification.read %>"
-      >
-      <%= notification.read ? 'Mark as Unread' : 'Mark as Read' %>
       </button>
     </div>
 

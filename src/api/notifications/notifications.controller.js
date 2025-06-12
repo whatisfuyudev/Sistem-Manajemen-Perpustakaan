@@ -21,17 +21,6 @@ exports.scheduleNotification = async (req, res, next) => {
   }
 };
 
-exports.markInAppNotificationRead = async (req, res, next) => {
-  try {
-    const notificationId = req.params.id;
-    const { read } = req.body; // expected boolean
-    const result = await notificationsService.markInAppNotificationRead(notificationId, read);
-    res.status(200).json(result);
-  } catch (error) {
-    next(error);
-  }
-};
-
 exports.getNotificationHistory = async (req, res, next) => {
   try {
     // Extract all possible filters from query

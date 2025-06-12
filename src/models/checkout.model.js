@@ -37,26 +37,35 @@ const Checkout = sequelize.define('Checkout', {
   renewalCount: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    defaultValue: 0
+    defaultValue: 0,
+    validate: {
+      min: 0
+    }
   },
-  //  can be used as a history
+  // can be used as a history
   fine: {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: true,
-    defaultValue: 0.00
+    defaultValue: 0.00,
+    validate: {
+      min: 0
+    }
   },
   // how much actual fine yet to be payed
   outstandingFine: {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: true,
-    defaultValue: 0.00
+    defaultValue: 0.00,
+    validate: {
+      min: 0
+    }
   },
   reservationId: {
     type: DataTypes.INTEGER,
     allowNull: true,
     references: {
-      model: 'reservations', // Name of the target table (the reservations table)
-      key: 'id'            // Column in the target table that this field references
+      model: 'reservations', // Name of the target table
+      key: 'id'
     }
     // Optionally, you can add onUpdate and onDelete constraints:
     // onUpdate: 'CASCADE',
@@ -69,11 +78,16 @@ const Checkout = sequelize.define('Checkout', {
   },
   requestedRenewalDays: {
     type: DataTypes.INTEGER,
-    allowNull: true
+    allowNull: true,
+    validate: {
+      min: 0
+    }
   }
 }, {
   tableName: 'checkouts',
-  timestamps: true
+  timestamps: true,
+  // Optional: also add model-wide validation or hooks if you wish to enforce extra logic
+  // For example, prevent returnDate before checkoutDate, etc.
 });
 
 module.exports = Checkout;

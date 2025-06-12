@@ -3,6 +3,8 @@ const bcrypt = require('bcryptjs'); // Ensure bcryptjs is installed
 const dataHelper = require('../../utils/dataHelper');
 const CustomError = require('../../utils/customError');
 const { Op } = require('sequelize');
+const logger = require('../../utils/logger');
+const { log } = require('winston');
 
 // to create user with admin role
 // modify directly in database (currently the only way)
@@ -104,7 +106,7 @@ exports.updateUser = async (id, updateData) => {
       // if yes, delete old picture
       dataHelper.deleteFile(user.profilePicture, (err) => {
         if (err) {
-          console.error('Error deleting file:', err);
+          logger.error('Error deleting file:\n' + JSON.stringify(err));
           return null;
         }
       });
@@ -146,7 +148,7 @@ exports.bulkDelete = async (ids) => {
     if (u.profilePicture) {
       return new Promise(resolve => {
         dataHelper.deleteFile(u.profilePicture, err => {
-          if (err) console.error(`Failed to delete picture for user ${u.id}:`, err);
+          if (err) logger.error(`Failed to delete picture for user ${u.id}:\n` + JSON.stringify(err));
           resolve();
         });
       });

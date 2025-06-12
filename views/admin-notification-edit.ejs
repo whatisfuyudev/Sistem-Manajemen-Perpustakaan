@@ -100,7 +100,7 @@
       <div class="form-group">
         <label for="channel">Channel</label>
         <select id="channel" name="channel" required>
-          <% ['email','sms','inapp'].forEach(c => { %>
+          <% ['email','sms'].forEach(c => { %>
             <option value="<%= c %>" <%= notification.channel === c ? 'selected': '' %>>
               <%= c.charAt(0).toUpperCase()+c.slice(1) %>
             </option>

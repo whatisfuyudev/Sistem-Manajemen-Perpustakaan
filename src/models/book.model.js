@@ -1,7 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require("../utils/db");
 
-// Define the Book model
 const Book = sequelize.define('Book', {
   isbn: {
     type: DataTypes.STRING,
@@ -13,12 +12,10 @@ const Book = sequelize.define('Book', {
     allowNull: false
   },
   authors: {
-    // Using PostgreSQL ARRAY type to store multiple authors as strings
     type: DataTypes.ARRAY(DataTypes.STRING),
     allowNull: false
   },
   genres: {
-    // Now stores multiple genre values as an array of strings
     type: DataTypes.ARRAY(DataTypes.STRING),
     allowNull: true
   },
@@ -28,40 +25,49 @@ const Book = sequelize.define('Book', {
   },
   publicationYear: {
     type: DataTypes.INTEGER,
-    allowNull: true
+    allowNull: true,
+    validate: {
+      min: 0
+    }
   },
   description: {
     type: DataTypes.TEXT,
     allowNull: true
   },
   coverImage: {
-    // Could be a URL or path to the image
     type: DataTypes.STRING,
     allowNull: true
   },
   totalCopies: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    defaultValue: 0
+    defaultValue: 0,
+    validate: {
+      min: 0
+    }
   },
   availableCopies: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    defaultValue: 0
+    defaultValue: 0,
+    validate: {
+      min: 0
+    }
   },
   formats: {
-    // Store multiple formats (e.g., "Hardcover", "Paperback") as an array of strings
     type: DataTypes.ARRAY(DataTypes.STRING),
     allowNull: true
   },
   pages: {
-    // New field: number of pages in the book
     type: DataTypes.INTEGER,
-    allowNull: true
+    allowNull: true,
+    validate: {
+      min: 0
+    }
   }
 }, {
   tableName: 'books',
-  timestamps: true  // Automatically add createdAt and updatedAt fields
+  timestamps: true
 });
 
 module.exports = Book;

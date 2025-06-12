@@ -24,7 +24,13 @@ const Reservation = sequelize.define('Reservation', {
   queuePosition: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    defaultValue: 1
+    defaultValue: 1,
+    validate: {
+      min: {
+        args: [0],
+        msg: 'queuePosition cannot be negative'
+      }
+    }
   },
   status: {
     type: DataTypes.ENUM('pending', 'available', 'fulfilled', 'canceled', 'expired'),
