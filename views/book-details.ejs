@@ -5,16 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title><%= book.title %> - Book Details</title>
   <style>
+    /* Make html/body fill the viewport */
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
     /* Basic Reset */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background-color: #f4f4f4;
       color: #333;
+      display: flex;
+      flex-direction: column;
     }
     #outerContainer {
       padding: 0 20px;
       margin-bottom: 40px;
+      flex: 1;
     }
     .container {
       max-width: 800px;

@@ -12,7 +12,8 @@
    "
    
 ### General TODO
-- strech whole screen so footer does not move place on book-details page, profile, news-details, article-details
+- notification, when sending email, if it is error, actually send error back instead of always saying
+  it is succesfull
 
 - notification maybe batch send, new endpoint?
 

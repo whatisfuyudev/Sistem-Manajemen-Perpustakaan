@@ -112,10 +112,6 @@ exports.updateUser = async (id, updateData) => {
       });
     }
 
-  if (updateData.role === 'Admin') {
-    throw new CustomError('Updating user role to Admin is prohibited.', 403);
-  }
-
   const [affectedCount, affectedRows] = await User.update(updateData, {
     where: { id },
     returning: true,

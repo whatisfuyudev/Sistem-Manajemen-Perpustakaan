@@ -5,7 +5,13 @@ exports.verifyToken = (req, res, next) => {
   // Retrieve token from cookie "jwt_token"
   const token = req.cookies.jwt_token;
   if (!token) {
-    return res.status(401).json({ message: 'No token provided, please log in first.' });
+    const patronProtectedPaths = ['/profile', '/user/reservations', '/user/checkouts'];
+    if( patronProtectedPaths.includes(req.url) ) {
+      return res.redirect('/auth/login');
+    } else {
+      return res.status(401).json({ message: 'No token provided, please log in first.' });
+    }
+    
   }
   
   jwt.verify(token, authConfig.secret, (err, decoded) => {
