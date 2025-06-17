@@ -35,7 +35,7 @@ const CLEANUP_TARGETS = [
     protect: new Set(['default.jpg'])
   },
   {
-    dir:     path.join(__dirname, '../../public/images/article-covers'),
+    dir:     path.join(__dirname, '../../public/images/articles-pictures'),
     model:   Article,
     attr:    'coverImage', // adjust to your actual field name
     protect: new Set(['default.png'])
