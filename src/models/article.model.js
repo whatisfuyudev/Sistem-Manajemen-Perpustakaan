@@ -20,6 +20,7 @@ const Article = sequelize.define('Article', {
   },
   coverImage: {
     type: DataTypes.STRING,
+    field: 'cover_image',
     allowNull: true,
   },
   body: {
@@ -40,6 +41,7 @@ const Article = sequelize.define('Article', {
   readingTime: {
     type: DataTypes.INTEGER,
     allowNull: true,
+    field: 'reading_time',
     comment: 'Estimated reading time in minutes',
     validate: {
       min: {

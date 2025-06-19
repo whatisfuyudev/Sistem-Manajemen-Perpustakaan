@@ -196,7 +196,7 @@ async function searchAdmin(filters = {}, page = 1, limit = 10) {
     where.title = { [Op.iLike]: `%${filters.title}%` };
   }
   if (filters.authorName) {
-    where.authorName = { [Op.iLike]: `%${filters.authorName}%` };
+    where.author_name = { [Op.iLike]: `%${filters.authorName}%` };
   }
   if (filters.published !== undefined) {
     where.published = filters.published;
