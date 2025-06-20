@@ -10,25 +10,29 @@ const Reservation = sequelize.define('Reservation', {
   },
   userId: {
     type: DataTypes.INTEGER,
+    field: 'user_id',
     allowNull: false
   },
   bookIsbn: {
     type: DataTypes.STRING,
+    field: 'book_isbn',
     allowNull: false
   },
   requestDate: {
     type: DataTypes.DATE,
+    field: 'request_date',
     allowNull: false,
     defaultValue: DataTypes.NOW
   },
   queuePosition: {
     type: DataTypes.INTEGER,
+    field: 'queue_position',
     allowNull: false,
     defaultValue: 1,
     validate: {
       min: {
         args: [0],
-        msg: 'queuePosition cannot be negative'
+        msg: 'queue_position cannot be negative'
       }
     }
   },
@@ -39,6 +43,7 @@ const Reservation = sequelize.define('Reservation', {
   },
   expirationDate: {
     type: DataTypes.DATE,
+    field: 'expiration_date',
     allowNull: true
   },
   notes: {

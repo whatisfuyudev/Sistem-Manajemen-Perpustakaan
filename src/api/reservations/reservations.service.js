@@ -210,23 +210,23 @@ exports.getReservationHistory = async (query) => {
 
   // 1) Direct ID lookup
   if (query.id) {
-    where.id = parseInt(query.id, 10);         // exact match on primary key :contentReference[oaicite:1]{index=1}
+    where.id = parseInt(query.id, 10);         // exact match on primary key 
   }
 
   // 2) User ID
   if (query.userId) {
-    where.userId = parseInt(query.userId, 10); // exact match on foreign key :contentReference[oaicite:2]{index=2}
+    where.userId = parseInt(query.userId, 10); // exact match on foreign key
   }
 
   // 3) Book ISBN (partial match)
   if (query.bookIsbn) {
-    where.bookIsbn = { [Op.iLike]: `%${query.bookIsbn}%` }; // case-insensitive contains :contentReference[oaicite:3]{index=3}
+    where.bookIsbn = { [Op.iLike]: `%${query.bookIsbn}%` }; // case-insensitive contains 
   }
 
   // 4) Status (single or grouped 'inactive')
   if (query.status) {
     if (query.status === 'inactive') {
-      where.status = { [Op.in]: ['fulfilled', 'canceled', 'expired'] }; // IN operator :contentReference[oaicite:4]{index=4}
+      where.status = { [Op.in]: ['fulfilled', 'canceled', 'expired'] }; // IN operator
     } else {
       where.status = query.status;
     }
@@ -236,10 +236,10 @@ exports.getReservationHistory = async (query) => {
   if (query.queueMin || query.queueMax) {
     where.queuePosition = {};
     if (query.queueMin) {
-      where.queuePosition[Op.gte] = parseInt(query.queueMin, 10); // >= minimum :contentReference[oaicite:5]{index=5}
+      where.queuePosition[Op.gte] = parseInt(query.queueMin, 10); // >= minimu
     }
     if (query.queueMax) {
-      where.queuePosition[Op.lte] = parseInt(query.queueMax, 10); // <= maximum :contentReference[oaicite:6]{index=6}
+      where.queuePosition[Op.lte] = parseInt(query.queueMax, 10); // <= maximum
     }
   }
 
@@ -247,7 +247,7 @@ exports.getReservationHistory = async (query) => {
   if (query.reqDateFrom || query.reqDateTo) {
     where.requestDate = {};
     if (query.reqDateFrom) {
-      where.requestDate[Op.gte] = new Date(query.reqDateFrom);    // >= start date :contentReference[oaicite:7]{index=7}
+      where.requestDate[Op.gte] = new Date(query.reqDateFrom);    // >= start date
     }
     if (query.reqDateTo) {
       where.requestDate[Op.lte] = new Date(query.reqDateTo);     // <= end date 
@@ -267,7 +267,7 @@ exports.getReservationHistory = async (query) => {
 
   // 8) Notes full-text search
   if (query.notes) {
-    where.notes = { [Op.iLike]: `%${query.notes}%` };              // text contains :contentReference[oaicite:8]{index=8}
+    where.notes = { [Op.iLike]: `%${query.notes}%` };              // text contains
   }
 
   // Pagination defaults
@@ -278,7 +278,7 @@ exports.getReservationHistory = async (query) => {
   // Execute query with count & paginated rows
   const { count, rows } = await Reservation.findAndCountAll({
     where,
-    order: [['requestDate', 'DESC']],
+    order: [['request_date', 'DESC']],
     offset,
     limit
   });

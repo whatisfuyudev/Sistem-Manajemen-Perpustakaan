@@ -630,6 +630,22 @@ async function fetchReservationsModule() {
       filters.expDateTo = end;
     }
   }
+  else {
+    if(start) {
+        if (df === 'requestDate') {
+        filters.reqDateFrom = start;
+      } else {
+        filters.expDateFrom = start;
+      }
+    }
+    if (end) {
+      if (df === 'requestDate') {
+      filters.reqDateTo = end;
+    } else {
+      filters.expDateTo = end;
+    }
+    }
+  }
 
   // prune empty
   Object.keys(filters).forEach(k => {

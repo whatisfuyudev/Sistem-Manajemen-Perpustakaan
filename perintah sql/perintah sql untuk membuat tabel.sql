@@ -44,12 +44,12 @@ CREATE TYPE enum_reservations_status AS ENUM ('pending', 'available', 'fulfilled
 -- Create the reservations table
 CREATE TABLE reservations (
   id SERIAL PRIMARY KEY,
-  "userId" INTEGER NOT NULL,
-  "bookIsbn" VARCHAR(255) NOT NULL,
-  "requestDate" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-  "queuePosition" INTEGER NOT NULL DEFAULT 1,
+  user_id INTEGER NOT NULL,
+  book_isbn VARCHAR(255) NOT NULL,
+  request_date TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  queue_position INTEGER NOT NULL DEFAULT 1,
   status enum_reservations_status NOT NULL DEFAULT 'pending',
-  "expirationDate" TIMESTAMP WITH TIME ZONE,
+  expiration_date TIMESTAMP WITH TIME ZONE,
   notes VARCHAR(75),
   "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
