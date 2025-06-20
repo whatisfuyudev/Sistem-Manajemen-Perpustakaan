@@ -32,9 +32,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         ? book.coverImage
         : '/public/images/book-covers/default-cover.jpg';
       img.alt = book.title;
-      img.style.maxHeight = '200px';
-      img.style.width = 'auto';
-      img.style.objectFit = 'cover';
       card.appendChild(img);
 
       const title = document.createElement('div');

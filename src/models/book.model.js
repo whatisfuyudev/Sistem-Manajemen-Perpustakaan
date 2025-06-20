@@ -26,6 +26,7 @@ const Book = sequelize.define('Book', {
   publicationYear: {
     type: DataTypes.INTEGER,
     allowNull: true,
+    field: 'publication_year',
     validate: {
       min: 0
     }
@@ -36,10 +37,12 @@ const Book = sequelize.define('Book', {
   },
   coverImage: {
     type: DataTypes.STRING,
+    field: 'cover_image',
     allowNull: true
   },
   totalCopies: {
     type: DataTypes.INTEGER,
+    field: 'total_copies',
     allowNull: false,
     defaultValue: 0,
     validate: {
@@ -48,6 +51,7 @@ const Book = sequelize.define('Book', {
   },
   availableCopies: {
     type: DataTypes.INTEGER,
+    field: 'available_copies',
     allowNull: false,
     defaultValue: 0,
     validate: {

@@ -20,8 +20,6 @@ function createBookCard(book) {
   const img = document.createElement('img');
   img.src = "" + (book.coverImage ? book.coverImage : '/public/images/book-covers/"default-cover.jpg');
   img.alt = book.title;
-  img.style.maxHeight = "200px";
-  img.style.width = "auto";
   card.appendChild(img);
 
   // Book title

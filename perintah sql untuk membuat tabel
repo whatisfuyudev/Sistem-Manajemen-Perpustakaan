@@ -127,11 +127,11 @@ CREATE TABLE books (
   authors TEXT[] NOT NULL,
   genres TEXT[],
   publisher VARCHAR(255),
-  "publicationYear" INTEGER,
+  publication_year INTEGER,
   description TEXT,
-  "coverImage" VARCHAR(255),
-  "totalCopies" INTEGER NOT NULL DEFAULT 0,
-  "availableCopies" INTEGER NOT NULL DEFAULT 0,
+  cover_image VARCHAR(255),
+  total_copies INTEGER NOT NULL DEFAULT 0,
+  available_copies INTEGER NOT NULL DEFAULT 0,
   formats TEXT[],
   "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
@@ -159,10 +159,10 @@ CREATE TABLE news (
 CREATE TABLE public.articles (
   id              SERIAL PRIMARY KEY,
   title           VARCHAR(75)        NOT NULL,
-  "coverImage"    TEXT,
+  cover_image    TEXT,
   body            JSONB              NOT NULL,
   author_name     VARCHAR(125)       NOT NULL,
-  "readingTime"   INTEGER,
+  reading_time   INTEGER,
   published       BOOLEAN            NOT NULL DEFAULT FALSE,
   "createdAt"     TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   "updatedAt"     TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
