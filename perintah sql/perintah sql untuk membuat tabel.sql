@@ -30,8 +30,8 @@ CREATE TABLE users (
   role enum_users_role NOT NULL DEFAULT 'Patron',
   phone VARCHAR(255),
   address VARCHAR(255),
-  "accountStatus" enum_users_accountStatus NOT NULL DEFAULT 'Active',
-  "profilePicture" VARCHAR(255),
+  account_status enum_users_accountStatus NOT NULL DEFAULT 'Active',
+  profile_picture VARCHAR(255),
   "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );

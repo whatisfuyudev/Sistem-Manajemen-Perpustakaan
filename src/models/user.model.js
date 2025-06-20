@@ -36,10 +36,12 @@ const User = sequelize.define('User', {
   },
   accountStatus: {
     type: DataTypes.ENUM('Active', 'Suspended', 'Pending'),
+    field: 'account_status',
     defaultValue: 'Active'
   },
   profilePicture: {
     type: DataTypes.STRING,
+    field: 'profile_picture',
     allowNull: true
   }
 }, {
