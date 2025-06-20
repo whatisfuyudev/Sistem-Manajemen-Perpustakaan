@@ -12,9 +12,6 @@
    "
    
 ### General TODO
-- notification, when sending email, if it is error, actually send error back instead of always saying
-  it is succesfull
-
 - notification maybe batch send, new endpoint?
 
 - send email notification if checkout is overdue 
@@ -40,8 +37,6 @@
 - implement accountStatus on user data/model, look at docs
 
 - stress test, 1 million data is too big, test for 100k, 10k, 1k
-
-- sequilize association between table/model
 
 - user engagement, because it fetch two different api endpoint the data retrieved can be different. the difference in data mess up the front end. handle when there is a user with only reservation or checkouts
 

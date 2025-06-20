@@ -106,7 +106,7 @@ async function bulkDelete(ids) {
     throw new CustomError('No IDs provided for deletion', 400);
   }
 
-  // Optionally, if you want to delete coverImage files from disk:
+  // delete coverImage files from disk:
   const rows = await Article.findAll({
     where: { id: { [Op.in]: ids } },
     attributes: ['id','coverImage']

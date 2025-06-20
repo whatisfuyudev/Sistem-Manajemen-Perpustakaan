@@ -41,7 +41,10 @@ exports.sendNotification = async (data) => {
     notificationRecord.status = 'sent';
     notificationRecord.deliveredAt = new Date();
     await notificationRecord.save();
-
+    
+    if(!result) {
+      return { success: false, notification: notificationRecord, result };
+    } 
     return { success: true, notification: notificationRecord, result };
   } catch (error) {
     notificationRecord.status = 'failed';
@@ -69,7 +72,10 @@ exports.scheduleNotification = async (data) => {
     recipient,
     subject,
     message,
-    scheduledAt: scheduledAt ? new Date(scheduledAt) : null,
+    // if the client passed scheduledAt → use it; otherwise default to now
+    scheduledAt: scheduledAt
+      ? new Date(scheduledAt)
+      : new Date(),
     status: 'pending'
   });
   return { success: true, scheduledNotification: notificationRecord };

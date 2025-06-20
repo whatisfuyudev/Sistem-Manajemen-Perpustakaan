@@ -44,24 +44,32 @@
         ? '/api/notifications/schedule'
         : '/api/notifications/send';
 
-      const res = await fetch(url, {
+      await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
+      })
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(res.statusText);
+        }
+        return res.json();
+      })
+      .then(data => {
+        if (!data.success) {
+          msgDiv.textContent = 'Error sending notification';
+          msgDiv.classList.add('error');
+        } 
+        else {
+          msgDiv.textContent = toggle.checked
+            ? 'Notification scheduled successfully!'
+            : 'Notification sent!'
+          ;
+          msgDiv.classList.add('success');
+          form.reset();
+          scheduleField.style.display = 'none';
+        }
       });
-
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text || res.statusText);
-      }
-
-      msgDiv.textContent = toggle.checked
-        ? 'Notification scheduled successfully!'
-        : 'Notification sent!'
-      ;
-      msgDiv.classList.add('success');
-      form.reset();
-      scheduleField.style.display = 'none';
     } catch (err) {
       msgDiv.textContent = 'Error: ' + err.message;
       msgDiv.classList.add('error');
