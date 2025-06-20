@@ -34,10 +34,12 @@ const Notification = sequelize.define('Notification', {
   },
   scheduledAt: {
     type: DataTypes.DATE,
+    field: 'scheduled_at',
     allowNull: true
   },
   deliveredAt: {
     type: DataTypes.DATE,
+    field: 'delivered_at',
     allowNull: true
   }
 }, {

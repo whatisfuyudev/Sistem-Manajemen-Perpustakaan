@@ -70,8 +70,8 @@ CREATE TABLE notifications (
   message TEXT NOT NULL,
   status enum_notifications_status NOT NULL DEFAULT 'pending',
   read BOOLEAN NOT NULL DEFAULT false,
-  "scheduledAt" TIMESTAMP WITH TIME ZONE,
-  "deliveredAt" TIMESTAMP WITH TIME ZONE,
+  scheduled_at TIMESTAMP WITH TIME ZONE,
+  delivered_at TIMESTAMP WITH TIME ZONE,
   "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );

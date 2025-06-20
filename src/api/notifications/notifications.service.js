@@ -112,7 +112,7 @@ exports.getNotificationHistory = async (query) => {
   if (message)   where.message   = { [Op.iLike]: `%${message}%`   };
 
   // date range on chosen field
-  const df = ['createdAt','scheduledAt','deliveredAt'].includes(dateField)
+  const df = ['createdAt','scheduled_at','delivered_at'].includes(dateField)
     ? dateField
     : 'createdAt';
 

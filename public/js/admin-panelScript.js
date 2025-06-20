@@ -1087,8 +1087,8 @@ async function loadNotificationsModule() {
             <input type="date" id="endDate"   name="endDate" />
             <select id="dateField" name="dateField">
               <option value="createdAt">Created At</option>
-              <option value="scheduledAt">Scheduled At</option>
-              <option value="deliveredAt">Delivered At</option>
+              <option value="scheduled_at">Scheduled At</option>
+              <option value="delivered_at">Delivered At</option>
             </select>
           </div>
         </div>
