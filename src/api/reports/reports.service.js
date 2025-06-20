@@ -48,7 +48,7 @@ exports.getCirculationReport = async ({ period, month, year }) => {
   const checkouts = await Checkout.findAll({
     attributes: ['checkoutDate'],
     where
-  });
+  });  
 
   // Group and aggregate
   const grouped = groupByPeriod(checkouts, period);
@@ -69,14 +69,14 @@ exports.getPopularBooks = async (filters) => {
   const dateFilter = buildDateFilter(filters);
   const whereClause = dateFilter ? { [Op.and]: [dateFilter] } : {};
 
-  // 2) aggregate checkouts by bookIsbn
+  // 2) aggregate checkouts by book_isbn
   const rows = await Checkout.findAll({
     attributes: [
-      'bookIsbn',
-      [ fn('COUNT', col('bookIsbn')), 'checkoutCount' ]                     
+      'book_isbn',
+      [ fn('COUNT', col('book_isbn')), 'checkoutCount' ]                     
     ],
     where: whereClause,
-    group: ['bookIsbn'],                                                   
+    group: ['book_isbn'],                                                   
     order: [[ literal('"checkoutCount"'), 'DESC' ]],
     limit: parseInt(limit, 10),
     raw: true
@@ -84,9 +84,9 @@ exports.getPopularBooks = async (filters) => {
 
   // 3) fetch full book details for each ISBN
   const result = [];
-  for (const { bookIsbn, checkoutCount } of rows) {
+  for (const { book_isbn, checkoutCount } of rows) {
 
-    const book = await getBookByISBN(bookIsbn);               
+    const book = await getBookByISBN(book_isbn);               
     if (book) {
       result.push({ book, checkoutCount: parseInt(checkoutCount, 10) });
     }
@@ -103,14 +103,14 @@ exports.getPopularGenres = async (filters) => {
   const dateFilter = buildDateFilter(filters);                                
   const whereClause = dateFilter ? { ...dateFilter } : {};                
 
-  // 2) Aggregate by bookIsbn to get checkout counts per book
+  // 2) Aggregate by book_isbn to get checkout counts per book
   const agg = await Checkout.findAll({
     attributes: [
-      'bookIsbn',
-      [ fn('COUNT', col('bookIsbn')), 'checkoutCount' ]
+      'book_isbn',
+      [ fn('COUNT', col('book_isbn')), 'checkoutCount' ]
     ],
     where: whereClause,
-    group: ['bookIsbn'],                                                     
+    group: ['book_isbn'],                                                     
     order: [[ literal('"checkoutCount"'), 'DESC' ]],
     raw: true
   });                                                                         
@@ -121,7 +121,7 @@ exports.getPopularGenres = async (filters) => {
   }
 
   // 3) Fetch all relevant books in one query
-  const isbns = agg.map(r => r.bookIsbn);
+  const isbns = agg.map(r => r.book_isbn);
   const books = await Book.findAll({
     where: { isbn: { [Op.in]: isbns } },
     attributes: ['isbn','genres'],
@@ -136,8 +136,8 @@ exports.getPopularGenres = async (filters) => {
 
   // 5) Tally genre counts, weighting by each book’s checkoutCount
   const counts = {};
-  agg.forEach(({ bookIsbn, checkoutCount }) => {
-    const genres = genreMap[bookIsbn] || [];
+  agg.forEach(({ book_isbn, checkoutCount }) => {
+    const genres = genreMap[book_isbn] || [];
     genres.forEach(g => {
       const genre = g.trim();
       counts[genre] = (counts[genre] || 0) + parseInt(checkoutCount, 10);

@@ -50,8 +50,6 @@ exports.viewPublishedArticle = async (req, res, next) => {
       next();
     }
 
-    console.log('\n\n\n', article, '\n\n\n')
-
     res.render('article-details', { article });
   } catch (err) {
     next(err);
