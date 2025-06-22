@@ -3,7 +3,7 @@ const notificationsService = require('./notifications.service');
 
 exports.sendNotification = async (req, res, next) => {
   try {
-    // Expects request body: { channel, recipient, subject, message, templateData? }
+    // Expects request body: { channel, recipients, subject, message, templateData? }
     const result = await notificationsService.sendNotification(req.body);
     res.status(200).json(result);
   } catch (error) {
@@ -13,7 +13,7 @@ exports.sendNotification = async (req, res, next) => {
 
 exports.scheduleNotification = async (req, res, next) => {
   try {
-    // Expects: { channel, recipient, subject, message, scheduledAt }
+    // Expects: { channel, recipients, subject, message, scheduledAt }
     const result = await notificationsService.scheduleNotification(req.body);
     res.status(200).json(result);
   } catch (error) {

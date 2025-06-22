@@ -5,57 +5,10 @@ const smsHelper = require('../../utils/smsHelper');
 const CustomError = require('../../utils/customError');
 const { Op } = require('sequelize');
 
-// /**
-//  * Sends a notification via the specified channel.
-//  * Saves a pending notification record, sends the message, and updates the record status.
-//  */
-// exports.sendNotification = async (data) => {
-//   const { channel, recipient, subject, message } = data;
-  
-//   // Create a pending notification record
-//   const notificationRecord = await Notification.create({
-//     channel,
-//     recipient,
-//     subject,
-//     message,
-//     status: 'pending'
-//   });
-  
-//   try {
-//     let result;
-//     if (channel === 'email') {
-//       result = await emailHelper.sendEmail({
-//         to: recipient,
-//         subject,
-//         html: message
-//       });
-    // } else if (channel === 'sms') {
-    //   // Feature not implemented yet
-    //   throw new CustomError('SMS notifications are coming soon.', 501);
-    //   // result = await smsHelper.sendSMS({ to: recipient, message });
-    // } else {
-    //   throw new CustomError('Unsupported notification channel.', 400);
-    // }
-    
-//     // Update record status on success
-//     notificationRecord.status = 'sent';
-//     notificationRecord.deliveredAt = new Date();
-//     await notificationRecord.save();
-    
-//     if(!result) {
-//       return { success: false, notification: notificationRecord, result };
-//     } 
-//     return { success: true, notification: notificationRecord, result };
-//   } catch (error) {
-//     notificationRecord.status = 'failed';
-//     await notificationRecord.save();
-    
-//     // Improved error handling: if error.message is undefined, output the full error object
-//     const errMsg = error.message || (typeof error === 'object' ? JSON.stringify(error) : error.toString());
-//     throw new CustomError('Notification sending failed: ' + errMsg, 500);
-//   }
-// };
-
+/**
+ * Sends a notification via the specified channel.
+ * Saves a pending notification record, sends the message, and updates the record status.
+ */
 exports.sendNotification = async (data) => {
   const { channel, recipients, subject, message } = data;
 
@@ -93,33 +46,10 @@ exports.sendNotification = async (data) => {
   return { success, results };
 };
 
-// /**
-//  * Schedules a notification for a future time by saving a record with a scheduledAt field.
-//  * A separate background job (not shown here) would process these scheduled notifications.
-//  */
-// exports.scheduleNotification = async (data) => {
-//   const { channel, recipient, subject, message, scheduledAt } = data;
-
-//   if (channel === 'sms') {
-//     throw new CustomError('SMS scheduling is coming soon.', 501);
-//   }
-
-//   const notificationRecord = await Notification.create({
-//     channel,
-//     recipient,
-//     subject,
-//     message,
-//     // if the client passed scheduledAt → use it; otherwise default to now
-//     scheduledAt: scheduledAt
-//       ? new Date(scheduledAt)
-//       : new Date(),
-//     status: 'pending'
-//   });
-//   return { success: true, scheduledNotification: notificationRecord };
-// };
-
-// src/api/notifications/notifications.service.js
-
+/**
+ * Schedules a notification for a future time by saving a record with a scheduledAt field.
+ * A separate background job (not shown here) would process these scheduled notifications.
+ */
 exports.scheduleNotification = async (data) => {
   const { channel, recipients, subject, message, scheduledAt } = data;
 

@@ -12,8 +12,6 @@
    "
    
 ### General TODO
-- notification maybe batch send, new endpoint?
-
 - send email notification if checkout is overdue 
 
 - check whether the jwt token is expired or not
