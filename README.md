@@ -1,5 +1,5 @@
 # Aplikasi Perpustakaan Berbasis Website
-
+Saat ini, berbentuk sebuah server web, dibangun diatas expressjs dan nodejs
 
 Langkah menjalankan nya:
 1. install Postgresql database di https://www.postgresql.org/download/
