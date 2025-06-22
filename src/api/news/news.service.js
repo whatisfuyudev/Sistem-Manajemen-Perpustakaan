@@ -181,10 +181,7 @@ async function bulkDelete(ids) {
   const rows = await News.findAll({
     where: { id: { [Op.in]: ids } },
     attributes: ['id','imageUrl']
-  });
-
-  console.log('\n\n\n', rows, '\n\n\n');
-  
+  });  
 
   // 2) For each row, delete its image file if present
   await Promise.all(rows.map(n => {

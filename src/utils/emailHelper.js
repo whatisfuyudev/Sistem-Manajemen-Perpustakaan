@@ -39,7 +39,9 @@ exports.sendEmail = async ({ to, subject, html }) => {
   } catch (err) {
     // Log the full error stack, but do not throw
     logger.error("sendEmail failed\n"+ JSON.stringify(err.body) );
-    return null;
+    // throwing an error so the function that call this function handle it
+    // like changing the notification status into 'failed' or just log the error
+    throw err;
   }
 };
 
@@ -71,6 +73,8 @@ exports.sendReservationAvailableEmail = async (reservation) => {
     return await exports.sendEmail({ to: user.email, subject, html });
   } catch (err) {
     logger.error(`sendReservationAvailableEmail failed for reservation#${reservation.id}`, err);
+    // this one does not need to throw an error because
+    // no notification data is made, it directly send an email
     return null;
   }
 };
@@ -93,6 +97,6 @@ exports.sendNotificationEmail = async (notification) => {
     });
   } catch (err) {
     logger.error(`sendNotificationEmail failed for notification#${notification.id}`, err);
-    return null;
+    throw err;
   }
 };

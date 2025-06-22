@@ -102,6 +102,45 @@
     .back-button:hover {
       background-color: #5a6268;
     }
+
+    .tag-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      border: 1px solid #ccc;
+      padding: 6px;
+      border-radius: 4px;
+      cursor: text;
+    }
+
+    .tag-container input {
+      flex: 1;
+      border: none;
+      min-width: 150px;
+      font-size: 1rem;
+      padding: 4px;
+    }
+
+    .tag-container input:focus {
+      outline: none;
+    }
+
+    .tag {
+      display: flex;
+      align-items: center;
+      background: #007bff;
+      color: #fff;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+    }
+
+    .tag .remove-tag {
+      margin-left: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
   </style>
 </head>
 <body>
@@ -122,9 +161,14 @@
       </div>
 
       <div>
-        <label for="recipient">Recipient</label>
-        <input type="text" id="recipient" name="recipient"
-               placeholder="Email address or phone number" required>
+        <label for="recipient-input">Recipient(s)</label>
+        <div id="recipient-container" class="tag-container">
+          <input
+            type="text"
+            id="recipient-input"
+            placeholder="Type email and press Enter or comma"
+          >
+        </div>
       </div>
 
       <div>
