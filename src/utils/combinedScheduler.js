@@ -63,6 +63,7 @@ async function writeLastRun() {
 
 /** Run all tasks in sequence */
 async function runAll() {
+  console.log('› Due-soon reminders:', await processDueSoonNotifications());
   console.log('› Overdue checkouts:', await processOverdues());
   console.log('› Expire reservations:', await processExpiredReservations());
   console.log('› Scheduled notifications:', await processScheduledNotifications());
@@ -102,6 +103,73 @@ async function processOverdues() {
     { where: { status: 'active', dueDate: { [Op.lt]: new Date() } } }
   );
   return cnt;
+}
+
+async function processDueSoonNotifications() {
+  const today = new Date();
+  const tomorrowStart = new Date(today);
+  tomorrowStart.setDate(tomorrowStart.getDate() + 1);
+  tomorrowStart.setHours(0, 0, 0, 0);
+
+  const tomorrowEnd = new Date(tomorrowStart);
+  tomorrowEnd.setHours(23, 59, 59, 999);
+
+  // 1) find all active checkouts due tomorrow
+  const dueSoon = await Checkout.findAll({
+    where: {
+      status:  'active',
+      dueDate: { [Op.between]: [tomorrowStart, tomorrowEnd] }
+    }
+  });
+
+  let sentCount = 0;
+
+  for (const chk of dueSoon) {
+    // 2) fetch the borrower manually
+    const user = await User.findByPk(chk.userId);
+    if (!user?.email) continue;
+
+    const subject = `Reminder: your book is due tomorrow (${chk.dueDate.toDateString()})`;
+    const message = `
+Hi ${user.firstName || user.name || ''},
+
+Just a friendly reminder that your checkout of book with isbn “${chk.bookTitle || chk.bookIsbn}” is due tomorrow (${chk.dueDate.toDateString()}).
+
+If you’d like to renew it, please go to your checkouts page and request a renewal.
+
+Otherwise, please return it by closing time tomorrow to avoid late fees.
+
+Thank you,
+Your Library Team
+    `;
+
+    // 3) create a pending Notification record
+    const notification = await Notification.create({
+      channel:     'email',
+      recipient:   user.email,
+      subject,
+      message,
+      status:      'pending',
+      scheduledAt: new Date()
+    });
+
+    try {
+      // 4) actually send the email
+      await emailHelper.sendNotificationEmail(notification);
+
+      notification.status      = 'sent';
+      notification.deliveredAt = new Date();
+      await notification.save();
+
+      sentCount++;
+    } catch (err) {
+      logger.error(`Failed due-soon email for checkout #${chk.id}:`, err);
+      notification.status = 'failed';
+      await notification.save();
+    }
+  }
+
+  return sentCount;
 }
 
 async function processExpiredReservations() {

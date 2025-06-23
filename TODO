@@ -12,8 +12,6 @@
    "
    
 ### General TODO
-- send email notification if checkout is overdue 
-
 - check whether the jwt token is expired or not
 - implement refresh tokens and expiration checking for main auth jwt_token (1 hour expiration time)
   - refresh tokens last for a long time, like 1 week or 1 month
