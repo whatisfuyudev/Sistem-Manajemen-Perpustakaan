@@ -1,5 +1,5 @@
 // src/api/books/books.service.js
-const { Op, fn, col, where } = require('sequelize');
+const { Op, fn, col, where, literal } = require('sequelize');
 const Book = require('../../models/book.model'); // Adjust path as needed
 const dataHelper = require('../../utils/dataHelper');
 const CustomError = require('../../utils/customError');
@@ -44,24 +44,12 @@ exports.createBook = async (bookData) => {
   return newBook;
 };
 
-/**
- * Retrieve all books with optional filtering.
- * Supports filtering by genre and author.
- */
-exports.getAllBooks = async (query) => {
-  const filters = {};
-  
-  if (query.genres) {
-    filters.genres = query.genres;
-  }
-  
-  if (query.author) {
-    // Assumes 'authors' is stored as an array; use the PostgreSQL ARRAY operator "contains"
-    filters.authors = { [Op.contains]: [query.author] };
-  }
-  
-  const books = await Book.findAll({ where: filters });
-  return books;
+exports.getRandomBooks = async ({ limit }) => {
+  // delegate to Sequelize
+  return await Book.findAll({
+    order: literal('RANDOM()'),
+    limit
+  });
 };
 
 /**

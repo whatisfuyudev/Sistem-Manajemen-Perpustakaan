@@ -12,11 +12,11 @@ const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
 const path = require('path');
+const { rateLimit }   = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
 const authMiddleware = require('./middleware/auth.middleware');
 // importing it so it runs even if the variable is not used
 const combinedScheduler = require('./utils/combinedScheduler'); 
-
 const loggerMiddleware = require('./middleware/logging.middleware'); // our Morgan configured with Winston
 
 const app = express();
@@ -72,6 +72,19 @@ app.use(
 
 // Enable Cross-Origin Resource Sharing (CORS)
 app.use(cors());
+
+const globalLimiter = rateLimit({
+  windowMs: 10 * 60 * 100, // 1 minutes window
+  max: 100, // max 50 request per window
+  keyGenerator: (req) => {
+    // e.g. after your auth middleware sets req.user.id
+    // key either from user id or ip address
+    return req.user?.id || req.ip;
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use(globalLimiter);
 
 // Parse JSON request bodies
 app.use(express.json());

@@ -46,14 +46,15 @@ exports.createBook = async (req, res, next) => {
   }
 };
 
-
-exports.listBooks = async (req, res, next) => {
+exports.listRandomBooks = async (req, res, next) => {
   try {
-    // You can pass query parameters for filtering/pagination
-    const books = await booksService.getAllBooks(req.query);
+    // default to 5 if no explicit ?limit=
+    const limit = parseInt(req.query.limit, 10) || 5;
+
+    const books = await booksService.getRandomBooks({ limit });
     res.status(200).json(books);
-  } catch (error) {
-    next(error);
+  } catch (err) {
+    next(err);
   }
 };
 

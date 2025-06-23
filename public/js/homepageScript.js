@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ─── PART 1: “Featured Books” SECTION ───────────────────────────────────────
   //
   try {
-    const response = await fetch('/api/books/');
+    const response = await fetch('/api/books/random');
     if (!response.ok) throw new Error('Failed to fetch books.');
     const books = await response.json();
     if (!Array.isArray(books)) throw new Error('Invalid books data format.');

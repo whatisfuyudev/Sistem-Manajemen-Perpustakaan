@@ -24,8 +24,8 @@ router.post('/',
   booksController.createBook
 );
 
-// List all books (could also support query parameters for filtering) 
-router.get('/', booksController.listBooks);
+// get 5 random books for homepage featured section
+router.get('/random', booksController.listRandomBooks);
 
 // Update a book by ISBN [admin/librarian only]
 router.put('/update/:isbn',

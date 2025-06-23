@@ -12,25 +12,15 @@
    "
    
 ### General TODO
-- check whether the jwt token is expired or not
-- implement refresh tokens and expiration checking for main auth jwt_token (1 hour expiration time)
-  - refresh tokens last for a long time, like 1 week or 1 month
-
-- rate limiting on apis
-- on homepage script, when the it loads and randomly picks five books, 
-  limit into only picking at most 100 books for performance reason while
-  maintining randomness. bonus points if it is possible to do this whole
-  randomize seaching thing directly with sequilize. 
+- implement accountStatus on user data/model, look at docs
 
 - code cleanup, 
   - css cleanup, no duplicate style
   - js cleanup, no duplicate code
-  - delete any console.log/console.error on front end
+  - delete any console.log on front end
   - move custom pop up into its own file so it is reuseable accross the whole app
     - change alert or prompt to custom pop up
   - user controller and books controller redundant code when removing empty input 
-
-- implement accountStatus on user data/model, look at docs
 
 - stress test, 1 million data is too big, test for 100k, 10k, 1k
 
