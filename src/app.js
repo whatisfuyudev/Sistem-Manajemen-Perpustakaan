@@ -208,10 +208,8 @@ app.use(errorMiddleware);
 // Catch‑all 404 handler
 app.use((req, res, next) => {
   res.status(404);
-  // if you’re using EJS
+  // using EJS
   res.render('404');
-  // or if you want to send static HTML:
-  // res.sendFile(path.join(__dirname, 'views', '404.html'));
 });
 
 module.exports = app;

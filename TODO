@@ -1,18 +1,7 @@
-
-1. start from app.js line 54, api section, make it includes all the routes,
-   for each route, make their controller, then make their services.
-   make sure to thoroughly understand the underlying functionalities for each services.
-   "
-   [project description]
-   from the above project description, focusing on X, what are the core functionalities that it might possible has? make it accurate and comprehensive.
-    
-   make it excellent, highly accurate like real world projects, and comprehensive and exhaustive
-   
-   make it mobile responsive and modern and minimalist in style.
-   "
-   
 ### General TODO
-- implement accountStatus on user data/model, look at docs
+- user engagement, because it fetch two different api endpoint the data retrieved can be different. the difference in data mess up the front end. handle when there is a user with only reservation or checkouts
+
+- github repo readme, do it properly
 
 - code cleanup, 
   - css cleanup, no duplicate style
@@ -20,12 +9,7 @@
   - delete any console.log on front end
   - move custom pop up into its own file so it is reuseable accross the whole app
     - change alert or prompt to custom pop up
-  - user controller and books controller redundant code when removing empty input 
 
 - stress test, 1 million data is too big, test for 100k, 10k, 1k
 
-- user engagement, because it fetch two different api endpoint the data retrieved can be different. the difference in data mess up the front end. handle when there is a user with only reservation or checkouts
-
 - log only the important stuff
-
-- github repo readme, do it properly

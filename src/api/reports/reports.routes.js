@@ -15,12 +15,25 @@ router.get('/inventory/book', authMiddleware.verifyToken, authMiddleware.isLibra
 router.get('/inventory/health', authMiddleware.verifyToken, authMiddleware.isLibrarianOrAdmin, reportsController.getInventoryHealth);
 
 
-router.get('/user/engagement/checkouts', authMiddleware.verifyToken, authMiddleware.isLibrarianOrAdmin, reportsController.getUserEngagementReport);
+// router.get(
+//   '/user/engagement/checkouts', 
+//   authMiddleware.verifyToken, 
+//   authMiddleware.isLibrarianOrAdmin, 
+//   reportsController.getUserEngagementReport
+// );
+// router.get(
+//   '/user/engagement/reservations',
+//   authMiddleware.verifyToken,
+//   authMiddleware.isLibrarianOrAdmin,
+//   reportsController.getReservationsReport
+// );
+
+// replaces your two separate endpoints
 router.get(
-  '/user/engagement/reservations',
+  '/user/engagement',
   authMiddleware.verifyToken,
   authMiddleware.isLibrarianOrAdmin,
-  reportsController.getReservationsReport
+  reportsController.getUserEngagementCombinedReport
 );
 
 router.get('/financial', authMiddleware.verifyToken, authMiddleware.isLibrarianOrAdmin, reportsController.getFinancialReport);

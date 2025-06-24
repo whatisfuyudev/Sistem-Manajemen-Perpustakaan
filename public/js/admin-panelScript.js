@@ -44,8 +44,9 @@ const API = {
     reservations: '/api/reports/reservations',
     overdue: '/api/reports/overdue',
     inventory: '/api/reports/inventory/book',
-    engagementCheckouts: '/api/reports/user/engagement/checkouts',
-    engagementReservations: '/api/reports/user/engagement/reservations',
+    // engagementCheckouts: '/api/reports/user/engagement/checkouts',
+    // engagementReservations: '/api/reports/user/engagement/reservations',
+    userEngagementCombined: '/api/reports/user/engagement',
     financial: '/api/reports/financial',
   }
 };
@@ -2907,6 +2908,48 @@ async function renderInventoryHealthDetails(books, totalCount, page) {
   );
 }
 
+// // 1) Top‐level fetch that applies filters if present
+// async function fetchUserEngagementsReport() {
+//   // 1.1 Read filters
+//   const userId = document.getElementById('userSearch')?.value.trim();
+//   const sortBy = document.getElementById('quantityFilter')?.value;        // "most" or "least"
+//   const metric = document.getElementById('metricTypeFilter')?.value || 'both';
+
+//   // 1.2 Build base query string
+//   const params = new URLSearchParams({
+//     page:  currentPage,
+//     limit: 10
+//   });
+//   if (userId)   params.set('userId', userId);
+//   if (sortBy)   params.set('sort', sortBy);
+//   // note: descending = "most", ascending = "least"
+
+//   // 1.3 Kick off one or both fetches
+//   const toFetch = [];
+//   if (metric === 'both' || metric === 'checkouts') {
+//     toFetch.push(
+//       fetch(`${API.reports.engagementCheckouts}?${params}`)
+//         .then(r => r.json())
+//         .then(d => ({ type: 'checkouts', data: d.userActivity, totalCount: d.totalCount }))
+//     );
+//   }
+//   if (metric === 'both' || metric === 'reservations') {
+//     toFetch.push(
+//       fetch(`${API.reports.engagementReservations}?${params}`)
+//         .then(r => r.json())
+//         .then(d => ({ type: 'reservations', data: d.userReservations, totalCount: d.totalCount }))
+//     );
+//   }
+
+//   try {
+//     const results = await Promise.all(toFetch);
+//     renderUserEngagement(results);
+//   } catch (err) {
+//     console.error('Error fetching user engagement:', err);
+//     document.getElementById('reportsContainer').innerHTML = '<p>Error loading data.</p>';
+//   }
+// }
+
 // 1) Top‐level fetch that applies filters if present
 async function fetchUserEngagementsReport() {
   // 1.1 Read filters
@@ -2921,27 +2964,40 @@ async function fetchUserEngagementsReport() {
   });
   if (userId)   params.set('userId', userId);
   if (sortBy)   params.set('sort', sortBy);
-  // note: descending = "most", ascending = "least"
 
-  // 1.3 Kick off one or both fetches
-  const toFetch = [];
-  if (metric === 'both' || metric === 'checkouts') {
-    toFetch.push(
-      fetch(`${API.reports.engagementCheckouts}?${params}`)
-        .then(r => r.json())
-        .then(d => ({ type: 'checkouts', data: d.userActivity, totalCount: d.totalCount }))
-    );
-  }
-  if (metric === 'both' || metric === 'reservations') {
-    toFetch.push(
-      fetch(`${API.reports.engagementReservations}?${params}`)
-        .then(r => r.json())
-        .then(d => ({ type: 'reservations', data: d.userReservations, totalCount: d.totalCount }))
-    );
-  }
-
+  // 1.3 Hit the single combined endpoint
   try {
-    const results = await Promise.all(toFetch);
+    const resp = await fetch(`${API.reports.userEngagementCombined}?${params}`);
+    if (!resp.ok) throw new Error('Failed to fetch combined report');
+    const json = await resp.json();
+    // json: { page, limit, totalCount, users: [ { userId, checkoutCount, reservationsCount } ] }
+
+    const results = [];
+
+    // only push checkouts series if needed
+    if (metric === 'both' || metric === 'checkouts') {
+      results.push({
+        type:       'checkouts',
+        data:       json.users.map(u => ({
+                      userId:        u.userId,
+                      checkoutCount: u.checkoutCount
+                    })),
+        totalCount: json.totalCount
+      });
+    }
+
+    // only push reservations series if needed
+    if (metric === 'both' || metric === 'reservations') {
+      results.push({
+        type:       'reservations',
+        data:       json.users.map(u => ({
+                      userId:            u.userId,
+                      reservationsCount: u.reservationsCount
+                    })),
+        totalCount: json.totalCount
+      });
+    }
+
     renderUserEngagement(results);
   } catch (err) {
     console.error('Error fetching user engagement:', err);
