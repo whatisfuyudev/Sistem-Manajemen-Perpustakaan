@@ -37,7 +37,7 @@ https://nodejs.org/en/download
 4. jalankan projek dengan perintah "node src/server.js" di terminal
 
 
-# Terdapat 2 user utama yaitu:
+### Terdapat 2 user utama yaitu:
 email = hanif@gmail.com  
 password = hanif
 
