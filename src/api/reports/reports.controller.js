@@ -63,29 +63,18 @@ exports.getInventoryHealth = async (req, res, next) => {
   }
 };
 
-
-// exports.getUserEngagementReport = async (req, res, next) => {
-//   try {
-//     const report = await reportsService.getUserEngagementReport(req.query);
-//     res.status(200).json(report);
-//   } catch (error) {
-//     next(error);
-//   }
-// };
-
-// exports.getReservationsReport = async (req, res, next) => {
-//   try {
-//     const report = await reportsService.getUserReservationsReport(req.query);
-//     res.status(200).json(report);
-//   } catch (err) {
-//     next(err);
-//   }
-// };
-
-exports.getUserEngagementCombinedReport = async (req, res, next) => {
+exports.getUserEngagementReport = async (req, res, next) => {
   try {
-    // pass through page/limit/sort/date filters if you like
-    const report = await reportsService.getUserEngagementCombinedReport(req.query);
+    const report = await reportsService.getUserEngagementReport(req.query);
+    res.status(200).json(report);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getReservationsReport = async (req, res, next) => {
+  try {
+    const report = await reportsService.getUserReservationsReport(req.query);
     res.status(200).json(report);
   } catch (err) {
     next(err);

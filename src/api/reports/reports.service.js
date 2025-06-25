@@ -348,195 +348,115 @@ function parseSortDirection(sort) {
   return 'DESC';
 }
 
-// /**
-//  * User Engagement Report: Aggregates user checkout counts.
-//  */
-// exports.getUserEngagementReport = async (query) => {
-//   // 1) Pagination
-//   const page   = query.page  ? parseInt(query.page, 10) : 1;
-//   const limit  = query.limit ? parseInt(query.limit, 10) : 10;
-//   const offset = (page - 1) * limit;
-
-//   // 2) Optional userId filter
-//   const where = {};
-//   if (query.userId) {
-//     const uid = parseInt(query.userId, 10);
-//     if (!isNaN(uid)) where.userId = uid;
-//   }
-
-//   // 3) Date filter on checkoutDate
-//   Object.assign(where, buildDateFilter(query));
-
-//   // 4) Determine sort
-//   let order;
-//   if (query.sort === 'most' || query.sort === 'least') {
-//     // sort by count
-//     const dir = parseSortDirection(query.sort); // 'DESC' or 'ASC'
-//     order = [[ fn('COUNT', col('id')), dir ]];
-//   } else {
-//     // default sort by userId descending
-//     order = [['userId', 'DESC']];
-//   }
-
-//   // 5) Aggregate
-//   const { count: rawCount, rows } = await Checkout.findAndCountAll({
-//     where,
-//     attributes: [
-//       'userId',
-//       [ fn('COUNT', col('id')), 'checkoutCount' ]
-//     ],
-//     group: ['userId'],
-//     order,
-//     limit, offset,
-//     subQuery: false,
-//     raw: true
-//   });
-
-//   const totalCount = Array.isArray(rawCount) ? rawCount.length : rawCount;
-
-//   return {
-//     userActivity: rows.map(r => ({
-//       userId:        r.userId,
-//       checkoutCount: parseInt(r.checkoutCount, 10)
-//     })),
-//     page, limit, totalCount
-//   };
-// };
-
-// /**
-//  * User Reservations Report: Aggregates user reservation counts.
-//  */
-// exports.getUserReservationsReport = async (query) => {
-//   // 1) Pagination
-//   const page   = query.page  ? parseInt(query.page, 10) : 1;
-//   const limit  = query.limit ? parseInt(query.limit, 10) : 10;
-//   const offset = (page - 1) * limit;
-
-//   // 2) Optional userId filter
-//   const where = {};
-//   if (query.userId) {
-//     const uid = parseInt(query.userId, 10);
-//     if (!isNaN(uid)) where.userId = uid;
-//   }
-
-//   // 3) Remap date filter to requestDate
-//   const df = buildDateFilter(query);  // yields { checkoutDate: … } or {}
-//   if (df.checkoutDate) {
-//     where.requestDate = df.checkoutDate;
-//   }
-
-//   // 4) Determine sort
-//   let order;
-//   if (query.sort === 'most' || query.sort === 'least') {
-//     const dir = parseSortDirection(query.sort);
-//     order = [[ fn('COUNT', col('id')), dir ]];
-//   } else {
-//     // default sort by userId descending
-//     order = [['userId', 'DESC']];
-//   }
-
-//   // 5) Aggregate
-//   const { rows, count: rawCount } = await Reservation.findAndCountAll({
-//     where,
-//     attributes: [
-//       'userId',
-//       [ fn('COUNT', col('id')), 'reservationsCount' ]
-//     ],
-//     group: ['userId'],
-//     order,
-//     limit, offset,
-//     subQuery: false,
-//     raw: true
-//   });
-
-//   const totalCount = Array.isArray(rawCount) ? rawCount.length : rawCount;
-
-//   return {
-//     userReservations: rows.map(r => ({
-//       userId:            r.userId,
-//       reservationsCount: parseInt(r.reservationsCount, 10)
-//     })),
-//     page, limit, totalCount
-//   };
-// };
-
-exports.getUserEngagementCombinedReport = async (query) => {
-  // pagination
-  const page   = +query.page  || 1;
-  const limit  = +query.limit || 10;
+/**
+ * User Engagement Report: Aggregates user checkout counts.
+ */
+exports.getUserEngagementReport = async (query) => {
+  // 1) Pagination
+  const page   = query.page  ? parseInt(query.page, 10) : 1;
+  const limit  = query.limit ? parseInt(query.limit, 10) : 10;
   const offset = (page - 1) * limit;
 
-  // date filters
-  const checkoutDateWhere    = [];
-  const reservationDateWhere = [];
-  if (query.startDate) {
-    checkoutDateWhere.push(`c."checkoutDate" >= '${query.startDate}'`);
-    reservationDateWhere.push(`r."requestDate" >= '${query.startDate}'`);
+  // 2) Optional userId filter
+  const where = {};
+  if (query.userId) {
+    const uid = parseInt(query.userId, 10);
+    if (!isNaN(uid)) where.userId = uid;
   }
-  if (query.endDate) {
-    checkoutDateWhere.push(`c."checkoutDate" <= '${query.endDate}'`);
-    reservationDateWhere.push(`r."requestDate" <= '${query.endDate}'`);
-  }
-  const checkoutFilterSql    = checkoutDateWhere.length    ? 'WHERE ' + checkoutDateWhere.join(' AND ')    : '';
-  const reservationFilterSql = reservationDateWhere.length ? 'WHERE ' + reservationDateWhere.join(' AND ') : '';
 
-  // sort
-  let orderBy;
-  if (query.sort === 'most') {
-    orderBy = `"checkoutCount" DESC`;
-  } else if (query.sort === 'least') {
-    orderBy = `"checkoutCount" ASC`;
+  // 3) Date filter on checkoutDate
+  Object.assign(where, buildDateFilter(query));
+
+  // 4) Determine sort
+  let order;
+  if (query.sort === 'most' || query.sort === 'least') {
+    // sort by count
+    const dir = parseSortDirection(query.sort); // 'DESC' or 'ASC'
+    order = [[ fn('COUNT', col('id')), dir ]];
   } else {
-    orderBy = `"u"."id" DESC`;
+    // default sort by userId descending
+    order = [['userId', 'DESC']];
   }
 
- // Raw SQL without inline comments
-  const sql = `
-    SELECT
-      u."id"                     AS "userId",
-      COALESCE(c."checkoutCount", 0)     AS "checkoutCount",
-      COALESCE(r."reservationsCount", 0) AS "reservationsCount"
-    FROM "users" AS u
-    LEFT JOIN (
-      SELECT "userId", COUNT(*) AS "checkoutCount"
-      FROM "Checkouts" AS c
-      ${checkoutFilterSql}
-      GROUP BY "userId"
-    ) AS c
-      ON c."userId" = u."id"
-    LEFT JOIN (
-      SELECT "userId", COUNT(*) AS "reservationsCount"
-      FROM "Reservations" AS r
-      ${reservationFilterSql}
-      GROUP BY "userId"
-    ) AS r
-      ON r."userId" = u."id"
-    ORDER BY ${orderBy}
-    LIMIT :limit
-    OFFSET :offset
-  `;
-
-  // get data rows
-  const users = await sequelize.query(sql, {
-    replacements: { limit, offset },
-    type: QueryTypes.SELECT
+  // 5) Aggregate
+  const { count: rawCount, rows } = await Checkout.findAndCountAll({
+    where,
+    attributes: [
+      'userId',
+      [ fn('COUNT', col('id')), 'checkoutCount' ]
+    ],
+    group: ['userId'],
+    order,
+    limit, offset,
+    subQuery: false,
+    raw: true
   });
 
-  // get total number of users (for pagination)
-  const [{ count: totalCount }] = await sequelize.query(
-    `SELECT COUNT(*)::int AS count FROM "users"`,
-    { type: QueryTypes.SELECT }
-  );
+  const totalCount = Array.isArray(rawCount) ? rawCount.length : rawCount;
 
   return {
-    page,
-    limit,
-    totalCount,
-    users: users.map(u => ({
-      userId:            u.userId,
-      checkoutCount:     +u.checkoutCount,
-      reservationsCount: +u.reservationsCount
-    }))
+    userActivity: rows.map(r => ({
+      userId:        r.userId,
+      checkoutCount: parseInt(r.checkoutCount, 10)
+    })),
+    page, limit, totalCount
+  };
+};
+
+/**
+ * User Reservations Report: Aggregates user reservation counts.
+ */
+exports.getUserReservationsReport = async (query) => {
+  // 1) Pagination
+  const page   = query.page  ? parseInt(query.page, 10) : 1;
+  const limit  = query.limit ? parseInt(query.limit, 10) : 10;
+  const offset = (page - 1) * limit;
+
+  // 2) Optional userId filter
+  const where = {};
+  if (query.userId) {
+    const uid = parseInt(query.userId, 10);
+    if (!isNaN(uid)) where.userId = uid;
+  }
+
+  // 3) Remap date filter to requestDate
+  const df = buildDateFilter(query);  // yields { checkoutDate: … } or {}
+  if (df.checkoutDate) {
+    where.requestDate = df.checkoutDate;
+  }
+
+  // 4) Determine sort
+  let order;
+  if (query.sort === 'most' || query.sort === 'least') {
+    const dir = parseSortDirection(query.sort);
+    order = [[ fn('COUNT', col('id')), dir ]];
+  } else {
+    // default sort by userId descending
+    order = [['userId', 'DESC']];
+  }
+
+  // 5) Aggregate
+  const { rows, count: rawCount } = await Reservation.findAndCountAll({
+    where,
+    attributes: [
+      'userId',
+      [ fn('COUNT', col('id')), 'reservationsCount' ]
+    ],
+    group: ['userId'],
+    order,
+    limit, offset,
+    subQuery: false,
+    raw: true
+  });
+
+  const totalCount = Array.isArray(rawCount) ? rawCount.length : rawCount;
+
+  return {
+    userReservations: rows.map(r => ({
+      userId:            r.userId,
+      reservationsCount: parseInt(r.reservationsCount, 10)
+    })),
+    page, limit, totalCount
   };
 };
 
