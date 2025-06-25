@@ -21,10 +21,11 @@ Bagian publik dapat diakses tanpa memerlukan akun, namun sangat terbatas. Jika i
 Bagian pengurus perpustakaan dibuat untuk pengguna dengan role "librarian" atau "admin". untuk membuat akun dengan kedua role tersebut, hanya boleh dilakukan oleh seorang admin. bagian ini terdiri dari:
    - Admin Panel Books Section, disini pengurus dapat menambahkan data buku baru, menghapus data buku, memodifikasi data buku, dan melakukan pencarian terhadap buku-buku tertentu.
    -  Admin Panel Checkouts Section, disini pengurus dapat menambahkan data peminjaman buku, melakukan pencarian, memodifikasi data peminjaman buku, memproses pengembalian, dan memproses perpanjangan.
-   - Admin Panel Reservations Section, disini pengurus dapat menambahkan data antrian peminjaman buku, 
-
-
-
+   - Admin Panel Reservations Section, disini pengurus dapat menambahkan data antrian peminjaman buku, me"promosikan" sebuah antrian, melakukan pencarian. memodifikasi data antrian, dan membatalkan antrian.
+   - Admin Panel Users Section, disini pengurus dapat menambah, mengedit, menghapus data pengguna. Users section hanya diperuntukan kepada pengguna dengan role "admin" saja.
+   - Admin Panel Notifications Section, saat ini notifikasi hanya berupa email saja, disini pengurus dapat mengirim, mengedit, dan menjadwalkan notifikasi.
+   - Admin Panel News dan Articles Section, kedua bagian ini hampir sama, pengurus dapat menambah, mengedit, menerbitkan atau tidak, dan menghapus data pengumuman atau artikel.
+   - Admin Panel Reports Section, disini pengurus dapat melihat laporan/report berupa sirkulasi peminjaman, pinjaman yang telat, stok buku, statistik peminjaman dan antrian yang dilakukan oleh user tertentu,  dan ringkasan sisi finansial perpustakaan.
 
 ## Langkah menjalankan nya:
 1. install Postgresql database di https://www.postgresql.org/download/
@@ -35,7 +36,6 @@ Bagian pengurus perpustakaan dibuat untuk pengguna dengan role "librarian" atau 
 https://nodejs.org/en/download
 
 4. jalankan projek dengan perintah "node src/server.js" di terminal
-
 
 ### Terdapat 2 user utama yaitu:
 email = hanif@gmail.com  
