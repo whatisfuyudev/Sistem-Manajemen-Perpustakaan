@@ -1,6 +1,4 @@
 ### General TODO
-- make sure the sql data connect (checkouts with users and reservation, also reservation with users)
-
 - code cleanup, 
   - css cleanup, no duplicate style
   - js cleanup, no duplicate code
