@@ -3196,12 +3196,24 @@ function renderFinancialFilters() {
   `;
   container.parentNode.insertBefore(wrapper, container);
 
-  // Wire change events
-  ['finMonth','finYear'].forEach(id => {
-    document.getElementById(id)
-      .addEventListener('change', () => {
-        fetchFinancialReports();
-      });
+  // // Wire change events
+  // ['finMonth','finYear'].forEach(id => {
+  //   document.getElementById(id)
+  //     .addEventListener('change', () => {
+  //       fetchFinancialReports();
+  //     });
+  // });
+
+  document.getElementById('finMonth').addEventListener('change', () => {
+    document.getElementById('finYear').value = '';
+
+    fetchFinancialReports();
+  });
+
+  document.getElementById('finYear').addEventListener('change', () => {
+    document.getElementById('finMonth').value= '';
+
+    fetchFinancialReports();
   });
 }
 
