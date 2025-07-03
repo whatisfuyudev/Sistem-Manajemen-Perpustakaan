@@ -75,7 +75,7 @@ app.use(cors());
 
 const globalLimiter = rateLimit({
   windowMs: 10 * 60 * 100, // 1 minutes window
-  max: 100, // max 50 request per window
+  max: 100, // max 100 request per window
   keyGenerator: (req) => {
     // e.g. after your auth middleware sets req.user.id
     // key either from user id or ip address
@@ -84,7 +84,13 @@ const globalLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
-app.use(globalLimiter);
+// turn of rate limiting because the server host the image locally 
+// instead of on some cloud platform like aws s3/firebase/etc.
+// this makes the request for each user really high and will hit the rate limit
+// very quickly. if rate limiter want to be turned on, consider storing images
+// on firebase or s3 or some sort of free static asset hosting platform.
+// app.use(globalLimiter);
+
 
 // Parse JSON request bodies
 app.use(express.json());

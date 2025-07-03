@@ -1,4 +1,10 @@
 ### General TODO
+- turn of rate limiting because the server host the image locally 
+  instead of on some cloud platform like aws s3/firebase/etc.
+  this makes the request for each user really high and will hit the rate limit
+  very quickly. if rate limiter want to be turned on, consider storing images
+  on firebase or s3 or some sort of free static asset hosting platform.
+
 - code cleanup, 
   - css cleanup, no duplicate style
   - js cleanup, no duplicate code
