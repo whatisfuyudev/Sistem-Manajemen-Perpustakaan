@@ -22,6 +22,7 @@
       align-items: center;
       justify-content: center;
       overflow: hidden;
+      padding: 1rem;
     }
 
     /* ---------------
@@ -31,18 +32,25 @@
     body::after {
       content: "";
       position: absolute;
-      width: 600px;
-      height: 600px;
       background: rgba(255,255,255,0.3);
       transform: rotate(45deg);
+      transition: all 0.3s ease;
     }
     body::before {
-      top: -200px;
-      left: -200px;
+      width: 60vw;
+      max-width: 600px;
+      height: 60vw;
+      max-height: 600px;
+      top: -20vw;
+      left: -20vw;
     }
     body::after {
-      bottom: -200px;
-      right: -200px;
+      width: 60vw;
+      max-width: 600px;
+      height: 60vw;
+      max-height: 600px;
+      bottom: -20vw;
+      right: -20vw;
     }
 
     /* ---------------
@@ -104,6 +112,7 @@
       border-color: #0066ff;
       box-shadow: 0 0 0 3px rgba(0,102,255,0.2);
     }
+
     /* ---------------
        Button
        --------------- */
@@ -157,9 +166,8 @@
     /* ---------------
        Responsive
        --------------- */
-    @media (max-width: 400px) {
+    @media (max-width: 600px) {
       .login-card {
-        margin: 0 1rem;
         padding: 2rem 1.5rem;
       }
       body::before,
