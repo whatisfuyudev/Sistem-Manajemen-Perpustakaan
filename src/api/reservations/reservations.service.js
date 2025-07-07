@@ -183,14 +183,22 @@ exports.promoteNextReservation = async (bookIsbn) => {
   if (!reservation) {
     throw new CustomError('No pending reservations for this book.', 404);
   }
-  
+
+  // check for book copies/availabilities
+  // Retrieve the book record and decrement availableCopies by one
+  const book = await Book.findOne({ where: { isbn: bookIsbn } });
+  if (book) {
+    if(book.availableCopies <= 0) {
+      throw new CustomError('Book has no available copies.', 404);
+    }
+  }
+
   // Mark the reservation as available and set an expiration date (48 hours from now)
   reservation.status = 'available';
   reservation.expirationDate = new Date(Date.now() + RESERVATION_EXPIRATION_HOURS * 60 * 60 * 1000);
   await reservation.save();
 
   // Retrieve the book record and decrement availableCopies by one
-  const book = await Book.findOne({ where: { isbn: bookIsbn } });
   if (book) {
     await Book.update(
       { availableCopies: book.availableCopies - 1 },
