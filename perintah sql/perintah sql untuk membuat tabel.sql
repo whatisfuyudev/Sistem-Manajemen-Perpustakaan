@@ -98,24 +98,19 @@ $$;
 -- 2) Create the checkouts table
 CREATE TABLE public.checkouts (
   id                   SERIAL PRIMARY KEY,
-  "userId"             INTEGER      NOT NULL,
-  "bookIsbn"           VARCHAR(255) NOT NULL,
-  "checkoutDate"       TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
-  "dueDate"            TIMESTAMPTZ  NOT NULL,
-  "returnDate"         TIMESTAMPTZ,
+  user_id             INTEGER      NOT NULL,
+  book_isbn           VARCHAR(255) NOT NULL,
+  checkout_date       TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+  due_date            TIMESTAMPTZ  NOT NULL,
+  return_date         TIMESTAMPTZ,
   status               public.enum_checkouts_status NOT NULL DEFAULT 'active',
-  "renewalCount"       INTEGER      NOT NULL DEFAULT 0,
+  renewal_count       INTEGER      NOT NULL DEFAULT 0,
   fine                 DECIMAL(10,2) NULL DEFAULT 0.00,
-  "reservationId"      INTEGER,
-  "renewalRequested"   BOOLEAN      NOT NULL DEFAULT FALSE,
-  "requestedRenewalDays" INTEGER,
+  reservation_id      INTEGER,
+  renewal_requested   BOOLEAN      NOT NULL DEFAULT FALSE,
+  requested_renewal_days INTEGER,
   "createdAt"          TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
-  "updatedAt"          TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
-  CONSTRAINT fk_reservation
-    FOREIGN KEY ("reservationId")
-    REFERENCES public.reservations(id)
-    ON UPDATE CASCADE
-    ON DELETE SET NULL
+  "updatedAt"          TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
 
 ---------------------------------------------------------------------
@@ -130,6 +125,7 @@ CREATE TABLE books (
   publication_year INTEGER,
   description TEXT,
   cover_image VARCHAR(255),
+  pages INTEGER NOT NULL DEFAULT 0,,
   total_copies INTEGER NOT NULL DEFAULT 0,
   available_copies INTEGER NOT NULL DEFAULT 0,
   formats TEXT[],
