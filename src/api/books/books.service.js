@@ -102,16 +102,21 @@ exports.updateBook = async (isbn, updateData) => {
   }
 
   // check whether there is a new coverImage uploaded
-  if (updateData.coverImage) {
-    // if yes, delete old picture
-    dataHelper.deleteFile(book.coverImage, (err) => {
+  // if there's a new coverImage, delete the old one
+  if (updateData.coverImage && book.coverImage) {
+    // extract folder/public_id from the old URL
+    const re    = /\/(book-covers\/[^.]+)\.[^/.]+$/;
+    const match = book.coverImage.match(re);
+
+    dataHelper.deleteFile(decodeURIComponent( match[1] ), (err, result) => {
       if (err) {
-        logger.error('Error deleting file:\n' + JSON.stringify(err));
-        return null;
+        logger.error(err);
+      } else {
+        logger.info(`Book with isbn ${book.isbn} Cloudinary destroy result: ${result}`);
       }
     });
   }
-  
+
   const [affectedCount, affectedRows] = await Book.update(updateData, {
     where: { isbn },
     returning: true,
@@ -139,8 +144,13 @@ exports.bulkDelete = async (isbns) => {
   // 2) Delete each coverImage if present
   await Promise.all(books.map(b => {
     if (b.coverImage) {
+      // extract the public_id
+      const url = b.coverImage;
+      const re = /\/(book-covers\/[^.]+)\.[^/.]+$/;
+      const match = url.match(re);
+
       return new Promise(resolve => {
-        dataHelper.deleteFile(b.coverImage, err => {
+        dataHelper.deleteFile(decodeURIComponent( match[1] ), err => {
           if (err) logger.error(`Error deleting cover for ISBN ${b.isbn}:\n` + JSON.stringify(err));
           resolve();
         });

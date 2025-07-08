@@ -100,7 +100,7 @@ exports.updateBook = async (req, res, next) => {
 exports.handleCoverImageUpload = async (req, res, next) => { 
   try {
     if(req.isImageUploadSuccesful) { 
-      res.json({ coverImage: `/public/images/book-covers/${req.file.filename}`});
+      res.json({ coverImage: req.fileUrl});
     }
   } catch (error) {
     next(error);

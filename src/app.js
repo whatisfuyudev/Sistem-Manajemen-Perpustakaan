@@ -62,7 +62,7 @@ app.use(
         'https://fonts.googleapis.com',
         'https://cdn.jsdelivr.net'
       ],
-      imgSrc:   ["'self'", 'data:', 'blob:'],
+      imgSrc:   ["'self'", 'https://res.cloudinary.com', 'data:', 'blob:'],
       connectSrc: ["'self'"],
       fontSrc: ["'self'", 'https://fonts.gstatic.com'],
       objectSrc: ["'none'"]
