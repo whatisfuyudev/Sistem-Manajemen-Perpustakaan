@@ -104,10 +104,15 @@ exports.updateUser = async (id, updateData) => {
   // check whether there is a new profilePicture uploaded
     if (updateData.profilePicture) {
       // if yes, delete old picture
-      dataHelper.deleteFile(user.profilePicture, (err) => {
+      // extract folder/public_id from the old URL
+      const re    = /\/(profile-pictures\/[^.]+)\.[^/.]+$/;
+      const match = user.profilePicture.match(re);
+
+      dataHelper.deleteFile(decodeURIComponent( match[1] ), (err, result) => {
         if (err) {
-          logger.error('Error deleting file:\n' + JSON.stringify(err));
-          return null;
+          logger.error(err);
+        } else {
+          logger.info(`User with id ${user.id} Cloudinary destroy result: ${result}`);
         }
       });
     }
@@ -143,10 +148,18 @@ exports.bulkDelete = async (ids) => {
   await Promise.all(users.map(u => {
     if (u.profilePicture) {
       return new Promise(resolve => {
-        dataHelper.deleteFile(u.profilePicture, err => {
-          if (err) logger.error(`Failed to delete picture for user ${u.id}:\n` + JSON.stringify(err));
-          resolve();
-        });
+          // extract folder/public_id from the old URL
+          const re    = /\/(profile-pictures\/[^.]+)\.[^/.]+$/;
+          const match = u.profilePicture.match(re);
+
+          dataHelper.deleteFile(decodeURIComponent( match[1] ), (err, result) => {
+            if (err) {
+              logger.error(err);
+            } else {
+              logger.info(`User with id ${u.id} Cloudinary destroy result: ${result}`);
+            }
+            resolve();
+          });
       });
     }
     return Promise.resolve();

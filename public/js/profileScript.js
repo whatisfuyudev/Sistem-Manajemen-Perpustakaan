@@ -117,6 +117,9 @@ document.getElementById('uploadedImage')
   formData.append('_comesFrom', 'profilePicture');
   formData.append('uploadedImage', file);
 
+  // 2) show loading while we commit the new URL
+  showLoading('Updating profile picture…');
+
   try {
     const response = await fetch('/api/users/upload/profile-picture', {
       method: 'POST',
@@ -130,9 +133,6 @@ document.getElementById('uploadedImage')
     }
 
     const { profilePicture: profilePictureUrl } = await response.json();
-
-    // 2) show loading while we commit the new URL
-    showLoading('Updating profile picture…');
 
     const updateRes = await fetch('/api/users/update', {
       method: 'PUT',

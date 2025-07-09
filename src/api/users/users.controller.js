@@ -2,25 +2,38 @@ const userService = require('./users.service');
 
 exports.createUser = async (req, res, next) => {
   try {
-    // Remove any empty fields
-    const data = req.body;
+    // 1) Direct object log
+    console.log('Incoming body:', req.body);
+
+    // 2) Or JSON.stringify
+    console.log('Incoming body (pretty):\n', JSON.stringify(req.body, null, 2));
+
+    const data = { ...req.body };  // clone so delete operations don’t mutate original
+
     Object.keys(data).forEach(key => {
       const val = data[key];
-      const isEmptyString = typeof val === 'string' && val.trim() === '';
-      const isEmptyArray  = Array.isArray(val) && val.length === 0;
-      const isNullish     = val == null; // catches null or undefined
-      if (isNullish || isEmptyString || isEmptyArray) {
+      if (
+        val == null ||
+        (typeof val === 'string' && val.trim() === '') ||
+        (Array.isArray(val) && val.length === 0)
+      ) {
         delete data[key];
       }
     });
 
-    // Expect user data in req.body
+    console.log('Sanitized data:\n', data);
+
     const newUser = await userService.createUser(data);
+
+    // Log the returned user object the same way:
+    console.log('Created user:\n', JSON.stringify(newUser, null, 2));
+
     res.status(201).json(newUser);
   } catch (error) {
     next(error);
   }
 };
+
 
 exports.getAllUsers = async (req, res, next) => {
   try {
@@ -112,8 +125,7 @@ exports.updateUserAdmin = async (req, res, next) => {
 exports.handleProfilePictureUpload = async (req, res, next) => { 
   try {
     if(req.isImageUploadSuccesful) {
-      
-      res.json({ profilePicture: `/public/images/profile-pictures/${req.file.filename}`});
+      res.json({ profilePicture: req.fileUrl});
     }
   } catch (error) {
     next(error);

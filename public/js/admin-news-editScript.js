@@ -12,6 +12,8 @@ document.getElementById('uploadedImage').addEventListener('change', async functi
   formData.append('_comesFrom', 'newsPicture');
   formData.append('uploadedImage', file);
 
+  showLoading('Updating news picture…');
+
   try {
     const res = await fetch('/api/news/upload/news-picture', {
       method: 'POST',
@@ -20,7 +22,9 @@ document.getElementById('uploadedImage').addEventListener('change', async functi
     if (!res.ok) throw new Error(`Status ${res.status}`);
     const { newsPicture } = await res.json();
     document.getElementById('newsPicInput').value = newsPicture;
+    hideLoading();
   } catch (err) {
+    hideLoading();
     console.error('Upload failed:', err);
     showModal({ message: 'Failed to upload news image.' });
   }
@@ -35,7 +39,7 @@ document.getElementById('saveButton').addEventListener('click', async () => {
     published: document.getElementById('published').value === 'true',
     imageUrl:  document.getElementById('newsPicInput').value || undefined
   };
-  
+
   // Remove empty fields
   Object.keys(payload).forEach(k => {
     if (payload[k] == null || payload[k] === '') delete payload[k];

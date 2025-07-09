@@ -103,6 +103,7 @@
     #modal-ok { background:#28a745; color:#fff; }
     #modal-cancel { background:#dc3545; color:#fff; }
   </style>
+  <link rel="stylesheet" href="/public/css/loadingPopupStyle.css">
 </head>
 <body>
   <div class="container">
@@ -179,6 +180,18 @@
       </div>
     </div>
   </div>
+
+  <!-- Loading Modal (no buttons) -->
+  <div id="loading-overlay" class="modal-overlay hidden">
+    <div class="modal">
+      <div class="spinner"></div>
+      <p id="loading-message" style="font-size:0.95rem; color:#333; margin:0;">
+        Loading…
+      </p>
+    </div>
+  </div>
+  
+  <script src="/public/js/loadingPopup.js"></script>
 
   <script src="/public/js/admin-user-editScript.js">
 

@@ -17,10 +17,12 @@ document.getElementById('uploadedImage')
     preview.src = URL.createObjectURL(file);
     preview.style.display = 'block';
 
-    // Upload to server
+    // Upload to cdn
     const formData = new FormData();
     formData.append('_comesFrom', 'newsPicture');
     formData.append('uploadedImage', file);
+
+    showLoading('Uploading news picture…');
 
     try {
       const res = await fetch('/api/news/upload/news-picture', {
@@ -32,7 +34,9 @@ document.getElementById('uploadedImage')
       const data = await res.json();
       // store returned URL in hidden field
       document.getElementById('imageUrlInput').value = data.newsPicture;
+      hideLoading();
     } catch (err) {
+      hideLoading();
       console.error('Error uploading news picture:', err);
       const msg = document.getElementById('message');
       msg.textContent = 'Image upload failed.';

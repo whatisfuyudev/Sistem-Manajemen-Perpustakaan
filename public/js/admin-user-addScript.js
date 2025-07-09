@@ -44,6 +44,8 @@ document.getElementById('uploadedImage').addEventListener('change', async functi
     formData.append('_comesFrom', 'profilePicture');
     formData.append('uploadedImage', file);
 
+     showLoading('Uploading user picture…');
+
     try {
       const response = await fetch('/api/users/upload/profile-picture', {
         method: 'POST',
@@ -57,7 +59,9 @@ document.getElementById('uploadedImage').addEventListener('change', async functi
       } else {
         console.error('Error uploading cover image:', await response.text());
       }
+      hideLoading();
     } catch (error) {
+      hideLoading();
       console.error('Error during cover image upload:', error);
     }
   }

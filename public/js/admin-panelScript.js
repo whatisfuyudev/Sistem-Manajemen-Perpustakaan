@@ -175,6 +175,8 @@ async function loadBooksModule() {
       const confirmed = await showModal({ message: 'Are you sure you want to delete the selected book(s)?', showCancel: true });
       if (!confirmed) return;
 
+      showLoading('Deleting book(s)…');
+
       // Collect ISBNs from each selected checkbox's row
       const isbns = Array.from(selectedCheckboxes)
         .map(checkbox => {
@@ -333,10 +335,12 @@ async function deleteBook(isbnOrArray) {
       const err = await res.json();
       throw new Error(err.message || res.statusText);
     }
+    hideLoading();
 
     await showModal({ message: `${isbns.length} book${isbns.length>1?'s':''} deleted.` });
     fetchBooks();
   } catch (err) {
+    hideLoading();
     console.error(err);
     showModal({ message: 'Deletion failed: ' + err.message });
   }
@@ -885,6 +889,8 @@ async function loadUsersModule() {
       const confirmed = await showModal({ message: 'Are you sure you want to delete the selected user(s)?', showCancel: true });
       if (!confirmed) return;
 
+      showLoading('Deleting user(s)…');
+
       // Collect userIds from each selected checkbox's row
       const userIds = Array.from(selectedCheckboxes)
         .map(checkbox => {
@@ -1049,10 +1055,12 @@ async function deleteUser(userIds) {
       const err = await res.json();
       throw new Error(err.message || res.statusText);
     }
+    hideLoading();
 
     await showModal({ message: `Deleted ${ids.length} user${ids.length>1?'s':''}.` });
     fetchUsersModule();
   } catch (err) {
+    hideLoading();
     console.error('Bulk-delete error:', err);
     await showModal({ message: 'Error deleting user(s): ' + err.message });
   }
@@ -1509,6 +1517,8 @@ async function bulkDeleteSelectedNews() {
     parseInt(cb.closest('tr').dataset.id, 10)
   );
 
+  showLoading('Deleting new(s)…');
+
   try {
     const res = await fetch(`${API.news.delete}`, {
       method: 'DELETE',
@@ -1518,10 +1528,12 @@ async function bulkDeleteSelectedNews() {
       body: JSON.stringify({ ids })
     });
     if (!res.ok) throw new Error(`Status ${res.status}`);
+    hideLoading();
 
     await showModal({ message: `Deleted ${ids.length} item(s) successfully.` });
     fetchNewsModule();
   } catch (err) {
+    hideLoading();
     console.error('Bulk delete error:', err);
     showModal({ message: 'Error deleting selected news.' });
   }

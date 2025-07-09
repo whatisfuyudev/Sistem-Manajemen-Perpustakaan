@@ -43,11 +43,17 @@ async function update(id, data) {
   }
   
   if (data.imageUrl) {
-      dataHelper.deleteFile(news.imageUrl, err => {
+      // extract folder/public_id from the old URL
+      const re    = /\/(news-pictures\/[^.]+)\.[^/.]+$/;
+      const match = news.imageUrl.match(re);
+
+      dataHelper.deleteFile(decodeURIComponent( match[1] ), (err, result) => {
         if (err) {
-          logger.error(`Error deleting file for news ${data.id}:\n` + JSON.stringify(err));
+          logger.error(err);
+        } else {
+          logger.info(`News with id ${news.id} Cloudinary destroy result: ${result}`);
         }
-      });    
+      });
     }
 
   const [affectedCount, affectedRows] = await News.update(data, { 
@@ -187,14 +193,23 @@ async function bulkDelete(ids) {
   await Promise.all(rows.map(n => {
     if (n.imageUrl) {
       // dataHelper.deleteFile(path, cb) → wrap in a promise
+      // extract the public_id
+      const url = n.imageUrl;
+      const re    = /\/(news-pictures\/[^.]+)\.[^/.]+$/;
+      const match = url.match(re);
+
       return new Promise(resolve => {
-        dataHelper.deleteFile(n.imageUrl, err => {
-          if (err) {
-            logger.error(`Error deleting file for news ${n.id}:\n` + JSON.stringify(err));
-          }
-          // resolve no matter what so one failure doesn't abort all
-          resolve();
-        });
+          dataHelper.deleteFile(decodeURIComponent( match[1] ), err => {
+            if (err) logger.error(`Error deleting news picture for id ${n.imageUrl}:\n` + JSON.stringify(err));
+            resolve();
+          });
+        // dataHelper.deleteFile(n.imageUrl, err => {
+        //   if (err) {
+        //     logger.error(`Error deleting file for news ${n.id}:\n` + JSON.stringify(err));
+        //   }
+        //   // resolve no matter what so one failure doesn't abort all
+        //   resolve();
+        // });
       });
     }
     return Promise.resolve();

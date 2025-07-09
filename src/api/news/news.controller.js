@@ -132,8 +132,7 @@ exports.searchNews = async (req, res, next) => {
 exports.handleNewsPictureUpload = async (req, res, next) => { 
   try {
     if(req.isImageUploadSuccesful) {
-      
-      res.json({ newsPicture: `/public/images/news-pictures/${req.file.filename}`});
+      res.json({ newsPicture: req.fileUrl });
     }
   } catch (error) {
     next(error);

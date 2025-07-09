@@ -5,6 +5,8 @@ document.getElementById('uploadedImage').addEventListener('change', async functi
     const formData = new FormData();
     formData.append('uploadedImage', file);
 
+    showLoading('Uploading book cover…');
+
     try {
       const response = await fetch('/api/books/upload/cover', {
         method: 'POST',
@@ -18,7 +20,9 @@ document.getElementById('uploadedImage').addEventListener('change', async functi
       } else {
         console.error('Error uploading cover image:', await response.text());
       }
+      hideLoading();
     } catch (error) {
+      hideLoading();
       console.error('Error during cover image upload:', error);
     }
   }

@@ -1,24 +1,27 @@
 const userService = require('./users.service');
+const CustomError = require('../../utils/customError');
 
-// src/api/users/user.controller.js
 exports.renderProfilePage = async (req, res, next) => {
+  // 1) Make sure we even have a user ID
+  if (!req.user || !req.user.id) {
+    return res.redirect('/auth/login');
+  }
+
   try {
-    // req.user should have the minimal user information (id, role)
-    if (!req.user || !req.user.id) {
-      // Redirect to login if no valid token exists
-      return res.redirect('/auth/login');
-    }
-    
-    // Fetch full user details from the database using the service
+    // 2) Try to fetch the full user
     const user = await userService.getUserById(req.user.id);
-    if (!user) {
-      next();
+
+    // 3) If we got here, a user was found—render the page
+    return res.render('profile', { user });
+
+  } catch (err) {
+    // 4) Handle “user not found” specially
+    if (err instanceof CustomError && err.status === 404) {
+      // e.g. redirect to a “not found” page or just call next()
+      return next();      
     }
-    
-    // Render the profile page (profile.ejs) with the full user data
-    res.render('profile', { user });
-  } catch (error) {
-    next(error);
+    // 5) Anything else is a real error—pass it to your error handler
+    return next(err);
   }
 };
 

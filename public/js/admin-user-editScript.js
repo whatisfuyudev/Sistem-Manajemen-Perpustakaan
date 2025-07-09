@@ -6,6 +6,8 @@ document.getElementById('uploadedImage').addEventListener('change', async functi
   formData.append('_comesFrom', 'profilePicture');
   formData.append('uploadedImage', file);
 
+  showLoading('Updating user picture…');
+
   try {
     const res = await fetch('/api/users/upload/profile-picture', {
       method: 'POST', body: formData
@@ -18,7 +20,9 @@ document.getElementById('uploadedImage').addEventListener('change', async functi
       console.error('Upload failed', await res.text());
       showModal({ message: 'Failed to upload profile picture.' });
     }
+    hideLoading();
   } catch (err) {
+    hideLoading();
     console.error(err);
     showModal({ message: 'Error uploading profile picture.' });
   }

@@ -30,6 +30,7 @@
       border-radius: 4px;
     }
   </style>
+  <link rel="stylesheet" href="/public/css/loadingPopupStyle.css">
 </head>
 <body>
   <div class="container">
@@ -80,6 +81,17 @@
     </form>
   </div>
 
+  <!-- Loading Modal (no buttons) -->
+  <div id="loading-overlay" class="modal-overlay hidden">
+    <div class="modal">
+      <div class="spinner"></div>
+      <p id="loading-message" style="font-size:0.95rem; color:#333; margin:0;">
+        Loading…
+      </p>
+    </div>
+  </div>
+
+  <script src="/public/js/loadingPopup.js"></script>
   <!-- your client‐side script to handle preview+upload -->
   <script src="/public/js/admin-news-addScript.js"></script>
 </body>
