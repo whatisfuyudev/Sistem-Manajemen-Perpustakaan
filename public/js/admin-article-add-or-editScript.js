@@ -46,6 +46,8 @@ document.getElementById('uploadedImage').addEventListener('change', async functi
   formData.append('_comesFrom', 'articleCovers');
   formData.append('uploadedImage', file);
 
+  showLoading('Uploading article picture…');
+
   try {
     const res = await fetch('/api/articles/upload/articles-picture', {
       method: 'POST',
@@ -54,7 +56,9 @@ document.getElementById('uploadedImage').addEventListener('change', async functi
     if (!res.ok) throw new Error('Upload failed');
     const { articlesPicture } = await res.json();
     document.getElementById('coverImageInput').value = articlesPicture;
+    hideLoading();
   } catch (err) {
+    hideLoading();
     console.error(err);
     const msg = document.getElementById('message');
     msg.textContent = 'Cover upload failed.';

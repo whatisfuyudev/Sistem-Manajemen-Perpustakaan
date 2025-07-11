@@ -112,10 +112,9 @@ async function renderCheckouts(data) {
 
         // Book cover image
         const img = document.createElement('img');
-        img.src = "" + (book.coverImage ? book.coverImage : '/public/images/book-covers/default.jpeg');
+        img.src = "" + (book.coverImage ? book.coverImage : 'https://res.cloudinary.com/dxfrr8lsd/image/upload/v1752218741/book-covers/d8358cf2-ef7b-47a2-abec-27e5aaadd827_1752218741435_default-cover.png');
         img.alt = book.title;
         img.style.maxHeight = "200px";
-        img.style.width = "auto";
         card.appendChild(img);
 
         // Book title

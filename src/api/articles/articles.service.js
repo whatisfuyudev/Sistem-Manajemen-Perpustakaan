@@ -76,9 +76,15 @@ async function update(id, data) {
   // 2) If a new coverImage URL was provided, delete the old file
   //    (we assume data.coverImage holds the new URL/path)
   if (data.coverImage && article.coverImage) {
-    dataHelper.deleteFile(article.coverImage, err => {
+   // extract folder/public_id from the old URL
+    const re    = /\/(articles-pictures\/[^.]+)\.[^/.]+$/;
+    const match = article.coverImage.match(re);
+
+    dataHelper.deleteFile(decodeURIComponent( match[1] ), (err, result) => {
       if (err) {
-        logger.error(`Error deleting old cover for article ${id}:\n`+ JSON.stringify(err));
+        logger.error(err);
+      } else {
+        logger.info(`article with id ${article.id} Cloudinary destroy result: ${result}`);
       }
     });
   }
@@ -114,11 +120,16 @@ async function bulkDelete(ids) {
   await Promise.all(
     rows.map(a => {
       if (a.coverImage) {
+        // extract the public_id
+        const url = a.coverImage;
+        const re    = /\/(articles-pictures\/[^.]+)\.[^/.]+$/;
+        const match = url.match(re);
+
         return new Promise(resolve => {
-          dataHelper.deleteFile(a.coverImage, err => {
-            if (err) logger.error(`Error deleting cover for article ${a.id}:\n`+ JSON.stringify(err));
-            resolve();
-          });
+            dataHelper.deleteFile(decodeURIComponent( match[1] ), err => {
+              if (err) logger.error(`Error deleting articles picture for id ${a.id}:\n` + JSON.stringify(err));
+              resolve();
+            });
         });
       }
       return Promise.resolve();

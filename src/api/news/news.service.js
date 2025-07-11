@@ -200,16 +200,9 @@ async function bulkDelete(ids) {
 
       return new Promise(resolve => {
           dataHelper.deleteFile(decodeURIComponent( match[1] ), err => {
-            if (err) logger.error(`Error deleting news picture for id ${n.imageUrl}:\n` + JSON.stringify(err));
+            if (err) logger.error(`Error deleting news picture for id ${n.id}:\n` + JSON.stringify(err));
             resolve();
           });
-        // dataHelper.deleteFile(n.imageUrl, err => {
-        //   if (err) {
-        //     logger.error(`Error deleting file for news ${n.id}:\n` + JSON.stringify(err));
-        //   }
-        //   // resolve no matter what so one failure doesn't abort all
-        //   resolve();
-        // });
       });
     }
     return Promise.resolve();

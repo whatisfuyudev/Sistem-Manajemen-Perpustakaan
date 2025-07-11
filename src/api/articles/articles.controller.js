@@ -5,7 +5,7 @@ exports.handleArticlePictureUpload = async (req, res, next) => {
   try {
     if(req.isImageUploadSuccesful) {
       
-      res.json({ articlesPicture: `/public/images/articles-pictures/${req.file.filename}`});
+      res.json({ articlesPicture: req.fileUrl});
     }
   } catch (error) {
     next(error);

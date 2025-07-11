@@ -175,9 +175,7 @@
         <li class="article-item">
           <a href="/articles/<%= article.id %>" style="display: flex; align-items: center; text-decoration: none; color: inherit; gap:16px">
             <div class="article-thumb">
-              <% if (article.coverImage) { %>
-                <img src="<%= article.coverImage %>" alt="Cover for <%= article.title %>">
-              <% } %>
+              <img src="<%= article.coverImage ? article.coverImage : 'https://res.cloudinary.com/dxfrr8lsd/image/upload/v1752218554/articles-pictures/53c69df0-f619-4535-842e-f61297be4a95_1752218554391_default.png' %>" alt="Cover for <%= article.title %>">
             </div>
             <div class="article-info">
               <h2><%= article.title %></h2>

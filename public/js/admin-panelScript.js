@@ -1789,6 +1789,8 @@ async function bulkDeleteSelectedArticles() {
     parseInt(cb.closest('tr').dataset.id, 10)
   );
 
+  showLoading('Deleting article(s)…');
+
   try {
     const res = await fetch(`${API.articles.delete}`, {
       method: 'DELETE',
@@ -1796,10 +1798,12 @@ async function bulkDeleteSelectedArticles() {
       body: JSON.stringify({ ids })
     });
     if (!res.ok) throw new Error(`Status ${res.status}`);
+    hideLoading();
 
     await showModal({ message: `Deleted ${ids.length} article(s) successfully.` });
     fetchArticlesModule();
   } catch (err) {
+    hideLoading();
     console.error('Bulk delete error:', err);
     showModal({ message: 'Error deleting selected articles.' });
   }

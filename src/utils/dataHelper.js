@@ -99,10 +99,10 @@ const { v4: uuidv4 } = require('uuid');
 
 // Protected “defaults” list ———
 const protectedIds = [
-  '/public/images/profile-pictures/default.jpg',
-  '/public/images/book-covers/default-cover.jpg',
-  '/public/images/articles-pictures/default.png',
-  '/public/images/news-pictures/default.png'
+  'profile-pictures/default.jpg',
+  'book-covers/d8358cf2-ef7b-47a2-abec-27e5aaadd827_1752218741435_default-cover',
+  'articles-pictures/53c69df0-f619-4535-842e-f61297be4a95_1752218554391_default',
+  'news-pictures/default.png'
 ];
 
 // deleteFile by public_id ———

@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const img = document.createElement('img');
       img.src = book.coverImage
         ? book.coverImage
-        : '/public/images/book-covers/default-cover.jpg';
+        : 'https://res.cloudinary.com/dxfrr8lsd/image/upload/v1752218741/book-covers/d8358cf2-ef7b-47a2-abec-27e5aaadd827_1752218741435_default-cover.png';
       img.alt = book.title;
       card.appendChild(img);
 
@@ -293,7 +293,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Render cards
     slidesEl.innerHTML = articles.map(a => `
       <a href="/articles/${a.id}" class="card" >
-        <img src="${a.coverImage || '/public/images/articles-pictures/default.png'}" alt="${a.title}">
+        <img src="${a.coverImage || 'https://res.cloudinary.com/dxfrr8lsd/image/upload/v1752218554/articles-pictures/53c69df0-f619-4535-842e-f61297be4a95_1752218554391_default.png'}" alt="${a.title}">
         <div class="card-text">${a.title}</div>
       </a>
     `).join('');

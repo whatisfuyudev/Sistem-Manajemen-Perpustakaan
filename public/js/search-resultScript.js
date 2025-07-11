@@ -18,7 +18,7 @@ function createBookCard(book) {
 
   // Cover image
   const img = document.createElement('img');
-  img.src = "" + (book.coverImage ? book.coverImage : '/public/images/book-covers/"default-cover.jpg');
+  img.src = "" + (book.coverImage ? book.coverImage : 'https://res.cloudinary.com/dxfrr8lsd/image/upload/v1752218741/book-covers/d8358cf2-ef7b-47a2-abec-27e5aaadd827_1752218741435_default-cover.png');
   img.alt = book.title;
   card.appendChild(img);
 
