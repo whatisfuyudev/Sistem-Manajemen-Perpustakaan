@@ -102,13 +102,14 @@ const protectedIds = [
   'profile-pictures/default.jpg',
   'book-covers/d8358cf2-ef7b-47a2-abec-27e5aaadd827_1752218741435_default-cover',
   'articles-pictures/53c69df0-f619-4535-842e-f61297be4a95_1752218554391_default',
-  'news-pictures/default.png'
+  'news-pictures/375a1087-f459-4644-815c-cd152ad465ae_1752231620305_default'
 ];
 
 // deleteFile by public_id ———
 exports.deleteFile = (publicId, callback) => {
   if (!publicId || protectedIds.includes(publicId)) {
-    return null;
+    // signal “done” immediately
+    return callback(null, { skipped: true });
   }
   cloudinary.uploader.destroy(publicId, (err, result) => {
     callback(err, result);
