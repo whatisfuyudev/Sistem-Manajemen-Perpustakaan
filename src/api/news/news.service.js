@@ -42,7 +42,7 @@ async function update(id, data) {
     throw new CustomError(`News with id=${id} not found`, 404);
   }
   
-  if (data.imageUrl) {
+  if (data.imageUrl && news.imageUrl) {
       // extract folder/public_id from the old URL
       const re    = /\/(news-pictures\/[^.]+)\.[^/.]+$/;
       const match = news.imageUrl.match(re);

@@ -270,7 +270,7 @@
         <img
           src="<%= bookExists && book.coverImage
                 ? book.coverImage
-                : '/images/default-book.png' %>"
+                : 'https://res.cloudinary.com/dxfrr8lsd/image/upload/v1752218741/book-covers/d8358cf2-ef7b-47a2-abec-27e5aaadd827_1752218741435_default-cover.png' %>"
           alt="<%= bookExists && book.title ? book.title + ' cover' : 'No cover' %>"
           class="book-cover"
         >
@@ -316,7 +316,7 @@
         <img
           src="<%= userExists && user.profilePicture
                 ? user.profilePicture
-                : '/public/images/profile-pictures/default.jpg' %>"
+                : 'https://res.cloudinary.com/dxfrr8lsd/image/upload/v1752285695/profile-pictures/0a4dbfba-6ba4-4b68-8932-4ee01288a753_1752285697041_default.jpg' %>"
           alt="<%= userExists && user.name ? user.name + ' avatar' : 'No avatar' %>"
           class="user-avatar"
         >

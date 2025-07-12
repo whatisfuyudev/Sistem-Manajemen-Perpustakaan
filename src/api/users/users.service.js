@@ -101,8 +101,8 @@ exports.updateUser = async (id, updateData) => {
     updateData.password = await bcrypt.hash(updateData.password, saltRounds);
   }
 
-  // check whether there is a new profilePicture uploaded
-    if (updateData.profilePicture) {
+  // check whether there is a new profilePicture uploaded and there is a profile picture
+    if (updateData.profilePicture && user.profilePicture) {
       // if yes, delete old picture
       // extract folder/public_id from the old URL
       const re    = /\/(profile-pictures\/[^.]+)\.[^/.]+$/;

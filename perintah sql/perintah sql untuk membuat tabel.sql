@@ -7,7 +7,7 @@ DROP TABLE IF EXISTS users CASCADE;
 
 -- Drop ENUM types if they exist
 DROP TYPE IF EXISTS enum_users_role;
-DROP TYPE IF EXISTS enum_users_accountStatus;
+DROP TYPE IF EXISTS enum_users_account_status;
 DROP TYPE IF EXISTS enum_reservations_status;
 DROP TYPE IF EXISTS enum_notifications_channel;
 DROP TYPE IF EXISTS enum_notifications_status;
@@ -19,7 +19,7 @@ DROP TYPE IF EXISTS enum_checkouts_status;
 
 -- Users: Create ENUM types for role and accountStatus
 CREATE TYPE enum_users_role AS ENUM ('Admin', 'Librarian', 'Patron');
-CREATE TYPE enum_users_accountStatus AS ENUM ('Active', 'Suspended', 'Pending');
+CREATE TYPE enum_users_account_status AS ENUM ('Active', 'Suspended', 'Pending');
 
 -- Create the users table
 CREATE TABLE users (
@@ -30,7 +30,7 @@ CREATE TABLE users (
   role enum_users_role NOT NULL DEFAULT 'Patron',
   phone VARCHAR(255),
   address VARCHAR(255),
-  account_status enum_users_accountStatus NOT NULL DEFAULT 'Active',
+  account_status enum_users_account_status NOT NULL DEFAULT 'Active',
   profile_picture VARCHAR(255),
   "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()

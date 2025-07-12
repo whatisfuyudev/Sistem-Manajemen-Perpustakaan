@@ -2,12 +2,6 @@ const userService = require('./users.service');
 
 exports.createUser = async (req, res, next) => {
   try {
-    // 1) Direct object log
-    console.log('Incoming body:', req.body);
-
-    // 2) Or JSON.stringify
-    console.log('Incoming body (pretty):\n', JSON.stringify(req.body, null, 2));
-
     const data = { ...req.body };  // clone so delete operations don’t mutate original
 
     Object.keys(data).forEach(key => {
@@ -21,12 +15,7 @@ exports.createUser = async (req, res, next) => {
       }
     });
 
-    console.log('Sanitized data:\n', data);
-
     const newUser = await userService.createUser(data);
-
-    // Log the returned user object the same way:
-    console.log('Created user:\n', JSON.stringify(newUser, null, 2));
 
     res.status(201).json(newUser);
   } catch (error) {

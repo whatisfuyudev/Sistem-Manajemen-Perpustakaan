@@ -1,93 +1,3 @@
-// // handle file uploads
-// const multer  = require('multer');
-// const path = require('path');
-// const fs = require('fs');
-// const cloudinary = require('./cloudinary');
-
-
-
-// exports.deleteFile = (filename, callback) => {
-//   // if no file to delete, don't delete anything
-//   if (!filename) {
-//     return null;
-//   }
-
-//   // Don’t delete the shared default images
-//   const protectedFiles = [
-//     '/public/images/profile-pictures/default.jpg',
-//     '/public/images/book-covers/default-cover.jpg',
-//     '/public/images/articles-pictures/default.png',
-//     '/public/images/news-pictures/default.png'
-//   ];
-//   if (protectedFiles.includes(filename)) {
-    
-//     return null;
-//   }
-
-//   // Construct the file path based on a safe base directory
-//   const baseDir = path.join(__dirname, '../../');
-//   const fileToDelete = path.join(baseDir, filename);
-
-//   // Validate that fileToDelete is within baseDir.
-//   const relative = path.relative(baseDir, fileToDelete);
-//   if (relative.startsWith('..') || path.isAbsolute(relative)) {
-//     return callback(new Error('Invalid file path: File is outside the allowed directory.'));
-//   }
-
-//   fs.unlink(fileToDelete, (err) => {
-//     callback(err);
-//   });
-// };
-
-// // Configure storage for Multer
-// const storage = multer.diskStorage({
-//   destination: function(req, file, cb) {
-//     // Files will be saved in the 'public/images/' directory
-//     let target = '../../public/images/';
-    
-//     // if upload from user profile picture api (the front end tells)
-//     // modify request object, make new property that tells that
-//     // else default to book-covers directory
-//     if (req.body._comesFrom === "profilePicture") {
-//       target += 'profile-pictures/';
-//     } else if (req.body._comesFrom === "newsPicture") {
-//       target += 'news-pictures';
-//     } else if (req.body._comesFrom === "articleCovers") {
-//       target += 'articles-pictures';
-//     } else {
-//       target += 'book-covers/';
-//     }
-
-//     cb(null, path.join(__dirname, target));
-//   },
-//   filename: function(req, file, cb) {
-//     // Generate a name with the file original name plus uuid
-//     const finalFileName = uuidv4() +"-"+ file.originalname;
-
-//     cb(null, finalFileName);
-//     // cb(null, file.originalname);
-//   }
-// });
-
-// // Initialize upload variable with the defined storage engine
-// exports.upload = multer({
-//   storage: storage,
-//   limits: { fileSize: 5000000 },  // Limit file size to 5MB (optional)
-//   fileFilter: function(req, file, cb) {
-//     // Accept image files only
-//     const filetypes = /jpeg|jpg|png|gif/;
-//     const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-//     const mimetype = filetypes.test(file.mimetype);
-//     if (mimetype && extname) {
-//       req.isImageUploadSuccesful = true;
-
-//       return cb(null, true);
-//     } else {
-//       cb('Error: Images Only! (jpeg, jpg, png, gif)');
-//     }
-//   }
-// }).single('uploadedImage'); // 'uploadedImage' is the name attribute from the form input
-
 // helpers/cloudinaryHelper.js
 const multer       = require('multer');
 const cloudinary   = require('./cloudinary');
@@ -99,7 +9,7 @@ const { v4: uuidv4 } = require('uuid');
 
 // Protected “defaults” list ———
 const protectedIds = [
-  'profile-pictures/default.jpg',
+  'profile-pictures/0a4dbfba-6ba4-4b68-8932-4ee01288a753_1752285697041_default',
   'book-covers/d8358cf2-ef7b-47a2-abec-27e5aaadd827_1752218741435_default-cover',
   'articles-pictures/53c69df0-f619-4535-842e-f61297be4a95_1752218554391_default',
   'news-pictures/375a1087-f459-4644-815c-cd152ad465ae_1752231620305_default'
