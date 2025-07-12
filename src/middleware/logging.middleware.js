@@ -31,7 +31,9 @@ const formatString = ':remote-ip - :method :url :status :res[content-length] - :
 // Define a stream object for Morgan that passes the formatted message to Winston
 const morganStream = {
   write: (message) => {
-    logger.info(message.trim());
+    // disable so no logging everything/every single action from every user.
+    // because very heavy in terms of computing and stupid to do (free tier, limited resources)
+    // logger.info(message.trim());
   }
 };
 
