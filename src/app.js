@@ -24,11 +24,12 @@ const app = express();
 // Load Postgresql database
 const sequelize = require('./utils/db');
 
-// Sync all models at once
-sequelize
-  .sync({ alter: true }) 
-  .then(() => console.log("Database & tables synchronized"))
-  .catch((err) => console.error("Error syncing database:", err));
+// disable so no syncing everytime, waste of compute
+// // Sync all models at once
+// sequelize
+//   .sync({ alter: true }) 
+//   .then(() => console.log("Database & tables synchronized"))
+//   .catch((err) => console.error("Error syncing database:", err));
 
 // Load environment variables from a .env file into process.env
 require('dotenv').config();

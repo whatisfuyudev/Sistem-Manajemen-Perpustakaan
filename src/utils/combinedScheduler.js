@@ -14,33 +14,33 @@ const Article      = require('../models/article.model')
 const emailHelper  = require('./emailHelper');
 const logger = require('./logger');
 
-// Folders to clean + which model + which attribute holds the URL
-const CLEANUP_TARGETS = [
-  {
-    dir:     path.join(__dirname, '../../public/images/news-pictures'),
-    model:   News,
-    attr:    'imageUrl',
-    protect: new Set(['default.png'])
-  },
-  {
-    dir:     path.join(__dirname, '../../public/images/book-covers'),
-    model:   Book,
-    attr:    'coverImage',    // adjust to your actual field name
-    protect: new Set(['default-cover.jpg'])
-  },
-  {
-    dir:     path.join(__dirname, '../../public/images/profile-pictures'),
-    model:   User,
-    attr:    'profilePicture', // adjust to your actual field name
-    protect: new Set(['default.jpg'])
-  },
-  {
-    dir:     path.join(__dirname, '../../public/images/articles-pictures'),
-    model:   Article,
-    attr:    'coverImage', // adjust to your actual field name
-    protect: new Set(['default.png'])
-  }
-];
+// // Folders to clean + which model + which attribute holds the URL
+// const CLEANUP_TARGETS = [
+//   {
+//     dir:     path.join(__dirname, '../../public/images/news-pictures'),
+//     model:   News,
+//     attr:    'imageUrl',
+//     protect: new Set(['default.png'])
+//   },
+//   {
+//     dir:     path.join(__dirname, '../../public/images/book-covers'),
+//     model:   Book,
+//     attr:    'coverImage',    // adjust to your actual field name
+//     protect: new Set(['default-cover.jpg'])
+//   },
+//   {
+//     dir:     path.join(__dirname, '../../public/images/profile-pictures'),
+//     model:   User,
+//     attr:    'profilePicture', // adjust to your actual field name
+//     protect: new Set(['default.jpg'])
+//   },
+//   {
+//     dir:     path.join(__dirname, '../../public/images/articles-pictures'),
+//     model:   Article,
+//     attr:    'coverImage', // adjust to your actual field name
+//     protect: new Set(['default.png'])
+//   }
+// ];
 
 // Single plain-text stamp file
 const STAMP_FILE = path.join(__dirname, 'lastRun.txt');
@@ -67,11 +67,11 @@ async function runAll() {
   console.log('› Overdue checkouts:', await processOverdues());
   console.log('› Expire reservations:', await processExpiredReservations());
   console.log('› Scheduled notifications:', await processScheduledNotifications());
-  // Loop through each cleanup target
-  for (const t of CLEANUP_TARGETS) {
-    const count = await cleanupOrphanImages(t);
-    console.log(`› Cleaned orphans in ${path.basename(t.dir)}:`, count);
-  }
+  // // Loop through each cleanup target
+  // for (const t of CLEANUP_TARGETS) {
+  //   const count = await cleanupOrphanImages(t);
+  //   console.log(`› Cleaned orphans in ${path.basename(t.dir)}:`, count);
+  // }
 }
 
 /** Initialize: startup check + cron */
