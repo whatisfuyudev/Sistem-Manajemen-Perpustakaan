@@ -12,7 +12,7 @@ const News         = require('../models/news.model');
 const User         = require('../models/user.model')
 const Article      = require('../models/article.model')
 const emailHelper  = require('./emailHelper');
-const logger = require('./logger');
+// const logger = require('./logger');
 
 // // Folders to clean + which model + which attribute holds the URL
 // const CLEANUP_TARGETS = [
@@ -163,7 +163,7 @@ Your Library Team
 
       sentCount++;
     } catch (err) {
-      logger.error(`Failed due-soon email for checkout #${chk.id}:`, err);
+      // logger.error(`Failed due-soon email for checkout #${chk.id}:`, err);
       notification.status = 'failed';
       await notification.save();
     }
@@ -219,10 +219,10 @@ async function processScheduledNotifications() {
 
       sentCount++;
     } catch (err) {
-      logger.error(
-        `Error sending notification #${notification.id}:\n` +
-        JSON.stringify(err)
-      );
+      // logger.error(
+      //   `Error sending notification #${notification.id}:\n` +
+      //   JSON.stringify(err)
+      // );
       // mark failed:
       notification.status = 'failed';
       await notification.save();
@@ -290,10 +290,10 @@ async function cleanupOrphanImages({ dir, model, attr, protect }) {
       }
     }
   } catch (err) {
-    logger.error(`Error cleaning ${dir}:\n`+ JSON.stringify(err));
+    // logger.error(`Error cleaning ${dir}:\n`+ JSON.stringify(err));
   }
   return deletedCount;
 }
 
 // Kick off!
-initScheduler().catch(err => logger.error('Scheduler failed:\n' + JSON.stringify(err)));
+// initScheduler().catch(err => logger.error('Scheduler failed:\n' + JSON.stringify(err)));

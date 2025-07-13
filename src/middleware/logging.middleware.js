@@ -1,7 +1,7 @@
 // src/middleware/logging.middleware.js
 const morgan = require('morgan');
 const jwt = require('jsonwebtoken');
-const logger = require('../utils/logger');
+// const logger = require('../utils/logger');
 const authConfig = require('../config/auth.config');
 
 // Define a custom token that returns the IP address
