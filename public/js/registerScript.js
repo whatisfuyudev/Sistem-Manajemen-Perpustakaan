@@ -24,9 +24,9 @@ document.addEventListener('DOMContentLoaded', function () {
         messageDiv.textContent = 'Registration successful! Redirecting to login…';
         messageDiv.classList.add('success');
         registerForm.reset();
-        setTimeout(() => {
-          window.location.href = '/auth/login';
-        }, 2000);
+      
+        window.location.href = '/auth/login';
+      
       } else {
         const errorText = await response.text();
         messageDiv.textContent = 'Registration failed: ' + errorText;

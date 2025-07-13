@@ -32,13 +32,13 @@ document.addEventListener('DOMContentLoaded', () => {
       messageDiv.textContent = 'Login successful! Redirecting…';
       messageDiv.classList.add('success');
 
-      setTimeout(() => {
-        if (role === 'Admin' || role === 'Librarian') {
-          window.location.href = '/admin/panel/';
-        } else {
-          window.location.href = '/';
-        }
-      }, 1000);
+     
+      if (role === 'Admin' || role === 'Librarian') {
+        window.location.href = '/admin/panel/';
+      } else {
+        window.location.href = '/';
+      }
+    
 
     } catch (err) {
       console.error('Login error:', err);
