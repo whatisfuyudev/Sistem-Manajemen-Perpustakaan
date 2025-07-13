@@ -8,9 +8,10 @@
 const app = require('./app');
 
 // Determine the port to listen on (environment variable takes precedence)
-const PORT = 5000;
+// const PORT = 5000;
 
-app.listen(PORT, () => {
-  console.log(`Library Web Application server is running on port ${PORT}`);
-});
+// app.listen(PORT, () => {
+//   console.log(`Library Web Application server is running on port ${PORT}`);
+// });
 
+module.exports = app;

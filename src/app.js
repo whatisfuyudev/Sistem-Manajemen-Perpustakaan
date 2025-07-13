@@ -16,8 +16,8 @@ const { rateLimit }   = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
 const authMiddleware = require('./middleware/auth.middleware');
 // importing it so it runs even if the variable is not used
-const combinedScheduler = require('./utils/combinedScheduler'); 
-const loggerMiddleware = require('./middleware/logging.middleware'); // our Morgan configured with Winston
+// const combinedScheduler = require('./utils/combinedScheduler'); 
+// const loggerMiddleware = require('./middleware/logging.middleware'); // our Morgan configured with Winston
 
 const app = express();
 
@@ -103,7 +103,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // Use the logging middleware
-app.use(loggerMiddleware);
+// app.use(loggerMiddleware);
 
 // --------------------
 // Static Files
