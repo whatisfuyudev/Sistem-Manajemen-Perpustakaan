@@ -19,8 +19,8 @@ const logger = createLogger({
     // Log to the console
     new transports.Console(),
     // Log to a file; you can use additional transports or configure rotation using a library like winston-daily-rotate-file
-    new transports.File({ filename: '/logs/combined.log' }),
-    new transports.File({ filename: '/logs/error.log', level: 'error' })
+    new transports.File({ filename: 'logs/combined.log' }),
+    new transports.File({ filename: 'logs/error.log', level: 'error' })
   ]
 });
 
