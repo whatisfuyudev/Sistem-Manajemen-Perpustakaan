@@ -3,7 +3,7 @@ const { Op, fn, col, where, literal } = require('sequelize');
 const Book = require('../../models/book.model'); // Adjust path as needed
 const dataHelper = require('../../utils/dataHelper');
 const CustomError = require('../../utils/customError');
-const logger = require('../../utils/logger');
+// const logger = require('../../utils/logger');
 
 /**
  * Create a new book.
@@ -110,9 +110,9 @@ exports.updateBook = async (isbn, updateData) => {
 
     dataHelper.deleteFile(decodeURIComponent( match[1] ), (err, result) => {
       if (err) {
-        logger.error(err);
+        // logger.error(err);
       } else {
-        logger.info(`Book with isbn ${book.isbn} Cloudinary destroy result: ${result}`);
+        // logger.info(`Book with isbn ${book.isbn} Cloudinary destroy result: ${result}`);
       }
     });
   }
@@ -151,7 +151,7 @@ exports.bulkDelete = async (isbns) => {
 
       return new Promise(resolve => {
         dataHelper.deleteFile(decodeURIComponent( match[1] ), err => {
-          if (err) logger.error(`Error deleting cover for ISBN ${b.isbn}:\n` + JSON.stringify(err));
+          // if (err) logger.error(`Error deleting cover for ISBN ${b.isbn}:\n` + JSON.stringify(err));
           resolve();
         });
       });

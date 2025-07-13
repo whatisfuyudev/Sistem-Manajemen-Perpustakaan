@@ -3,7 +3,7 @@ const { Op } = require('sequelize');
 const News     = require('../../models/news.model');
 const CustomError = require('../../utils/customError');
 const dataHelper = require('../../utils/dataHelper');
-const logger = require('../../utils/logger');
+// const logger = require('../../utils/logger');
 
 /**
  * Create a new news item.
@@ -49,9 +49,9 @@ async function update(id, data) {
 
       dataHelper.deleteFile(decodeURIComponent( match[1] ), (err, result) => {
         if (err) {
-          logger.error(err);
+          // logger.error(err);
         } else {
-          logger.info(`News with id ${news.id} Cloudinary destroy result: ${result}`);
+          // logger.info(`News with id ${news.id} Cloudinary destroy result: ${result}`);
         }
       });
     }
@@ -200,7 +200,7 @@ async function bulkDelete(ids) {
 
       return new Promise(resolve => {
           dataHelper.deleteFile(decodeURIComponent( match[1] ), err => {
-            if (err) logger.error(`Error deleting news picture for id ${n.id}:\n` + JSON.stringify(err));
+            // if (err) logger.error(`Error deleting news picture for id ${n.id}:\n` + JSON.stringify(err));
             resolve();
           });
       });

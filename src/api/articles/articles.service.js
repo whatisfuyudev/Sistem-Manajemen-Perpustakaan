@@ -3,7 +3,7 @@ const { Op } = require('sequelize');
 const Article = require('../../models/article.model');
 const CustomError = require('../../utils/customError');
 const dataHelper = require('../../utils/dataHelper');
-const logger = require('../../utils/logger');
+// const logger = require('../../utils/logger');
 
 const WORDS_PER_MINUTE = 150;
 
@@ -82,9 +82,9 @@ async function update(id, data) {
 
     dataHelper.deleteFile(decodeURIComponent( match[1] ), (err, result) => {
       if (err) {
-        logger.error(err);
+        // logger.error(err);
       } else {
-        logger.info(`article with id ${article.id} Cloudinary destroy result: ${result}`);
+        // logger.info(`article with id ${article.id} Cloudinary destroy result: ${result}`);
       }
     });
   }
@@ -127,7 +127,7 @@ async function bulkDelete(ids) {
 
         return new Promise(resolve => {
             dataHelper.deleteFile(decodeURIComponent( match[1] ), err => {
-              if (err) logger.error(`Error deleting articles picture for id ${a.id}:\n` + JSON.stringify(err));
+              // if (err) logger.error(`Error deleting articles picture for id ${a.id}:\n` + JSON.stringify(err));
               resolve();
             });
         });

@@ -3,7 +3,7 @@ require('dotenv/config');
 const { MailerSend, EmailParams, Sender, Recipient } = require("mailersend");
 const User       = require('../models/user.model');
 const Book       = require('../models/book.model');
-const logger     = require('./logger');   // your Winston instance
+// const logger     = require('./logger');   // your Winston instance
 
 const mailerSend = new MailerSend({
   apiKey: process.env.MAILERSEND_API_KEY,
@@ -34,11 +34,11 @@ exports.sendEmail = async ({ to, subject, html }) => {
       .setText(html.replace(/<[^>]+>/g, ''));
 
     const resp = await mailerSend.email.send(emailParams);
-    logger.info(`Email sent to ${to}: ${subject}`);
+    // logger.info(`Email sent to ${to}: ${subject}`);
     return resp;
   } catch (err) {
     // Log the full error stack, but do not throw
-    logger.error("sendEmail failed\n"+ JSON.stringify(err.body) );
+    // logger.error("sendEmail failed\n"+ JSON.stringify(err.body) );
     // throwing an error so the function that call this function handle it
     // like changing the notification status into 'failed' or just log the error
     throw err;
@@ -53,13 +53,13 @@ exports.sendReservationAvailableEmail = async (reservation) => {
   try {
     const user = await User.findByPk(reservation.userId);
     if (!user) {
-      logger.error(`Reservation#${reservation.id}: user ${reservation.userId} not found.`);
+      // logger.error(`Reservation#${reservation.id}: user ${reservation.userId} not found.`);
       return null;
     }
 
     const book = await Book.findOne({ where: { isbn: reservation.bookIsbn } });
     if (!book) {
-      logger.error(`Reservation#${reservation.id}: book ${reservation.bookIsbn} not found.`);
+      // logger.error(`Reservation#${reservation.id}: book ${reservation.bookIsbn} not found.`);
       return null;
     }
 
@@ -72,7 +72,7 @@ exports.sendReservationAvailableEmail = async (reservation) => {
 
     return await exports.sendEmail({ to: user.email, subject, html });
   } catch (err) {
-    logger.error(`sendReservationAvailableEmail failed for reservation#${reservation.id}`, err);
+    // logger.error(`sendReservationAvailableEmail failed for reservation#${reservation.id}`, err);
     // this one does not need to throw an error because
     // no notification data is made, it directly send an email
     return null;
@@ -85,7 +85,7 @@ exports.sendReservationAvailableEmail = async (reservation) => {
 exports.sendNotificationEmail = async (notification) => {
   try {
     if (notification.channel !== 'email') {
-      logger.warn(`Notification#${notification.id} skipped: channel is ${notification.channel}`);
+      // logger.warn(`Notification#${notification.id} skipped: channel is ${notification.channel}`);
       return null;
     }
 
@@ -96,7 +96,7 @@ exports.sendNotificationEmail = async (notification) => {
       html
     });
   } catch (err) {
-    logger.error(`sendNotificationEmail failed for notification#${notification.id}`, err);
+    // logger.error(`sendNotificationEmail failed for notification#${notification.id}`, err);
     throw err;
   }
 };

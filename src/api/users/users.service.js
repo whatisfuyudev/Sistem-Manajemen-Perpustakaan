@@ -3,8 +3,7 @@ const bcrypt = require('bcryptjs'); // Ensure bcryptjs is installed
 const dataHelper = require('../../utils/dataHelper');
 const CustomError = require('../../utils/customError');
 const { Op } = require('sequelize');
-const logger = require('../../utils/logger');
-const { log } = require('winston');
+// const logger = require('../../utils/logger');
 
 // to create user with admin role
 // modify directly in database (currently the only way)
@@ -110,9 +109,9 @@ exports.updateUser = async (id, updateData) => {
 
       dataHelper.deleteFile(decodeURIComponent( match[1] ), (err, result) => {
         if (err) {
-          logger.error(err);
+          // logger.error(err);
         } else {
-          logger.info(`User with id ${user.id} Cloudinary destroy result: ${result}`);
+          // logger.info(`User with id ${user.id} Cloudinary destroy result: ${result}`);
         }
       });
     }
@@ -154,9 +153,9 @@ exports.bulkDelete = async (ids) => {
 
           dataHelper.deleteFile(decodeURIComponent( match[1] ), (err, result) => {
             if (err) {
-              logger.error(err);
+              // logger.error(err);
             } else {
-              logger.info(`User with id ${u.id} Cloudinary destroy result: ${result}`);
+              // logger.info(`User with id ${u.id} Cloudinary destroy result: ${result}`);
             }
             resolve();
           });
