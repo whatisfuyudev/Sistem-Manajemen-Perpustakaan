@@ -1,27 +1,46 @@
-// // src/utils/logger.js
-// const { createLogger, format, transports } = require('winston');
-// const { combine, timestamp, printf, errors } = format;
+// src/utils/logger.js
+const fs        = require('fs');
+const path      = require('path');
+const { createLogger, format, transports } = require('winston');
+const { combine, timestamp, printf, errors } = format;
 
-// // Define a custom log format
-// const logFormat = printf(({ level, message, timestamp, stack, ip }) => {
-//     const ipInfo = ip ? `[ip: ${ip}] ` : '';
-//     return `${timestamp} ${level}: ${ipInfo}${stack || message}`;
-//   });
+// 1. Determine project root (adjust the number of ../ as needed)
+const projectRoot = path.resolve(__dirname, '../..');
 
-// const logger = createLogger({
-//   level: 'info', // Minimum level to log (can be configured per environment)
-//   format: combine(
-//     timestamp(),
-//     errors({ stack: true }), // include stack trace if error object
-//     logFormat
-//   ),
-//   transports: [
-//     // Log to the console
-//     new transports.Console(),
-//     // Log to a file; you can use additional transports or configure rotation using a library like winston-daily-rotate-file
-//     new transports.File({ filename: 'logs/combined.log' }),
-//     new transports.File({ filename: 'logs/error.log', level: 'error' })
-//   ]
-// });
+// 2. Build & create the logs directory
+const logDir = path.join(projectRoot, 'logs');
+if (!fs.existsSync(logDir)) {
+  fs.mkdirSync(logDir, { recursive: true });
+}
 
-// module.exports = logger;
+// 3. Define a custom log format
+const logFormat = printf(({ level, message, timestamp, stack, ip }) => {
+  const ipInfo = ip ? `[ip: ${ip}] ` : '';
+  return `${timestamp} ${level}: ${ipInfo}${stack || message}`;
+});
+
+const logger = createLogger({
+  level: 'info',
+  format: combine(
+    timestamp(),
+    errors({ stack: true }), // include stack trace
+    logFormat
+  ),
+  transports: [
+    // ⏺ Console
+    new transports.Console(),
+
+    // ⏺ Combined (all levels)  
+    new transports.File({
+      filename: path.join(logDir, 'combined.log'),
+    }),
+
+    // ⏺ Errors only  
+    new transports.File({
+      filename: path.join(logDir, 'error.log'),
+      level: 'error',
+    }),
+  ],
+});
+
+module.exports = logger;
