@@ -1,7 +1,7 @@
 const { Sequelize } = require("sequelize");
 const dbConfig = require("../config/db.config");
 
-const sequelize = new Sequelize(process.env.DATABASE_URL, {
+const sequelize = new Sequelize(dbConfig.development.url, {
   dialectOptions: {
     ssl: {
       require: true,
